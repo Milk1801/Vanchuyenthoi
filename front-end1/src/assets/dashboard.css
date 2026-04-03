@@ -39,4 +39,26 @@
     transition: 0.2s;
 }
 
+@media (prefers-color-scheme: dark) {
+  .dashboard-wrapper {
+    background-color: #ffffff;
+  }
+  .header {
+    background: #ffffff;
+    color: #000000;
+  }
+  .header h2 {
+    color: #000000;
+  }
+  .user-info .name {
+    color: #000000;
+  }
+  .user-info .role {
+    color: #333333;
+  }
+  .content-area {
+    background-color: #ffffff;
+  }
+}
+
 
