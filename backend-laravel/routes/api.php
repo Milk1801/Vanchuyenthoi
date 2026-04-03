@@ -18,6 +18,8 @@ Route::post('/login', function (Request $request) {
         ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
         ->where('tai_khoan.ma_tai_khoan', $request->input('ma_tai_khoan'))
         ->where('tai_khoan.mat_khau', $request->input('mat_khau'))
+        // Đảm bảo tài khoản này chưa bị xóa
+        ->where('tai_khoan.thoi_gian_xoa', '1970-01-01 00:00:01') 
         ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.trang_thai', 'quyen.ten_quyen')
         ->first();
 
@@ -45,12 +47,14 @@ Route::post('/login', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-// Lấy danh sách tài khoản (get_account.php)
+// Lấy danh sách tài khoản (ĐÃ CẬP NHẬT XÓA MỀM)
 Route::get('/accounts', function () {
     try {
         $accounts = DB::table('tai_khoan')
             ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
             ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.email', 'tai_khoan.trang_thai', 'tai_khoan.ngay_sinh', 'quyen.ten_quyen')
+            // ĐỔI DÒNG NÀY: Lấy những người chưa xóa (Năm xóa < 2000)
+            ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01')
             ->orderBy('tai_khoan.ma_tai_khoan', 'asc')
             ->get();
         
@@ -60,54 +64,87 @@ Route::get('/accounts', function () {
     }
 });
 
-// Lưu/Cập nhật tài khoản (save_account.php)
+// Lưu/Cập nhật tài khoản (Đã tích hợp Check trùng Email với Xóa mềm)
 Route::post('/accounts/save', function (Request $request) {
-    if (!$request->input('ho_ten') || !$request->input('email')) {
+    $email = $request->input('email');
+    $ma_tai_khoan = $request->input('ma_tai_khoan');
+
+    // 1. Kiểm tra không được để trống
+    if (!$request->input('ho_ten') || !$email) {
         return response()->json(['success' => false, 'message' => 'Vui lòng nhập đầy đủ Họ tên và Email.']);
     }
 
     try {
+        // 2. BỘ LỌC KIỂM TRA TRÙNG EMAIL 
+        $emailCheck = DB::table('tai_khoan')
+            ->where('email', $email)
+            ->where('thoi_gian_xoa', '<', '2000-01-01'); // Chỉ check người chưa bị xóa mềm
+            
+        if ($ma_tai_khoan) {
+            // Nếu là thao tác SỬA, phải bỏ qua chính cái tài khoản đang sửa
+            // (Để tránh việc lưu nguyên email của mình lại bị báo là trùng)
+            $emailCheck->where('ma_tai_khoan', '!=', $ma_tai_khoan);
+        }
+        
+        if ($emailCheck->exists()) {
+            return response()->json(['success' => false, 'message' => 'Email này đã tồn tại trong hệ thống. Vui lòng dùng email khác!']);
+        }
+        // ------------------------------------------------------------------
+
+        // 3. Chuẩn bị dữ liệu chung
         $dataToSave = [
             'ho_ten' => $request->input('ho_ten'),
-            'email' => $request->input('email'),
+            'email' => $email,
             'ngay_sinh' => $request->input('ngay_sinh'),
             'ma_quyen' => $request->input('ma_quyen'),
             'trang_thai' => $request->input('trang_thai')
         ];
 
-        if ($request->input('ma_tai_khoan')) {
-            // Sửa tài khoản
+        // 4. Lưu vào Database
+        if ($ma_tai_khoan) {
+            // Trường hợp: SỬA TÀI KHOẢN
             if ($request->filled('mat_khau')) {
                 $dataToSave['mat_khau'] = $request->input('mat_khau');
             }
-            DB::table('tai_khoan')->where('ma_tai_khoan', $request->input('ma_tai_khoan'))->update($dataToSave);
-            $message = "Lưu dữ liệu thành công!";
+            DB::table('tai_khoan')->where('ma_tai_khoan', $ma_tai_khoan)->update($dataToSave);
+            $message = "Đã cập nhật thông tin tài khoản thành công!";
+            
         } else {
-            // Thêm mới tài khoản
+            // Trường hợp: THÊM MỚI TÀI KHOẢN
             $dataToSave['mat_khau'] = $request->input('mat_khau');
+            
+            // Lưu ý: Không cần thêm 'thoi_gian_xoa' ở đây vì MySQL đã tự động set 
             DB::table('tai_khoan')->insert($dataToSave);
-            $message = "Lưu dữ liệu thành công!";
+            $message = "Đã tạo tài khoản mới thành công!";
         }
 
+        // 5. Trả về thông báo thành công
         return response()->json(['success' => true, 'message' => $message]);
+        
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]);
     }
 });
 
-// Xóa tài khoản (delete_accounts.php)
+// Xóa tài khoản (ĐÃ CHUYỂN SANG XÓA MỀM)
 Route::post('/accounts/delete', function (Request $request) {
-    $ma_tai_khoan = $request->input('ma_tai_khoan');
-    if (empty($ma_tai_khoan)) {
-        return response()->json(['success' => false, 'message' => 'Thiếu mã tài khoản.']);
+    $id = $request->input('id');
+    if (empty($id)) {
+        return response()->json(['success' => false, 'message' => 'Thiếu ID tài khoản.']);
     }
-    if ($ma_tai_khoan == 1) {
+    if ($id == 1) {
         return response()->json(['success' => false, 'message' => 'Không được phép xóa Admin hệ thống!']);
     }
 
     try {
-        DB::table('tai_khoan')->where('ma_tai_khoan', $ma_tai_khoan)->delete();
-        return response()->json(['success' => true, 'message' => 'Đã xóa tài khoản thành công!']);
+        // Thay vì delete(), ta update thời gian xóa bằng thời gian hiện tại
+        DB::table('tai_khoan')
+            ->where('ma_tai_khoan', $id)
+            ->update([
+                'thoi_gian_xoa' => now() // Hàm now() của Laravel lấy giờ hiện tại
+            ]);
+            
+        return response()->json(['success' => true, 'message' => 'Đã đưa tài khoản vào thùng rác thành công!']);
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]);
     }
@@ -126,11 +163,12 @@ Route::get('/user-info', function (Request $request) {
 
     try {
         $user = DB::table('tai_khoan')
-            ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
-            ->select('tai_khoan.*', 'quyen.ten_quyen')
-            ->where('tai_khoan.ma_tai_khoan', $ma_tai_khoan)
-            ->first();
-
+        ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
+        ->where('tai_khoan.ma_tai_khoan', $request->input('ma_tai_khoan'))
+        ->where('tai_khoan.mat_khau', $request->input('mat_khau'))
+        ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01') 
+        ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.trang_thai', 'quyen.ten_quyen')
+        ->first();
         if ($user) {
             return response()->json(["success" => true, "data" => $user]);
         }
@@ -190,3 +228,4 @@ Route::post('/profile/change-password', function (Request $request) {
         return response()->json(["success" => false, "message" => "Lỗi: " . $e->getMessage()]);
     }
 });
+
