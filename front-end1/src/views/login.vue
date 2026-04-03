@@ -43,7 +43,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Đổi biến email thành maTaiKhoan
+// Biến lưu trữ
 const maTaiKhoan = ref('');
 const password = ref('');
 const errorMessage = ref('');
@@ -55,12 +55,13 @@ const handleLogin = async () => {
   errorMessage.value = '';
 
   try {
-    const response = await fetch('http://localhost/api-QLVC/login.php', {
+    // SỬA ĐƯỜNG DẪN Ở ĐÂY SANG CỔNG 8000 CỦA LARAVEL
+    const response = await fetch('http://127.0.0.1:8000/api/login', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json' // Bổ sung header này để Laravel hiểu đây là request API
       },
-      // Đổi key gửi đi thành ma_tai_khoan
       body: JSON.stringify({
         ma_tai_khoan: maTaiKhoan.value,
         mat_khau: password.value
@@ -70,6 +71,7 @@ const handleLogin = async () => {
     const data = await response.json();
 
     if (data.success) {
+      // Lưu vào localStorage y như cũ
       localStorage.setItem('sincere_user', JSON.stringify(data.user));
       alert(data.message);
       router.push('/home');
@@ -77,7 +79,7 @@ const handleLogin = async () => {
       errorMessage.value = data.message;
     }
   } catch (error) {
-    errorMessage.value = "Không thể kết nối đến máy chủ. Vui lòng bật XAMPP!";
+    errorMessage.value = "Không thể kết nối đến máy chủ Laravel. Vui lòng chạy lệnh 'php artisan serve'!";
   } finally {
     isLoading.value = false;
   }

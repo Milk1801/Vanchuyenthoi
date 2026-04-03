@@ -21,7 +21,8 @@
             <th>Họ và Tên</th>
             <th>Email</th>
             <th>Chức vụ (Quyền)</th>
-            <th>Ngày sinh</th> <th>Trạng thái</th>
+            <th>Ngày sinh</th>
+            <th>Trạng thái</th>
             <th style="text-align: center;">Thao tác</th>
           </tr>
         </thead>
@@ -97,7 +98,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 
-// --- KHAI BÁO BIẾN ---
 const listAccounts = ref([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
@@ -108,20 +108,18 @@ const formData = ref({
   ma_tai_khoan: null,
   ho_ten: '',
   email: '',
-  ngay_sinh: '', // Mới thêm
+  ngay_sinh: '', 
   mat_khau: '',
   ma_quyen: 1,
   trang_thai: 'Hoạt động'
 });
 
-// Hàm định dạng ngày tháng kiểu Việt Nam (DD/MM/YYYY)
 const formatDate = (dateString) => {
   if (!dateString) return "Chưa cập nhật";
   const date = new Date(dateString);
   return date.toLocaleDateString('vi-VN');
 };
 
-// Hàm lọc dữ liệu thông minh
 const filteredAccounts = computed(() => {
   if (!searchQuery.value) return listAccounts.value;
   const search = searchQuery.value.toLowerCase();
@@ -136,14 +134,10 @@ const filteredAccounts = computed(() => {
   });
 });
 
-// --- CÁC HÀM XỬ LÝ ---
-
-// 1. Lấy danh sách từ PHP
 const fetchAccounts = async () => {
   isLoading.value = true;
   try {
-    // Đảm bảo tên file API chính xác (get_account.php hoặc get_accounts.php)
-    const response = await fetch('http://localhost/api-QLVC/get_account.php');
+    const response = await fetch('http://127.0.0.1:8000/api/accounts');
     const data = await response.json();
     if (data.success) {
       listAccounts.value = data.data;
@@ -155,12 +149,10 @@ const fetchAccounts = async () => {
   }
 };
 
-// 2. Mở Modal
 const openModal = (acc = null) => {
   if (acc) {
     formData.value = { ...acc, mat_khau: '' }; 
   } else {
-    // Reset form trắng khi thêm mới
     formData.value = { 
       ma_tai_khoan: null, 
       ho_ten: '', 
@@ -174,13 +166,16 @@ const openModal = (acc = null) => {
   isModalOpen.value = true;
 };
 
-// 3. Lưu tài khoản
+// ĐÃ SỬA: Trỏ về API Laravel
 const saveAccount = async () => {
   isSaving.value = true;
   try {
-    const response = await fetch('http://localhost/api-QLVC/save_account.php', {
+    const response = await fetch('http://127.0.0.1:8000/api/accounts/save', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json' 
+      },
       body: JSON.stringify(formData.value)
     });
     const data = await response.json();
@@ -198,24 +193,29 @@ const saveAccount = async () => {
   }
 };
 
-// 4. Xóa tài khoản
+// ĐÃ SỬA: Trỏ về API Laravel
 const handleDelete = async (id) => {
   if (id === 1) return alert("Không được xóa tài khoản Admin hệ thống!");
   
   if (confirm('Bạn có chắc chắn muốn xóa nhân viên này không?')) {
     try {
-      const response = await fetch('http://localhost/api-QLVC/delete_account.php', {
+      const response = await fetch('http://127.0.0.1:8000/api/accounts/delete', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ id: id })
       });
       const data = await response.json();
       if (data.success) {
         alert("Đã xóa thành công!");
         fetchAccounts();
+      } else {
+        alert("Lỗi từ server: " + data.message);
       }
     } catch (error) {
-      alert("Lỗi khi xóa!");
+      alert("Lỗi khi xóa kết nối!");
     }
   }
 };
