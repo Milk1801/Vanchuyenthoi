@@ -144,3 +144,42 @@
 
 .btn-cancel { padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; }
 .btn-save { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; }
+
+@media (prefers-color-scheme: dark) {
+  .profile-card {
+    background: #ffffff;
+    color: #000000;
+  }
+  .profile-body {
+    color: #000000;
+  }
+  .info-label {
+    color: #7f8c8d;
+  }
+  .info-value {
+    color: #2c3e50;
+  }
+  .change-pass-box h4 {
+    color: #e67e22;
+  }
+  .input-group input {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #ddd;
+  }
+  .modal-content {
+    background: #ffffff;
+    color: #000000;
+  }
+  .modal-content h3 {
+    color: #2c3e50;
+  }
+  .form-group label {
+    color: #333333;
+  }
+  .form-group input {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #ddd;
+  }
+}
