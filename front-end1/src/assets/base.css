@@ -45,15 +45,9 @@
     --color-border: var(--vt-c-divider-light-2);
     --color-border-hover: var(--vt-c-divider-light-1);
 
-
     --color-heading: var(--vt-c-text-dark-1);
     /* Tăng độ sáng chữ trong dark mode để không bị mờ nhạt */
     --color-text: var(--vt-c-text-dark-1);
-
-    --color-heading: #000000;
-    /* Chữ màu đen để dễ nhìn trên nền trắng */
-    --color-text: #000000;
-
     --color-heading: #000000;
     /* Chữ màu đen để dễ nhìn trên nền trắng */
     --color-text: #000000;
