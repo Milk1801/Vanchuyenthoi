@@ -16,6 +16,11 @@
           <router-link to="/danh-muc/hang-van-tai" active-class="active-submenu">🚚 Hãng vận tải</router-link>
           <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu">📏 Đơn vị tính</router-link>
         </div>
+        <router-link to="/nghiep-vu/chi-phi" active-class="active-menu">📦 Nghiệp vụ Giao nhận & Thanh toán</router-link>
+        
+        <div v-show="isNghiepVuRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isNghiepVuRoute }]">       
+          <router-link to="/nghiep-vu/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí</router-link>          
+        </div>
       </nav>
       <div class="logout-box">
         <button @click="handleLogout" class="btn-logout">🚪 Đăng xuất</button>
@@ -49,6 +54,7 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 const isDanhMucRoute = computed(() => route.path.startsWith('/danh-muc'));
+const isNghiepVuRoute = computed(() => route.path.startsWith('/nghiep-vu'));
 const userName = ref('Khách');
 const userRole = ref('Chưa xác định');
 const userInitials = ref('K');
