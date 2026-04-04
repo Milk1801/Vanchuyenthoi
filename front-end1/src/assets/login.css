@@ -94,3 +94,29 @@
   font-size: 13px;
   border-left: 4px solid #dc3545;
 }
+
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: #ffffff;
+    color: #000000;
+  }
+  .logo-box h2 {
+    color: #0056b3;
+  }
+  .logo-box p {
+    color: #7f8c8d;
+  }
+  .form-group label {
+    color: #333;
+  }
+  .form-group input {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #ccc;
+  }
+  .alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+  }
+}
