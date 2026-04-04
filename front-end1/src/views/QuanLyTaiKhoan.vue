@@ -205,7 +205,6 @@ const handleDelete = async (ma_tai_khoan) => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        // Sửa lại key gửi lên server cũng là chữ thường
         body: JSON.stringify({ ma_tai_khoan: ma_tai_khoan })
       });
       const data = await response.json();
