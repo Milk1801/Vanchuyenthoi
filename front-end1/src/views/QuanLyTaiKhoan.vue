@@ -194,8 +194,8 @@ const saveAccount = async () => {
 };
 
 // ĐÃ SỬA: Trỏ về API Laravel
-const handleDelete = async (id) => {
-  if (id === 1) return alert("Không được xóa tài khoản Admin hệ thống!");
+const handleDelete = async (ma_tai_khoan) => {
+  if (ma_tai_khoan === 1) return alert("Không được xóa tài khoản Admin hệ thống!");
   
   if (confirm('Bạn có chắc chắn muốn xóa nhân viên này không?')) {
     try {
@@ -205,7 +205,8 @@ const handleDelete = async (id) => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ id: id })
+        // Sửa lại key gửi lên server cũng là chữ thường
+        body: JSON.stringify({ ma_tai_khoan: ma_tai_khoan })
       });
       const data = await response.json();
       if (data.success) {
