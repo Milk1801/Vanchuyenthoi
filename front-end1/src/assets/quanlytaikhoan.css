@@ -9,8 +9,8 @@
 
 .table-card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
-th { background-color: #f8f9fa; font-weight: bold; border-bottom: 2px solid #ddd; }
+th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; color: #2c3e50; font-weight: 500; text-rendering: geometricPrecision; -webkit-font-smoothing: subpixel-antialiased; -moz-osx-font-smoothing: auto; }
+th { background-color: #f8f9fa; font-weight: 700; border-bottom: 2px solid #ddd; }
 tr:hover { background-color: #f1f5f9; }
 
 .fw-bold { font-weight: bold; }

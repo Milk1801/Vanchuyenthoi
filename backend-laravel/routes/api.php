@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
-| 1. API ĐĂNG NHẬP (login.php)
+| 1. API ĐĂNG NHẬP
 |--------------------------------------------------------------------------
 */
 Route::post('/login', function (Request $request) {
@@ -18,8 +18,8 @@ Route::post('/login', function (Request $request) {
         ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
         ->where('tai_khoan.ma_tai_khoan', $request->input('ma_tai_khoan'))
         ->where('tai_khoan.mat_khau', $request->input('mat_khau'))
-        // Đảm bảo tài khoản này chưa bị xóa
-        ->where('tai_khoan.thoi_gian_xoa', '1970-01-01 00:00:01') 
+        // ĐÃ SỬA CHỖ NÀY: Dùng < 2000-01-01 để né lỗi múi giờ của XAMPP
+        ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01') 
         ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.trang_thai', 'quyen.ten_quyen')
         ->first();
 
@@ -128,20 +128,21 @@ Route::post('/accounts/save', function (Request $request) {
 
 // Xóa tài khoản (ĐÃ CHUYỂN SANG XÓA MỀM)
 Route::post('/accounts/delete', function (Request $request) {
-    $id = $request->input('id');
-    if (empty($id)) {
-        return response()->json(['success' => false, 'message' => 'Thiếu ID tài khoản.']);
+    // Sửa lại thành chữ thường
+    $ma_tai_khoan = $request->input('ma_tai_khoan');
+    
+    if (empty($ma_tai_khoan)) {
+        return response()->json(['success' => false, 'message' => 'Thiếu mã tài khoản.']);
     }
-    if ($id == 1) {
+    if ($ma_tai_khoan == 1) {
         return response()->json(['success' => false, 'message' => 'Không được phép xóa Admin hệ thống!']);
     }
 
     try {
-        // Thay vì delete(), ta update thời gian xóa bằng thời gian hiện tại
         DB::table('tai_khoan')
-            ->where('ma_tai_khoan', $id)
+            ->where('ma_tai_khoan', $ma_tai_khoan)
             ->update([
-                'thoi_gian_xoa' => now() // Hàm now() của Laravel lấy giờ hiện tại
+                'thoi_gian_xoa' => now() 
             ]);
             
         return response()->json(['success' => true, 'message' => 'Đã đưa tài khoản vào thùng rác thành công!']);
@@ -156,25 +157,27 @@ Route::post('/accounts/delete', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-// Lấy thông tin 1 user (get_user_info.php) - Dùng chung cho trang Hồ sơ cá nhân
+// Lấy thông tin 1 user (Dùng chung cho trang Hồ sơ cá nhân)
 Route::get('/user-info', function (Request $request) {
-    $ma_tai_khoan = $request->query('ma_tai_khoan'); // Lấy tham số ?ma_tai_khoan=... trên URL
+    $ma_tai_khoan = $request->query('ma_tai_khoan');
     if (!$ma_tai_khoan) return response()->json(["success" => false, "message" => "Thiếu mã tài khoản"]);
 
     try {
         $user = DB::table('tai_khoan')
-        ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
-        ->where('tai_khoan.ma_tai_khoan', $request->input('ma_tai_khoan'))
-        ->where('tai_khoan.mat_khau', $request->input('mat_khau'))
-        ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01') 
-        ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.trang_thai', 'quyen.ten_quyen')
-        ->first();
+            ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
+            // ĐÃ SỬA: Bỏ cái check mat_khau đi, và lấy biến $ma_tai_khoan chuẩn
+            ->where('tai_khoan.ma_tai_khoan', $ma_tai_khoan)
+            ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01') 
+            // ĐÃ SỬA: Lấy tai_khoan.* để có đủ email, ngày sinh...
+            ->select('tai_khoan.*', 'quyen.ten_quyen') 
+            ->first();
+            
         if ($user) {
             return response()->json(["success" => true, "data" => $user]);
         }
         return response()->json(["success" => false, "message" => "Không tìm thấy user."]);
     } catch (\Exception $e) {
-        return response()->json(["success" => false, "message" => $e->getMessage()]);
+        return response()->json(["success" => false, "message" => "Lỗi DB: " . $e->getMessage()], 500);
     }
 });
 
@@ -229,3 +232,47 @@ Route::post('/profile/change-password', function (Request $request) {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| QUẢN LÝ CHI PHÍ (Thanh toán AR/AP)
+|--------------------------------------------------------------------------
+*/
+
+// Lấy danh sách chi phí và tên lô hàng tương ứng
+Route::get('/costs', function () {
+    try {
+        $costs = DB::table('chi_phi')
+            ->leftJoin('lo_hang', 'chi_phi.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
+            ->select('chi_phi.*', 'lo_hang.ten_lo_hang')
+            ->where('chi_phi.thoi_gian_xoa', '<', '2000-01-01')
+            ->orderBy('chi_phi.ma_chi_phi', 'desc')
+            ->get();
+        return response()->json(["success" => true, "data" => $costs]);
+    } catch (\Exception $e) {
+        return response()->json(["success" => false, "message" => $e->getMessage()]);
+    }
+});
+
+// Lưu hoặc cập nhật chi phí
+Route::post('/costs/save', function (Request $request) {
+    try {
+        $data = [
+            'ten_chi_phi' => $request->input('ten_chi_phi'),
+            'tong_tien' => $request->input('tong_tien'),
+            'loai_giao_dich' => $request->input('loai_giao_dich'),
+            'trang_thai_thanh_toan' => $request->input('trang_thai_thanh_toan'),
+            'ngay_thanh_toan' => $request->input('ngay_thanh_toan'),
+            'ma_lo_hang' => $request->input('ma_lo_hang'),
+            'nguoi_sua_cuoi' => $request->input('nguoi_sua_cuoi')
+        ];
+
+        if ($request->has('ma_chi_phi') && $request->input('ma_chi_phi')) {
+            DB::table('chi_phi')->where('ma_chi_phi', $request->input('ma_chi_phi'))->update($data);
+        } else {
+            DB::table('chi_phi')->insert($data);
+        }
+        return response()->json(["success" => true, "message" => "Lưu chi phí thành công!"]);
+    } catch (\Exception $e) {
+        return response()->json(["success" => false, "message" => $e->getMessage()]);
+    }
+});
