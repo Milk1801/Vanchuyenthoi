@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 Route::post('/login', function (Request $request) {
     if (!$request->has('ma_tai_khoan') || !$request->has('mat_khau')) {
         return response()->json(["success" => false, "message" => "Vui lòng nhập đầy đủ Mã tài khoản và Mật khẩu!"]);
-    }
+}
 
     $user = DB::table('tai_khoan')
         ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
@@ -276,3 +276,4 @@ Route::post('/costs/save', function (Request $request) {
         return response()->json(["success" => false, "message" => $e->getMessage()]);
     }
 });
+

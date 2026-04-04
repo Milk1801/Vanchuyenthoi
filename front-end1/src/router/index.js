@@ -41,15 +41,18 @@ const router = createRouter({
             { path: 'don-vi-tinh', name: 'danh-muc-don-vi-tinh', component: DonViTinh }
           ]
         },
+
         { path: 'ho-so', name: 'ho-so', component: HoSoCaNhan },
         
-        // ĐÃ SỬA: Đưa QuanLyChiPhi vào nằm trong mảng children của DashboardLayout
-        // Lưu ý: Bỏ dấu '/' ở đằng trước chữ 'nghiep-vu'
+        //Đưa QuanLyChiPhi vào nằm trong mảng children của DashboardLayout
         {
           path: 'nghiep-vu/chi-phi',
           name: 'QuanLyChiPhi',
           component: () => import('../views/QuanLyChiPhi.vue') 
-        }
+        },
+
+        { path: 'ho-so', name: 'ho-so', component: HoSoCaNhan }
+
       ]
     }
   ] 

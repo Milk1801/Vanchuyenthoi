@@ -38,16 +38,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background: var(--vt-c-white);
+    --color-background-soft: var(--vt-c-white-soft);
+    --color-background-mute: var(--vt-c-white-mute);
 
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
+    --color-border: var(--vt-c-divider-light-2);
+    --color-border-hover: var(--vt-c-divider-light-1);
 
+<<<<<<< HEAD
     --color-heading: var(--vt-c-text-dark-1);
     /* Tăng độ sáng chữ trong dark mode để không bị mờ nhạt */
     --color-text: var(--vt-c-text-dark-1);
+=======
+    --color-heading: #000000;
+    /* Chữ màu đen để dễ nhìn trên nền trắng */
+    --color-text: #000000;
+>>>>>>> 97931a35857a3977dc5be837c085e403cf25ae81
   }
 }
 

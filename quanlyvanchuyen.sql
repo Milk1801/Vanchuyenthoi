@@ -50,7 +50,9 @@ CREATE TABLE `booking` (
   `gio_cat_mang` datetime DEFAULT NULL,
   `ma_cang_di` int(11) DEFAULT NULL,
   `ma_cang_den` int(11) DEFAULT NULL,
-  `ma_hang_tau` int(11) DEFAULT NULL
+  `ma_hang_tau` int(11) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -63,7 +65,8 @@ CREATE TABLE `cang_bien` (
   `ma_cang` int(11) NOT NULL,
   `ten_cang` varchar(50) NOT NULL,
   `dia_chi` varchar(200) DEFAULT NULL,
-  `ghi_chu` varchar(500) DEFAULT NULL
+  `ghi_chu` varchar(500) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -80,7 +83,8 @@ CREATE TABLE `chi_phi` (
   `ngay_thanh_toan` date DEFAULT NULL,
   `loai_giao_dich` enum('THU','CHI') DEFAULT NULL,
   `ma_lo_hang` int(11) DEFAULT NULL,
-  `ma_tai_khoan` int(11) DEFAULT NULL
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -99,7 +103,9 @@ CREATE TABLE `chi_tiet_lo_hang` (
   `gia_ca` decimal(19,4) DEFAULT NULL,
   `ma_hang_hoa` int(11) DEFAULT NULL,
   `ma_lo_hang` int(11) DEFAULT NULL,
-  `ma_don_vi_tinh` int(11) DEFAULT NULL
+  `ma_don_vi_tinh` int(11) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -123,7 +129,8 @@ CREATE TABLE `chung_tu_so_hoa` (
 
 CREATE TABLE `don_vi_tinh` (
   `ma_don_vi_tinh` int(11) NOT NULL,
-  `ten_don_vi_tinh` varchar(50) NOT NULL
+  `ten_don_vi_tinh` varchar(50) NOT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -135,7 +142,8 @@ CREATE TABLE `don_vi_tinh` (
 CREATE TABLE `hang_hoa` (
   `ma_hang_hoa` int(11) NOT NULL,
   `ten_hang_hoa` varchar(50) NOT NULL,
-  `hs_code` varchar(10) DEFAULT NULL
+  `hs_code` varchar(10) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -150,7 +158,9 @@ CREATE TABLE `hang_tau` (
   `dia_chi` varchar(200) DEFAULT NULL,
   `so_dien_thoai` varchar(15) DEFAULT NULL,
   `so_fax` varchar(20) DEFAULT NULL,
-  `ghi_chu` varchar(500) DEFAULT NULL
+  `ghi_chu` varchar(500) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -164,7 +174,8 @@ CREATE TABLE `hang_van_tai` (
   `ten_hang_van_tai` varchar(50) NOT NULL,
   `tuyen_thuong_xuyen` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tuyen_thuong_xuyen`)),
   `cac_loai_xe` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`cac_loai_xe`)),
-  `ghi_chu` varchar(500) DEFAULT NULL
+  `ghi_chu` varchar(500) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -179,7 +190,9 @@ CREATE TABLE `khach_hang` (
   `dia_chi` varchar(200) DEFAULT NULL,
   `so_dien_thoai` varchar(15) DEFAULT NULL,
   `so_fax` varchar(20) DEFAULT NULL,
-  `ghi_chu` varchar(500) DEFAULT NULL
+  `ghi_chu` varchar(500) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -202,12 +215,14 @@ CREATE TABLE `lenh_giao_hang` (
 
 CREATE TABLE `lo_hang` (
   `ma_lo_hang` int(11) NOT NULL,
+  `ten_lo_hang` varchar(50) NOT NULL,
   `dieu_kien_thuong_mai` enum('FOB','CIF','EXW','DAP','DDP','CFR') DEFAULT NULL,
   `trang_thai_lo_hang` enum('Mới tạo','Đang chờ xử lý','Đang vận chuyển','Đã thông quan','Hoàn tất','Hủy') DEFAULT NULL,
   `nguon_goc` varchar(100) DEFAULT NULL,
-  `ma_tai_khoan` int(11) DEFAULT NULL,
   `ma_booking` int(11) DEFAULT NULL,
-  `ma_khach_hang` int(11) DEFAULT NULL
+  `ma_khach_hang` int(11) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -219,7 +234,8 @@ CREATE TABLE `lo_hang` (
 CREATE TABLE `quyen` (
   `ma_quyen` int(11) NOT NULL,
   `ten_quyen` varchar(50) NOT NULL,
-  `trang_thai` enum('Hoạt động','Tạm khóa') DEFAULT 'Hoạt động'
+  `trang_thai` enum('Hoạt động','Tạm khóa') DEFAULT 'Hoạt động',
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -245,7 +261,8 @@ CREATE TABLE `tai_khoan` (
   `email` varchar(100) NOT NULL,
   `ho_ten` varchar(50) NOT NULL,
   `ngay_sinh` date DEFAULT NULL,
-  `ma_quyen` int(11) DEFAULT NULL
+  `ma_quyen` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -280,7 +297,8 @@ CREATE TABLE `thong_tin_luu_bai` (
   `ngay_bat_dau_luu_bai` datetime DEFAULT NULL,
   `ngay_luu_bai_mien_phi` smallint(6) DEFAULT NULL,
   `cuoc_vo` enum('Có','Không') DEFAULT 'Không',
-  `ma_lo_hang` int(11) DEFAULT NULL
+  `ma_lo_hang` int(11) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -294,7 +312,8 @@ CREATE TABLE `to_khai_hai_quan` (
   `ngay_thong_quan` datetime DEFAULT NULL,
   `phan_luong` enum('Luồng Xanh','Luồng Vàng','Luồng Đỏ') DEFAULT NULL,
   `ket_qua_thong_quan` enum('Đã thông quan','Chờ xử lý','Từ chối') DEFAULT NULL,
-  `ma_lo_hang` int(11) DEFAULT NULL
+  `ma_lo_hang` int(11) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -308,6 +327,7 @@ CREATE TABLE `van_don` (
   `loai_van_don` enum('Master B/L','House B/L','Surrendered B/L','Seaway Bill') DEFAULT NULL,
   `ngay_phat_hanh` datetime DEFAULT NULL,
   `so_van_don_goc` varchar(30) DEFAULT NULL,
+  `so_van_don` varchar(30) DEFAULT NULL,
   `so_cont` varchar(11) DEFAULT NULL,
   `so_chi` varchar(20) DEFAULT NULL,
   `phuong_thuc_dong_cont` enum('FCL','LCL') DEFAULT NULL,
@@ -317,7 +337,9 @@ CREATE TABLE `van_don` (
   `ma_ben_duoc_thong_bao` int(11) DEFAULT NULL,
   `ma_cang_di` int(11) DEFAULT NULL,
   `ma_cang_den` int(11) DEFAULT NULL,
-  `ma_lo_hang` int(11) DEFAULT NULL
+  `ma_lo_hang` int(11) DEFAULT NULL,
+  `nguoi_sua_cuoi` int(11) DEFAULT NULL,
+  `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -339,13 +361,16 @@ ALTER TABLE `booking`
   ADD PRIMARY KEY (`ma_booking`),
   ADD KEY `ma_cang_di` (`ma_cang_di`),
   ADD KEY `ma_cang_den` (`ma_cang_den`),
-  ADD KEY `ma_hang_tau` (`ma_hang_tau`);
+  ADD KEY `ma_hang_tau` (`ma_hang_tau`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `cang_bien`
 --
 ALTER TABLE `cang_bien`
-  ADD PRIMARY KEY (`ma_cang`);
+  ADD PRIMARY KEY (`ma_cang`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `chi_phi`
@@ -353,7 +378,8 @@ ALTER TABLE `cang_bien`
 ALTER TABLE `chi_phi`
   ADD PRIMARY KEY (`ma_chi_phi`),
   ADD KEY `ma_lo_hang` (`ma_lo_hang`),
-  ADD KEY `ma_tai_khoan` (`ma_tai_khoan`);
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `chi_tiet_lo_hang`
@@ -362,7 +388,9 @@ ALTER TABLE `chi_tiet_lo_hang`
   ADD PRIMARY KEY (`ma_chi_tiet_lo_hang`),
   ADD KEY `ma_hang_hoa` (`ma_hang_hoa`),
   ADD KEY `ma_lo_hang` (`ma_lo_hang`),
-  ADD KEY `ma_don_vi_tinh` (`ma_don_vi_tinh`);
+  ADD KEY `ma_don_vi_tinh` (`ma_don_vi_tinh`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `chung_tu_so_hoa`
@@ -375,33 +403,40 @@ ALTER TABLE `chung_tu_so_hoa`
 -- Chỉ mục cho bảng `don_vi_tinh`
 --
 ALTER TABLE `don_vi_tinh`
-  ADD PRIMARY KEY (`ma_don_vi_tinh`);
+  ADD PRIMARY KEY (`ma_don_vi_tinh`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `hang_hoa`
 --
 ALTER TABLE `hang_hoa`
   ADD PRIMARY KEY (`ma_hang_hoa`),
-  ADD UNIQUE KEY `ten_hang_hoa` (`ten_hang_hoa`),
-  ADD UNIQUE KEY `hs_code` (`hs_code`);
+  ADD UNIQUE KEY `ten_hang_hoa` (`ten_hang_hoa`, `thoi_gian_xoa`),
+  ADD UNIQUE KEY `hs_code` (`hs_code`, `thoi_gian_xoa`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `hang_tau`
 --
 ALTER TABLE `hang_tau`
-  ADD PRIMARY KEY (`ma_hang_tau`);
+  ADD PRIMARY KEY (`ma_hang_tau`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `hang_van_tai`
 --
 ALTER TABLE `hang_van_tai`
-  ADD PRIMARY KEY (`ma_hang_van_tai`);
+  ADD PRIMARY KEY (`ma_hang_van_tai`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `khach_hang`
 --
 ALTER TABLE `khach_hang`
-  ADD PRIMARY KEY (`ma_khach_hang`);
+  ADD PRIMARY KEY (`ma_khach_hang`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `lenh_giao_hang`
@@ -415,23 +450,27 @@ ALTER TABLE `lenh_giao_hang`
 --
 ALTER TABLE `lo_hang`
   ADD PRIMARY KEY (`ma_lo_hang`),
-  ADD KEY `ma_tai_khoan` (`ma_tai_khoan`),
+  ADD KEY `ten_lo_hang` (`ten_lo_hang`),
   ADD KEY `ma_booking` (`ma_booking`),
-  ADD KEY `ma_khach_hang` (`ma_khach_hang`);
+  ADD KEY `ma_khach_hang` (`ma_khach_hang`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `quyen`
 --
 ALTER TABLE `quyen`
   ADD PRIMARY KEY (`ma_quyen`),
-  ADD UNIQUE KEY `ten_quyen` (`ten_quyen`);
+  ADD UNIQUE KEY `ten_quyen` (`ten_quyen`, `thoi_gian_xoa`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `tai_khoan`
 --
 ALTER TABLE `tai_khoan`
   ADD PRIMARY KEY (`ma_tai_khoan`),
-  ADD KEY `ma_quyen` (`ma_quyen`);
+  ADD KEY `ma_quyen` (`ma_quyen`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- Chỉ mục cho bảng `thong_bao_hang_den`
@@ -445,26 +484,31 @@ ALTER TABLE `thong_bao_hang_den`
 --
 ALTER TABLE `thong_tin_luu_bai`
   ADD PRIMARY KEY (`ma_luu_bai`),
-  ADD KEY `ma_lo_hang` (`ma_lo_hang`);
+  ADD KEY `ma_lo_hang` (`ma_lo_hang`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`);
 
 --
 -- Chỉ mục cho bảng `to_khai_hai_quan`
 --
 ALTER TABLE `to_khai_hai_quan`
   ADD PRIMARY KEY (`ma_to_khai_hai_quan`),
-  ADD KEY `ma_lo_hang` (`ma_lo_hang`);
+  ADD KEY `ma_lo_hang` (`ma_lo_hang`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`);
 
 --
 -- Chỉ mục cho bảng `van_don`
 --
 ALTER TABLE `van_don`
   ADD PRIMARY KEY (`ma_van_don`),
+  ADD UNIQUE KEY `so_van_don` (`so_van_don`, `thoi_gian_xoa`),
   ADD KEY `ma_nguoi_gui_hang` (`ma_nguoi_gui_hang`),
   ADD KEY `ma_nguoi_nhan_hang` (`ma_nguoi_nhan_hang`),
   ADD KEY `ma_ben_duoc_thong_bao` (`ma_ben_duoc_thong_bao`),
   ADD KEY `ma_cang_di` (`ma_cang_di`),
   ADD KEY `ma_cang_den` (`ma_cang_den`),
-  ADD KEY `ma_lo_hang` (`ma_lo_hang`);
+  ADD KEY `ma_lo_hang` (`ma_lo_hang`),
+  ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
+  ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
 -- AUTO_INCREMENT cho các bảng đã đổ
@@ -601,14 +645,15 @@ ALTER TABLE `bien_ban_giao_nhan`
 ALTER TABLE `booking`
   ADD CONSTRAINT `booking_ibfk_1` FOREIGN KEY (`ma_cang_di`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
   ADD CONSTRAINT `booking_ibfk_2` FOREIGN KEY (`ma_cang_den`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
-  ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`ma_hang_tau`) REFERENCES `hang_tau` (`ma_hang_tau`) ON DELETE SET NULL;
+  ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`ma_hang_tau`) REFERENCES `hang_tau` (`ma_hang_tau`) ON DELETE SET NULL,
+  ADD CONSTRAINT `booking_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `chi_phi`
 --
 ALTER TABLE `chi_phi`
   ADD CONSTRAINT `chi_phi_ibfk_1` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
-  ADD CONSTRAINT `chi_phi_ibfk_2` FOREIGN KEY (`ma_tai_khoan`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
+  ADD CONSTRAINT `chi_phi_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `chi_tiet_lo_hang`
@@ -616,7 +661,8 @@ ALTER TABLE `chi_phi`
 ALTER TABLE `chi_tiet_lo_hang`
   ADD CONSTRAINT `chi_tiet_lo_hang_ibfk_1` FOREIGN KEY (`ma_hang_hoa`) REFERENCES `hang_hoa` (`ma_hang_hoa`) ON DELETE SET NULL,
   ADD CONSTRAINT `chi_tiet_lo_hang_ibfk_2` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
-  ADD CONSTRAINT `chi_tiet_lo_hang_ibfk_3` FOREIGN KEY (`ma_don_vi_tinh`) REFERENCES `don_vi_tinh` (`ma_don_vi_tinh`) ON DELETE SET NULL;
+  ADD CONSTRAINT `chi_tiet_lo_hang_ibfk_3` FOREIGN KEY (`ma_don_vi_tinh`) REFERENCES `don_vi_tinh` (`ma_don_vi_tinh`) ON DELETE SET NULL,
+  ADD CONSTRAINT `chi_tiet_lo_hang_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `chung_tu_so_hoa`
@@ -634,9 +680,9 @@ ALTER TABLE `lenh_giao_hang`
 -- Các ràng buộc cho bảng `lo_hang`
 --
 ALTER TABLE `lo_hang`
-  ADD CONSTRAINT `lo_hang_ibfk_1` FOREIGN KEY (`ma_tai_khoan`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL,
   ADD CONSTRAINT `lo_hang_ibfk_2` FOREIGN KEY (`ma_booking`) REFERENCES `booking` (`ma_booking`) ON DELETE SET NULL,
-  ADD CONSTRAINT `lo_hang_ibfk_3` FOREIGN KEY (`ma_khach_hang`) REFERENCES `khach_hang` (`ma_khach_hang`);
+  ADD CONSTRAINT `lo_hang_ibfk_3` FOREIGN KEY (`ma_khach_hang`) REFERENCES `khach_hang` (`ma_khach_hang`),
+  ADD CONSTRAINT `lo_hang_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `tai_khoan`
@@ -654,13 +700,15 @@ ALTER TABLE `thong_bao_hang_den`
 -- Các ràng buộc cho bảng `thong_tin_luu_bai`
 --
 ALTER TABLE `thong_tin_luu_bai`
-  ADD CONSTRAINT `thong_tin_luu_bai_ibfk_1` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE;
+  ADD CONSTRAINT `thong_tin_luu_bai_ibfk_1` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
+  ADD CONSTRAINT `thong_tin_luu_bai_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `to_khai_hai_quan`
 --
 ALTER TABLE `to_khai_hai_quan`
-  ADD CONSTRAINT `to_khai_hai_quan_ibfk_1` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE;
+  ADD CONSTRAINT `to_khai_hai_quan_ibfk_1` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
+  ADD CONSTRAINT `to_khai_hai_quan_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `van_don`
@@ -671,7 +719,21 @@ ALTER TABLE `van_don`
   ADD CONSTRAINT `van_don_ibfk_3` FOREIGN KEY (`ma_ben_duoc_thong_bao`) REFERENCES `khach_hang` (`ma_khach_hang`) ON DELETE SET NULL,
   ADD CONSTRAINT `van_don_ibfk_4` FOREIGN KEY (`ma_cang_di`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
   ADD CONSTRAINT `van_don_ibfk_5` FOREIGN KEY (`ma_cang_den`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
-  ADD CONSTRAINT `van_don_ibfk_6` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE;
+  ADD CONSTRAINT `van_don_ibfk_6` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
+  ADD CONSTRAINT `van_don_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `khach_hang`
+--
+ALTER TABLE `khach_hang`
+  ADD CONSTRAINT `khach_hang_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `hang_tau`
+--
+ALTER TABLE `hang_tau`
+  ADD CONSTRAINT `hang_tau_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
