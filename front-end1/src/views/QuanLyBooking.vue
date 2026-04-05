@@ -12,12 +12,26 @@
         >
       </div>
 
-      <select v-model="filterHangTau" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 200px;">
+      <select 
+        v-model="filterHangTau" 
+        @mouseenter="loadReferences()" 
+        style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 200px;"
+      >
         <option value="ALL">- Tất cả Hãng tàu -</option>
         <option v-for="ht in listHangTau" :key="ht.ma_hang_tau" :value="ht.ma_hang_tau">
           {{ ht.ten_hang_tau }}
         </option>
       </select>
+
+      <button 
+        @click="loadReferences(); fetchBookings();" 
+        style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; transition: 0.2s;"
+        title="Tải lại dữ liệu mới nhất"
+        onmouseover="this.style.background='#f1f2f6'"
+        onmouseout="this.style.background='#fff'"
+      >
+        🔄 Làm mới
+      </button>
 
       <button class="btn btn-success" @click="openModal()">+ TẠO BOOKING MỚI</button>
     </div>
@@ -227,7 +241,10 @@ const fetchBookings = async () => {
   }
 };
 
-const openModal = (bk = null) => {
+const openModal = async (bk = null) => {
+  // Bắt buộc lấy lại danh sách Hãng tàu & Cảng mới nhất từ DB
+  await loadReferences();
+
   if (bk) {
     formData.value = { 
       ...bk,
