@@ -7,6 +7,7 @@
       <nav class="menu">
         <router-link to="/home" active-class="active-menu">🏠 Trang chủ tổng quan</router-link>
         <router-link to="/tai-khoan" active-class="active-menu">👥 Quản lý Tài khoản</router-link>
+        <router-link to="/quyen" active-class="active-menu">🔑 Quản lý Quyền</router-link>
         <router-link to="/danh-muc" active-class="active-menu">📚 Quản lý Danh mục</router-link>
         <div v-show="isDanhMucRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isDanhMucRoute }]">
           <router-link to="/danh-muc/khach-hang" active-class="active-submenu">👤 Khách hàng</router-link>
