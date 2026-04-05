@@ -3,6 +3,7 @@ import Login from '../views/login.vue'
 import DashboardLayout from '../views/DashboardLayout.vue'
 import Home from '../views/Home.vue'
 import QuanLyTaiKhoan from '../views/QuanLyTaiKhoan.vue'
+import QuanLyQuyen from '../views/QuanLyQuyen.vue'
 import QuanLyDanhMuc from '../views/QuanLyDanhMuc.vue'
 import HoSoCaNhan from '../views/HoSoCaNhan.vue'
 import KhachHang from '../views/danhmuc/KhachHang.vue'
@@ -27,6 +28,7 @@ const router = createRouter({
         { path: '', redirect: '/home' }, // Mặc định vào / thì hất sang /home
         { path: 'home', name: 'home', component: Home }, // Trang chủ
         { path: 'tai-khoan', name: 'tai-khoan', component: QuanLyTaiKhoan }, // Tab quản lý tài khoản
+        { path: 'quyen', name: 'quyen', component: QuanLyQuyen }, // Tab quản lý quyền
         {
           path: 'danh-muc',
           name: 'danh-muc',

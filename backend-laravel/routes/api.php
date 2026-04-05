@@ -12,6 +12,7 @@ use App\Http\Controllers\QuanLyHangHoa;
 use App\Http\Controllers\QuanLyHangVanTai;
 use App\Http\Controllers\QuanLyDonViTinh;
 use App\Http\Controllers\QuanLyChiPhi;
+use App\Http\Controllers\QuanLyQuyen;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,3 +100,12 @@ Route::post('/don-vi-tinh/delete', [QuanLyDonViTinh::class, 'delete']);
 */
 Route::get('/costs', [QuanLyChiPhi::class, 'index']);
 Route::post('/costs/save', [QuanLyChiPhi::class, 'save']);
+
+/*
+|--------------------------------------------------------------------------
+| 10. API QUẢN LÝ QUYỀN
+|--------------------------------------------------------------------------
+*/
+Route::get('/quyen', [QuanLyQuyen::class, 'index']);
+Route::post('/quyen/save', [QuanLyQuyen::class, 'save']);
+Route::post('/quyen/delete', [QuanLyQuyen::class, 'delete']);
