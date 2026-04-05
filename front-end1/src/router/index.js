@@ -61,7 +61,13 @@ const router = createRouter({
           component: () => import('../views/QuanLyChiPhi.vue') 
         },
 
-        { path: 'ho-so', name: 'ho-so', component: HoSoCaNhan }
+        { path: 'ho-so', name: 'ho-so', component: HoSoCaNhan },
+        
+        {
+          path: 'nghiep-vu/booking',
+          name: 'QuanLyBooking',
+          component: () => import('../views/QuanLyBooking.vue') 
+}
 
       ]
     }

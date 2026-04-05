@@ -118,9 +118,11 @@ Route::post('/quyen/delete', [QuanLyQuyen::class, 'delete']);
 | 11. API QUẢN LÝ BOOKING
 |--------------------------------------------------------------------------
 */
-Route::get('/booking', [QuanLyBooking::class, 'index']);
-Route::post('/booking/save', [QuanLyBooking::class, 'save']);
-Route::post('/booking/delete', [QuanLyBooking::class, 'delete']);
+Route::get('/bookings', [QuanLyBooking::class, 'index']);
+Route::get('/bookings/references', [QuanLyBooking::class, 'getReferences']);
+Route::post('/bookings/save', [QuanLyBooking::class, 'store']);
+Route::post('/bookings/delete', [QuanLyBooking::class, 'destroy']);
+
 
 /*
 |--------------------------------------------------------------------------
