@@ -13,6 +13,7 @@ use App\Http\Controllers\QuanLyHangVanTai;
 use App\Http\Controllers\QuanLyDonViTinh;
 use App\Http\Controllers\QuanLyChiPhi;
 use App\Http\Controllers\QuanLyQuyen;
+use App\Http\Controllers\QuanLyBooking;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,3 +110,13 @@ Route::post('/costs/save', [QuanLyChiPhi::class, 'save']);
 Route::get('/quyen', [QuanLyQuyen::class, 'index']);
 Route::post('/quyen/save', [QuanLyQuyen::class, 'save']);
 Route::post('/quyen/delete', [QuanLyQuyen::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 11. QUẢN LÝ BOOKING 
+|--------------------------------------------------------------------------
+*/
+Route::get('/bookings', [QuanLyBooking::class, 'index']);
+Route::get('/bookings/references', [QuanLyBooking::class, 'getReferences']);
+Route::post('/bookings/save', [QuanLyBooking::class, 'store']);
+Route::post('/bookings/delete', [QuanLyBooking::class, 'destroy']);
