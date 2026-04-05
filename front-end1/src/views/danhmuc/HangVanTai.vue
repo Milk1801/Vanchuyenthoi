@@ -7,6 +7,12 @@
         <div class="search-box" style="flex:1 1 220px; min-width:200px;">
           <input type="text" v-model="searchFilters.ten_hang_van_tai" placeholder="Tìm theo tên hãng vận tải...">
         </div>
+        <div class="search-box" style="flex:1 1 220px; min-width:200px;">
+          <input type="text" v-model="searchFilters.tuyen_thuong_xuyen" placeholder="Tìm theo tuyến thường xuyên...">
+        </div>
+        <div class="search-box" style="flex:1 1 220px; min-width:200px;">
+          <input type="text" v-model="searchFilters.cac_loai_xe" placeholder="Tìm theo các loại xe...">
+        </div>
         <div class="search-box" style="flex:0 0 auto; min-width:140px; display:flex; align-items:flex-end;">
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
@@ -24,6 +30,8 @@
           <tr>
             <th>Mã Hãng</th>
             <th>Tên Hãng Vận Tải</th>
+            <th>Tuyến thường xuyên</th>
+            <th>các loại xe</th>
             <th>Ghi chú</th>
             <th style="text-align: center;">Thao tác</th>
           </tr>
@@ -32,6 +40,8 @@
           <tr v-for="h in filteredData" :key="h.ma_hang_van_tai">
             <td class="fw-bold">{{ h.ma_hang_van_tai }}</td>
             <td class="fw-bold">{{ h.ten_hang_van_tai }}</td>
+            <td class="fw-bold">{{ h.tuyen_thuong_xuyen || 'Chưa cập nhật' }}</td>
+            <td class="fw-bold">{{ h.cac_loai_xe || 'Chưa cập nhật' }}</td>
             <td>{{ h.ghi_chu || 'Không có' }}</td>
             <td style="text-align: center;">
               <button class="action-btn text-primary" @click="openModal(h)" title="Sửa">✏️</button>
@@ -82,7 +92,9 @@ const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
 const searchFilters = ref({
-  ten_hang_van_tai: ''
+  ten_hang_van_tai: '',
+  tuyen_thuong_xuyen: '',
+  cac_loai_xe: ''
 });
 
 const formData = ref({
@@ -95,8 +107,11 @@ const formData = ref({
 
 const filteredData = computed(() => {
   return listData.value.filter(item => {
-    const nameMatch = !searchFilters.value.ten_hang_van_tai || item.ten_hang_van_tai.toLowerCase().includes(searchFilters.value.ten_hang_van_tai.toLowerCase());
-    return nameMatch;
+    const tenMatch = !searchFilters.value.ten_hang_van_tai || item.ten_hang_van_tai.toLowerCase().includes(searchFilters.value.ten_hang_van_tai.toLowerCase());
+    const tuyenMatch = !searchFilters.value.tuyen_thuong_xuyen || item.tuyen_thuong_xuyen.toLowerCase().includes(searchFilters.value.tuyen_thuong_xuyen.toLowerCase());
+    const loaiXeMatch = !searchFilters.value.cac_loai_xe || item.cac_loai_xe.toLowerCase().includes(searchFilters.value.cac_loai_xe.toLowerCase());
+
+    return tenMatch && tuyenMatch && loaiXeMatch;
   });
 });
 
@@ -137,7 +152,9 @@ const openModal = (item = null) => {
 
 const clearFilters = () => {
   searchFilters.value = {
-    ten_hang_van_tai: ''
+    ten_hang_van_tai: '' ,
+    tuyen_thuong_xuyen: '',
+    cac_loai_xe: ''
   };
 };
 

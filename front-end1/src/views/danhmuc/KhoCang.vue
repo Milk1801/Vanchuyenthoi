@@ -36,7 +36,7 @@
           <tr v-for="c in filteredData" :key="c.ma_cang">
             <td class="fw-bold">{{ c.ma_cang }}</td>
             <td class="fw-bold">{{ c.ten_cang }}</td>
-            <td>{{ c.dia_chi || 'Chưa cập nhật' }}</td>
+            <td class="fw-bold">{{ c.dia_chi  || 'Chưa cập nhật' }}</td>
             <td>{{ c.ghi_chu || 'Không có' }}</td>
             <td style="text-align: center;">
               <button class="action-btn text-primary" @click="openModal(c)" title="Sửa">✏️</button>
@@ -84,7 +84,7 @@ const isSaving = ref(false);
 const isModalOpen = ref(false);
 const searchFilters = ref({
   ten_cang: '',
-  dia_chi: ''
+  dia_chi: '' 
 });
 
 const formData = ref({
@@ -96,10 +96,9 @@ const formData = ref({
 
 const filteredData = computed(() => {
   return listData.value.filter(item => {
-    const nameMatch = !searchFilters.value.ten_cang || item.ten_cang.toLowerCase().includes(searchFilters.value.ten_cang.toLowerCase());
-    const addressMatch = !searchFilters.value.dia_chi || (item.dia_chi && item.dia_chi.toLowerCase().includes(searchFilters.value.dia_chi.toLowerCase()));
-
-    return nameMatch && addressMatch;
+    const tenMatch = !searchFilters.value.ten_cang || item.ten_cang.toLowerCase().includes(searchFilters.value.ten_cang.toLowerCase());
+    const diaChiMatch = !searchFilters.value.dia_chi || (item.dia_chi && item.dia_chi.toLowerCase().includes(searchFilters.value.dia_chi.toLowerCase()));
+    return tenMatch && diaChiMatch ;
   });
 });
 
