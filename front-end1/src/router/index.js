@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/login.vue'
 import DashboardLayout from '../views/DashboardLayout.vue'
 import Home from '../views/Home.vue'
-import QuanLyTaiKhoan from '../views/QuanLyTaiKhoan.vue'
-import QuanLyQuyen from '../views/QuanLyQuyen.vue'
+import QuanLyTaiKhoan from '../views/hethong/QuanLyTaiKhoan.vue'
+import QuanLyQuyen from '../views/hethong/QuanLyQuyen.vue'
 import QuanLyDanhMuc from '../views/QuanLyDanhMuc.vue'
 import HoSoCaNhan from '../views/HoSoCaNhan.vue'
 import KhachHang from '../views/danhmuc/KhachHang.vue'
@@ -27,8 +27,16 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/home' }, // Mặc định vào / thì hất sang /home
         { path: 'home', name: 'home', component: Home }, // Trang chủ
-        { path: 'tai-khoan', name: 'tai-khoan', component: QuanLyTaiKhoan }, // Tab quản lý tài khoản
-        { path: 'quyen', name: 'quyen', component: QuanLyQuyen }, // Tab quản lý quyền
+        {
+          path: 'he-thong',
+          name: 'he-thong',
+          component: () => import('../views/QuanLyHeThong.vue'),
+          redirect: '/he-thong/tai-khoan',
+          children: [
+            { path: 'tai-khoan', name: 'he-thong-tai-khoan', component: QuanLyTaiKhoan },
+            { path: 'quyen', name: 'he-thong-quyen', component: QuanLyQuyen }
+          ]
+        },
         {
           path: 'danh-muc',
           name: 'danh-muc',

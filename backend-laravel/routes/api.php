@@ -13,6 +13,9 @@ use App\Http\Controllers\QuanLyHangVanTai;
 use App\Http\Controllers\QuanLyDonViTinh;
 use App\Http\Controllers\QuanLyChiPhi;
 use App\Http\Controllers\QuanLyQuyen;
+use App\Http\Controllers\QuanLyBooking;
+use App\Http\Controllers\QuanLyLoHang;
+use App\Http\Controllers\QuanLyChiTietLoHang;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,3 +112,30 @@ Route::post('/costs/save', [QuanLyChiPhi::class, 'save']);
 Route::get('/quyen', [QuanLyQuyen::class, 'index']);
 Route::post('/quyen/save', [QuanLyQuyen::class, 'save']);
 Route::post('/quyen/delete', [QuanLyQuyen::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 11. API QUẢN LÝ BOOKING
+|--------------------------------------------------------------------------
+*/
+Route::get('/booking', [QuanLyBooking::class, 'index']);
+Route::post('/booking/save', [QuanLyBooking::class, 'save']);
+Route::post('/booking/delete', [QuanLyBooking::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 12. API QUẢN LÝ LÔ HÀNG
+|--------------------------------------------------------------------------
+*/
+Route::get('/lo-hang', [QuanLyLoHang::class, 'index']);
+Route::post('/lo-hang/save', [QuanLyLoHang::class, 'save']);
+Route::post('/lo-hang/delete', [QuanLyLoHang::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 13. API CHI TIẾT LÔ HÀNG
+|--------------------------------------------------------------------------
+*/
+Route::get('/chi-tiet-lo-hang', [QuanLyChiTietLoHang::class, 'index']);
+Route::post('/chi-tiet-lo-hang/save', [QuanLyChiTietLoHang::class, 'save']);
+Route::post('/chi-tiet-lo-hang/delete', [QuanLyChiTietLoHang::class, 'delete']);

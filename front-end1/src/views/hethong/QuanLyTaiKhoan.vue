@@ -223,4 +223,4 @@ const handleDelete = async (ma_tai_khoan) => {
 onMounted(fetchAccounts);
 </script>
 
-<style scoped src="../assets/quanlytaikhoan.css"></style>
+<style scoped src="../../assets/quanlytaikhoan.css"></style>

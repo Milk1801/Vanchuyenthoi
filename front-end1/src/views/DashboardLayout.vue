@@ -6,8 +6,11 @@
       </div>
       <nav class="menu">
         <router-link to="/home" active-class="active-menu">🏠 Trang chủ tổng quan</router-link>
-        <router-link to="/tai-khoan" active-class="active-menu">👥 Quản lý Tài khoản</router-link>
-        <router-link to="/quyen" active-class="active-menu">🔑 Quản lý Quyền</router-link>
+        <router-link to="/he-thong" active-class="active-menu">⚙️ Quản lý hệ thống</router-link>
+        <div v-show="isHeThongRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
+          <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Tài khoản</router-link>
+          <router-link to="/he-thong/quyen" active-class="active-submenu">🔑 Quyền hệ thống</router-link>
+        </div>
         <router-link to="/danh-muc" active-class="active-menu">📚 Quản lý Danh mục</router-link>
         <div v-show="isDanhMucRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isDanhMucRoute }]">
           <router-link to="/danh-muc/khach-hang" active-class="active-submenu">👤 Khách hàng</router-link>
@@ -54,6 +57,7 @@ import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
+const isHeThongRoute = computed(() => route.path.startsWith('/he-thong'));
 const isDanhMucRoute = computed(() => route.path.startsWith('/danh-muc'));
 const isNghiepVuRoute = computed(() => route.path.startsWith('/nghiep-vu'));
 const userName = ref('Khách');
