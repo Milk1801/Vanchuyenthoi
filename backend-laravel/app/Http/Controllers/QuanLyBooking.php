@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class QuanLyBookingController extends Controller
+class QuanLyBooking extends Controller
 {
     // 1. Lấy danh sách Booking (kèm tên Cảng và Hãng tàu)
     public function index()
