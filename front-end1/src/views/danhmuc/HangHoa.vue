@@ -89,10 +89,10 @@ const formData = ref({
 
 const filteredData = computed(() => {
   return listData.value.filter(item => {
-    const nameMatch = !searchFilters.value.ten_hang_hoa || item.ten_hang_hoa.toLowerCase().includes(searchFilters.value.ten_hang_hoa.toLowerCase());
+    const tenMatch = !searchFilters.value.ten_hang_hoa || item.ten_hang_hoa.toLowerCase().includes(searchFilters.value.ten_hang_hoa.toLowerCase());
     const codeMatch = !searchFilters.value.hs_code || (item.hs_code && item.hs_code.includes(searchFilters.value.hs_code));
 
-    return nameMatch && codeMatch;
+    return tenMatch && codeMatch;
   });
 });
 
@@ -128,7 +128,7 @@ const openModal = (item = null) => {
 const clearFilters = () => {
   searchFilters.value = {
     ten_hang_hoa: '',
-    hs_code: ''
+    hs_code: '' 
   };
 };
 

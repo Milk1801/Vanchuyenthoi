@@ -143,13 +143,13 @@ const formData = ref({
 
 const filteredCustomers = computed(() => {
   return listCustomers.value.filter(kh => {
-    const nameMatch = !searchFilters.value.ten_khach_hang || kh.ten_khach_hang.toLowerCase().includes(searchFilters.value.ten_khach_hang.toLowerCase());
-    const addressMatch = !searchFilters.value.dia_chi || (kh.dia_chi && kh.dia_chi.toLowerCase().includes(searchFilters.value.dia_chi.toLowerCase()));
-    const phoneMatch = !searchFilters.value.so_dien_thoai || (kh.so_dien_thoai && kh.so_dien_thoai.includes(searchFilters.value.so_dien_thoai));
+    const tenMatch = !searchFilters.value.ten_khach_hang || kh.ten_khach_hang.toLowerCase().includes(searchFilters.value.ten_khach_hang.toLowerCase());
+    const diaChiMatch = !searchFilters.value.dia_chi || (kh.dia_chi && kh.dia_chi.toLowerCase().includes(searchFilters.value.dia_chi.toLowerCase()));
+    const dienthoaiMatch = !searchFilters.value.so_dien_thoai || (kh.so_dien_thoai && kh.so_dien_thoai.includes(searchFilters.value.so_dien_thoai));
     const faxMatch = !searchFilters.value.so_fax || (kh.so_fax && kh.so_fax.includes(searchFilters.value.so_fax));
-    const editorMatch = !searchFilters.value.nguoi_sua_cuoi || String(kh.nguoi_sua_cuoi) === String(searchFilters.value.nguoi_sua_cuoi);
+    const nguoiSuaMatch = !searchFilters.value.nguoi_sua_cuoi || String(kh.nguoi_sua_cuoi) === String(searchFilters.value.nguoi_sua_cuoi);
 
-    return nameMatch && addressMatch && phoneMatch && faxMatch && editorMatch;
+    return tenMatch && diaChiMatch && dienthoaiMatch && faxMatch && nguoiSuaMatch;
   });
 });
 

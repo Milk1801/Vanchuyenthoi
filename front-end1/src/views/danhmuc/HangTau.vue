@@ -143,13 +143,13 @@ const formData = ref({
 
 const filteredData = computed(() => {
   return listData.value.filter(item => {
-    const nameMatch = !searchFilters.value.ten_hang_tau || item.ten_hang_tau.toLowerCase().includes(searchFilters.value.ten_hang_tau.toLowerCase());
-    const addressMatch = !searchFilters.value.dia_chi || (item.dia_chi && item.dia_chi.toLowerCase().includes(searchFilters.value.dia_chi.toLowerCase()));
-    const phoneMatch = !searchFilters.value.so_dien_thoai || (item.so_dien_thoai && item.so_dien_thoai.includes(searchFilters.value.so_dien_thoai));
+    const tenMatch = !searchFilters.value.ten_hang_tau || item.ten_hang_tau.toLowerCase().includes(searchFilters.value.ten_hang_tau.toLowerCase());
+    const diaChiMatch = !searchFilters.value.dia_chi || (item.dia_chi && item.dia_chi.toLowerCase().includes(searchFilters.value.dia_chi.toLowerCase()));
+    const dienthoaiMatch = !searchFilters.value.so_dien_thoai || (item.so_dien_thoai && item.so_dien_thoai.includes(searchFilters.value.so_dien_thoai));
     const faxMatch = !searchFilters.value.so_fax || (item.so_fax && item.so_fax.includes(searchFilters.value.so_fax));
-    const editorMatch = !searchFilters.value.nguoi_sua_cuoi || String(item.nguoi_sua_cuoi) === String(searchFilters.value.nguoi_sua_cuoi);
+    const nguoiSuaMatch = !searchFilters.value.nguoi_sua_cuoi || String(item.nguoi_sua_cuoi) === String(searchFilters.value.nguoi_sua_cuoi);
 
-    return nameMatch && addressMatch && phoneMatch && faxMatch && editorMatch;
+    return tenMatch && diaChiMatch && dienthoaiMatch && faxMatch && nguoiSuaMatch;
   });
 });
 
@@ -162,6 +162,7 @@ const fetchData = async () => {
       listData.value = data.data;
     }
   } catch (error) {
+    console.error('Fetch error:', error);
     alert("Không thể kết nối API lấy danh sách!");
   } finally {
     isLoading.value = false;
@@ -198,6 +199,7 @@ const openModal = (item = null) => {
     };
   }
 
+  // Luôn cập nhật người sửa cuối thành người dùng hiện tại
   formData.value.nguoi_sua_cuoi = currentUserId;
   isModalOpen.value = true;
 };
@@ -240,6 +242,7 @@ const saveData = async () => {
       body: JSON.stringify(formData.value)
     });
     const data = await response.json();
+    console.log('Response from server:', data);
     if (data.success) {
       alert(data.message);
       isModalOpen.value = false;
@@ -248,6 +251,7 @@ const saveData = async () => {
       alert("Lỗi: " + data.message);
     }
   } catch (error) {
+    console.error('Save error:', error);
     alert("Lỗi kết nối máy chủ khi lưu!");
   } finally {
     isSaving.value = false;

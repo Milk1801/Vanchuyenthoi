@@ -46,7 +46,7 @@
         <form @submit.prevent="saveData">
           <div class="form-group">
             <label>Tên Đơn Vị Tính</label>
-            <input v-model="formData.ten_don_vi_tinh" required placeholder="Nhập tên đơn vị tính (VD: Kg, Tấn, Mét, ...)">
+            <input v-model="formData.ten_don_vi_tinh" required placeholder="Nhập tên đơn vị tính">
           </div>
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
@@ -78,8 +78,9 @@ const formData = ref({
 
 const filteredData = computed(() => {
   return listData.value.filter(item => {
-    const nameMatch = !searchFilters.value.ten_don_vi_tinh || item.ten_don_vi_tinh.toLowerCase().includes(searchFilters.value.ten_don_vi_tinh.toLowerCase());
-    return nameMatch;
+    const tenMatch = !searchFilters.value.ten_don_vi_tinh || item.ten_don_vi_tinh.toLowerCase().includes(searchFilters.value.ten_don_vi_tinh.toLowerCase());
+
+    return tenMatch;
   });
 });
 
