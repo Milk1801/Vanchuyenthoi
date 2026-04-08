@@ -15,8 +15,8 @@ class QuanLyLoHang extends Controller
                 ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
                 ->leftJoin('khach_hang', 'lo_hang.ma_khach_hang', '=', 'khach_hang.ma_khach_hang')
                 ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
-                ->select('lo_hang.ma_lo_hang', 'lo_hang.ten_lo_hang', 'lo_hang.dieu_kien_thuong_mai', 'lo_hang.trang_thai_lo_hang', 'lo_hang.nguon_goc', 'booking.so_booking', 'khach_hang.ten_khach_hang', 'tai_khoan.ten_tai_khoan')
-                ->where('thoi_gian_xoa', '<', '2000-01-01')
+                ->select('lo_hang.ma_lo_hang', 'lo_hang.ten_lo_hang', 'lo_hang.dieu_kien_thuong_mai', 'lo_hang.trang_thai_lo_hang', 'lo_hang.nguon_goc', 'lo_hang.ma_booking', 'lo_hang.ma_khach_hang', 'booking.so_booking', 'khach_hang.ten_khach_hang', 'tai_khoan.ho_ten as nguoi_sua_doi')
+                ->where('lo_hang.thoi_gian_xoa', '<', '2000-01-01')
                 ->orderBy('ma_lo_hang', 'desc')
                 ->get();
             return response()->json(["success" => true, "data" => $data]);
@@ -33,6 +33,10 @@ class QuanLyLoHang extends Controller
         ];
         $data = $request->only($fields);
         $ma_lo_hang = $request->input('ma_lo_hang');
+
+        if (empty($data['ten_lo_hang'])) {
+            return response()->json(['success' => false, 'message' => 'Vui lòng nhập tên lô hàng.']);
+        }
 
         try {
             if ($ma_lo_hang) {
@@ -61,6 +65,30 @@ class QuanLyLoHang extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => "Lỗi khi xóa: " . $e->getMessage()]);
+        }
+    }
+    
+    public function getReferences()
+    {
+        try {
+            $khachHang = DB::table('khach_hang')
+                ->where('thoi_gian_xoa', '<', '2000-01-01')
+                ->get(['ma_khach_hang', 'ten_khach_hang']);
+
+            $booking = DB::table('booking')
+                ->where('thoi_gian_xoa', '<', '2000-01-01')
+                ->get(['ma_booking', 'so_booking', 'ten_con_tau']);
+
+            return response()->json([
+                "success" => true,
+                "khach_hang" => $khachHang,
+                "booking" => $booking
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "success" => false,
+                "message" => "Lỗi tải danh mục"
+            ]);
         }
     }
 }

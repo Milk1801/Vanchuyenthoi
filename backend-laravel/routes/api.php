@@ -132,6 +132,7 @@ Route::post('/bookings/delete', [QuanLyBooking::class, 'destroy']);
 Route::get('/lo-hang', [QuanLyLoHang::class, 'index']);
 Route::post('/lo-hang/save', [QuanLyLoHang::class, 'save']);
 Route::post('/lo-hang/delete', [QuanLyLoHang::class, 'delete']);
+Route::get('/lo-hang/references', [QuanLyLoHang::class, 'getReferences']);
 
 /*
 |--------------------------------------------------------------------------
