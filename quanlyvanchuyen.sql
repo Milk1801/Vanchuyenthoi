@@ -596,7 +596,7 @@ ALTER TABLE `lo_hang`
 -- AUTO_INCREMENT cho bảng `quyen`
 --
 ALTER TABLE `quyen`
-  MODIFY `ma_quyen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `ma_quyen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `tai_khoan`

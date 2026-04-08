@@ -10,6 +10,7 @@
         <div v-show="isHeThongRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
           <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Tài khoản</router-link>
           <router-link to="/he-thong/quyen" active-class="active-submenu">🔑 Quyền hệ thống</router-link>
+          <router-link to="/he-thong/ho-so" active-class="active-submenu">👤 Hồ sơ cá nhân</router-link>
         </div>
         
         <router-link to="/danh-muc" active-class="active-menu">📚 Quản lý Danh mục</router-link>
@@ -22,11 +23,14 @@
           <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu">📏 Đơn vị tính</router-link>
         </div>
 
-        <router-link to="/nghiep-vu/lo-hang" :class="['menu-item', { 'active-menu': isNghiepVuRoute }]">📦 Nghiệp vụ Giao nhận & Thanh toán</router-link>
-        <div v-show="isNghiepVuRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isNghiepVuRoute }]">
-          <router-link to="/nghiep-vu/lo-hang" active-class="active-submenu">📦 Quản lý Lô hàng</router-link>
-          <router-link to="/nghiep-vu/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí</router-link> 
-          <router-link to="/nghiep-vu/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>          
+        <router-link to="/lo-hang/thong-tin-lo-hang" :class="['menu-item', { 'active-menu': isLoHangRoute }]">📦 Quản lý lô hàng</router-link>
+        <div v-show="isLoHangRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
+          <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý Lô hàng</router-link>
+          <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>          
+        </div>
+        <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">📚 Quản lý Chi phí và Thanh Toán</router-link>
+        <div v-show="isChiPhiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
+          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí</router-link> 
         </div>
 
       </nav>
@@ -37,9 +41,9 @@
 
     <main class="main-container">
       <header class="header">
-        <h2>Phân hệ Quản trị Hệ thống</h2>
+        <h2></h2>
         
-        <router-link to="/ho-so" class="user-profile" style="text-decoration: none; color: inherit; cursor: pointer;">
+        <router-link to="/he-thong/ho-so" class="user-profile" style="text-decoration: none; color: inherit; cursor: pointer;">
           <div class="user-info">
             <span class="name">{{ userName }}</span>
             <span class="role">{{ userRole }}</span>
@@ -63,7 +67,8 @@ const router = useRouter();
 const route = useRoute();
 const isHeThongRoute = computed(() => route.path.startsWith('/he-thong'));
 const isDanhMucRoute = computed(() => route.path.startsWith('/danh-muc'));
-const isNghiepVuRoute = computed(() => route.path.startsWith('/nghiep-vu'));
+const isLoHangRoute = computed(() => route.path.startsWith('/lo-hang'));
+const isChiPhiRoute = computed(() => route.path.startsWith('/chi-phi-va-thanh-toan'));
 const userName = ref('Khách');
 const userRole = ref('Chưa xác định');
 const userInitials = ref('K');

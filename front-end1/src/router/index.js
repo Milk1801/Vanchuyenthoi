@@ -5,13 +5,17 @@ import Home from '../views/Home.vue'
 import QuanLyTaiKhoan from '../views/hethong/QuanLyTaiKhoan.vue'
 import QuanLyQuyen from '../views/hethong/QuanLyQuyen.vue'
 import QuanLyDanhMuc from '../views/QuanLyDanhMuc.vue'
-import HoSoCaNhan from '../views/HoSoCaNhan.vue'
+import HoSoCaNhan from '../views/hethong/HoSoCaNhan.vue'
 import KhachHang from '../views/danhmuc/KhachHang.vue'
 import HangTau from '../views/danhmuc/HangTau.vue'
 import KhoCang from '../views/danhmuc/KhoCang.vue'
 import HangHoa from '../views/danhmuc/HangHoa.vue'
 import HangVanTai from '../views/danhmuc/HangVanTai.vue'
 import DonViTinh from '../views/danhmuc/DonViTinh.vue'
+import QuanlyBooking from '../views/lohang/QuanLyBooking.vue'
+import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
+import QuanLyThongTinLoHang from '../views/lohang/QuanLyThongTinLoHang.vue'
+import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,11 +34,12 @@ const router = createRouter({
         {
           path: 'he-thong',
           name: 'he-thong',
-          component: () => import('../views/QuanLyHeThong.vue'),
+          component: QuanLyHeThong,
           redirect: '/he-thong/tai-khoan',
           children: [
             { path: 'tai-khoan', name: 'he-thong-tai-khoan', component: QuanLyTaiKhoan },
-            { path: 'quyen', name: 'he-thong-quyen', component: QuanLyQuyen }
+            { path: 'quyen', name: 'he-thong-quyen', component: QuanLyQuyen },
+            { path: 'ho-so', name: 'he-thong-ho-so', component: HoSoCaNhan }
           ]
         },
         {
@@ -52,26 +57,23 @@ const router = createRouter({
           ]
         },
 
-        { path: 'ho-so', name: 'ho-so', component: HoSoCaNhan },
-        
-        //Đưa QuanLyChiPhi vào nằm trong mảng children của DashboardLayout
         {
-          path: 'nghiep-vu/chi-phi',
-          name: 'QuanLyChiPhi',
-          component: () => import('../views/QuanLyChiPhi.vue') 
+          path: 'lo-hang',
+          name: 'lo-hang',
+          component: QuanLyThongTinLoHang,
+          children: [
+            { path: 'thong-tin-lo-hang', name: 'lo-hang-thong-tin-lo-hang', component: QuanLyThongTinLoHang },
+            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking }
+          ]
         },
-
-        { path: 'ho-so', name: 'ho-so', component: HoSoCaNhan },
         
         {
-          path: 'nghiep-vu/booking',
-          name: 'QuanLyBooking',
-          component: () => import('../views/QuanLyBooking.vue') 
-        },
-        {
-          path: 'nghiep-vu/lo-hang',
-          name: 'QuanLyLoHang',
-          component: () => import('../views/nghiepvu/QuanLyLoHang.vue') 
+          path: 'chi-phi-va-thanh-toan',
+          name: 'chi-phi-va-thanh-toan',
+          component: QuanLyChiPhi,
+          children: [
+            { path: 'chi-phi', name: 'chi-phi', component: QuanLyChiPhi }
+          ]
         }
 
       ]
