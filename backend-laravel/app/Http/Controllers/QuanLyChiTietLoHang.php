@@ -16,7 +16,7 @@ class QuanLyChiTietLoHang extends Controller
                 ->leftJoin('don_vi_tinh', 'chi_tiet_lo_hang.ma_don_vi_tinh', '=', 'don_vi_tinh.ma_don_vi_tinh')
                 ->leftJoin('tai_khoan', 'chi_tiet_lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
                 ->select('chi_tiet_lo_hang.ten_hang', 'chi_tiet_lo_hang.so_luong', 'chi_tiet_lo_hang.so_kien', 'chi_tiet_lo_hang.the_tich', 'chi_tiet_lo_hang.trong_luong', 'chi_tiet_lo_hang.gia_ca', 'hang_hoa.ten_hang_hoa', 'don_vi_tinh.ten_don_vi_tinh', 'tai_khoan.ten_tai_khoan')
-                ->where('thoi_gian_xoa', '<', '2000-01-01')
+                ->where('chi_tiet_lo_hang.thoi_gian_xoa', '<', '2000-01-01')
                 ->orderBy('ma_chi_tiet_lo_hang', 'desc')
                 ->get();
             return response()->json(["success" => true, "data" => $data]);

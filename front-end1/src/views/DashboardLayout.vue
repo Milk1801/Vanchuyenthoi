@@ -22,8 +22,9 @@
           <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu">📏 Đơn vị tính</router-link>
         </div>
 
-        <router-link to="/nghiep-vu/chi-phi" :class="['menu-item', { 'active-menu': isNghiepVuRoute }]">📦 Nghiệp vụ Giao nhận & Thanh toán</router-link>
-        <div v-show="isNghiepVuRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isNghiepVuRoute }]">       
+        <router-link to="/nghiep-vu/lo-hang" :class="['menu-item', { 'active-menu': isNghiepVuRoute }]">📦 Nghiệp vụ Giao nhận & Thanh toán</router-link>
+        <div v-show="isNghiepVuRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isNghiepVuRoute }]">
+          <router-link to="/nghiep-vu/lo-hang" active-class="active-submenu">📦 Quản lý Lô hàng</router-link>
           <router-link to="/nghiep-vu/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí</router-link> 
           <router-link to="/nghiep-vu/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>          
         </div>
