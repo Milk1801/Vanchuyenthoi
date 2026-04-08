@@ -1,6 +1,6 @@
 <template>
-  <div class="danh-muc-page">
-    <h3>Quản lý Danh mục</h3>
+  <div class="he-thong-page">
+    <h3>Quản lý lô hàng</h3>
 
     <div class="sub-content">
       <router-view />
@@ -8,12 +8,8 @@
   </div>
 </template>
 
-<script setup>
-</script>
-
 <style scoped>
-.danh-muc-page { padding: 8px; color: #2a3d52; }
-.danh-muc-page h3 { margin-bottom: 12px; color: #2c3e50; }
+.he-thong-page { padding: 8px; color: #2a3d52; }
+.he-thong-page h3 { margin-bottom: 12px; color: #2c3e50; }
 .sub-content { background: white; border: 1px solid #dfe6e9; border-radius: 8px; padding: 16px; min-height: 300px; color: #2a3d52; }
-.sub-content p { color: #2a3d52; }
 </style>
