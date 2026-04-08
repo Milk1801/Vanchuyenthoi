@@ -206,4 +206,4 @@ const handleChangePassword = async () => {
 };
 </script>
 
-<style scoped src="../assets/hosocanhan.css"></style>
+<style scoped src="../../assets/hosocanhan.css"></style>

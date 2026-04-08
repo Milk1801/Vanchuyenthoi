@@ -314,7 +314,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped src="../assets/quanlytaikhoan.css"></style>
+<style scoped src="../../assets/quanlytaikhoan.css"></style>
 <style scoped>
 .badge-warning { background-color: #f39c12; color: white; }
 </style>
