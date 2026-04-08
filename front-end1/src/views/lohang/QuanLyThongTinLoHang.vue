@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Lô Hàng</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý thông tin Lô Hàng</h3>
     
     <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap;">
       <div class="search-box" style="flex: 1; min-width: 250px;">

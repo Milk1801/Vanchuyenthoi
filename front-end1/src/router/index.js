@@ -12,9 +12,11 @@ import KhoCang from '../views/danhmuc/KhoCang.vue'
 import HangHoa from '../views/danhmuc/HangHoa.vue'
 import HangVanTai from '../views/danhmuc/HangVanTai.vue'
 import DonViTinh from '../views/danhmuc/DonViTinh.vue'
-import QuanlyBooking from '../views/lohang/QuanLyBooking.vue'
-import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
+import QuanLyLoHang from '../views/QuanLyLoHang.vue'
 import QuanLyThongTinLoHang from '../views/lohang/QuanLyThongTinLoHang.vue'
+import QuanlyBooking from '../views/lohang/QuanLyBooking.vue'
+import QuanLyChiPhivaThanhToan from '../views/QuanLyChiPhivaThanhToan.vue'
+import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 
 const router = createRouter({
@@ -60,7 +62,8 @@ const router = createRouter({
         {
           path: 'lo-hang',
           name: 'lo-hang',
-          component: QuanLyThongTinLoHang,
+          component: QuanLyLoHang,
+          redirect: '/lo-hang/thong-tin-lo-hang',
           children: [
             { path: 'thong-tin-lo-hang', name: 'lo-hang-thong-tin-lo-hang', component: QuanLyThongTinLoHang },
             { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking }
@@ -70,7 +73,8 @@ const router = createRouter({
         {
           path: 'chi-phi-va-thanh-toan',
           name: 'chi-phi-va-thanh-toan',
-          component: QuanLyChiPhi,
+          component: QuanLyChiPhivaThanhToan,
+          redirect: '/chi-phi-va-thanh-toan/chi-phi',
           children: [
             { path: 'chi-phi', name: 'chi-phi', component: QuanLyChiPhi }
           ]
