@@ -20,6 +20,7 @@ import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
 import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
+import QuanLyVanDon from '../views/vantai/QuanLyVanDon.vue' 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,11 +86,11 @@ const router = createRouter({
         {
           path: 'van-tai',
           name: 'van-tai',
-          component: QuanLyVanTai
-          // redirect: '/van-tai/',
-          // children: [
-            
-          // ]
+          component: QuanLyVanTai,
+          redirect: '/van-tai/Quan-ly-van-don',
+          children: [
+            { path: 'Quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon }
+          ]
         },
         
         {

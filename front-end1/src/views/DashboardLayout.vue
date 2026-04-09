@@ -35,7 +35,7 @@
 
         <router-link to="/van-tai" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
         <div v-show="isVanTaiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
-          
+          <router-link to="/van-tai/Quan-ly-van-don" active-class="active-submenu">📑 Quản lý Vận đơn</router-link>
         </div>
         
         <router-link to="/bao-cao-thong-ke" active-class="active-menu"> Quản lý Báo cáo và Thống kê</router-link>
