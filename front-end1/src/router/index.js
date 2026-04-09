@@ -20,6 +20,12 @@ import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
 import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
+import KhachHangForm from '../views/danhmuc/KhachHangForm.vue'
+import KhoCangForm from '../views/danhmuc/KhoCangForm.vue'
+import HangTauForm from '../views/danhmuc/HangTauForm.vue'
+import HangVanTaiForm from '../views/danhmuc/HangVanTaiForm.vue'
+import HangHoaForm from '../views/danhmuc/HangHoaForm.vue'
+import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
 import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 
@@ -61,6 +67,64 @@ const router = createRouter({
             { path: 'hang-van-tai', name: 'danh-muc-hang-van-tai', component: HangVanTai },
             { path: 'don-vi-tinh', name: 'danh-muc-don-vi-tinh', component: DonViTinh }
           ]
+        },
+        {
+          path: '/danh-muc/khach-hang/add',
+          component: KhachHangForm
+        },
+        {
+          path: '/danh-muc/khach-hang/edit/:id',
+          component: KhachHangForm
+        },
+        {
+          path: '/danh-muc/hang-tau/add',
+          name: 'danh-muc-hang-tau-add',
+          component: HangTauForm
+        },
+        {
+          path: '/danh-muc/hang-tau/edit/:id',
+          name: 'danh-muc-hang-tau-edit',
+          component: HangTauForm
+        },
+        {
+          path: '/danh-muc/hang-van-tai/add',
+          name: 'danh-muc-hang-van-tai-add',
+          component: HangVanTaiForm
+        },
+        {
+          path: '/danh-muc/hang-van-tai/edit/:id',
+          name: 'danh-muc-hang-van-tai-edit',
+          component: HangVanTaiForm
+        },
+        {
+          path: '/danh-muc/hang-hoa/add',
+          name: 'danh-muc-hang-hoa-add',
+          component: HangHoaForm
+        },
+        {
+          path: '/danh-muc/hang-hoa/edit/:id',
+          name: 'danh-muc-hang-hoa-edit',
+          component: HangHoaForm
+        },
+        {
+          path: '/danh-muc/kho-cang/add',
+          name: 'danh-muc-kho-cang-add',
+          component: KhoCangForm
+        },
+        {
+          path: '/danh-muc/kho-cang/edit/:id',
+          name: 'danh-muc-kho-cang-edit',
+          component: KhoCangForm
+        },
+        {
+          path: '/danh-muc/don-vi-tinh/add',
+          name: 'danh-muc-don-vi-tinh-add',
+          component: DonViTinhForm
+        },
+        {
+          path: '/danh-muc/don-vi-tinh/edit/:id',
+          name: 'danh-muc-don-vi-tinh-edit',
+          component: DonViTinhForm
         },
 
         {

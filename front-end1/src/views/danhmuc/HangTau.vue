@@ -28,7 +28,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="openModal()">+ TẠO HÃNG TÀU MỚI</button>
+      <button class="btn btn-success" @click="router.push('/danh-muc/hang-tau/add')">+ TẠO HÃNG TÀU MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -59,86 +59,30 @@
             <td>{{ ht.ghi_chu || 'Không có' }}</td>
             <td>{{ ht.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="openModal(ht)" title="Sửa">✏️</button>
+              <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-tau/edit/' + ht.ma_hang_tau)" title="Sửa">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(ht.ma_hang_tau)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content">
-        <h3>{{ formData.ma_hang_tau ? 'Cập nhật hãng tàu' : 'Thêm hãng tàu mới' }}</h3>
-        <form @submit.prevent="saveData">
-          <div class="form-group">
-            <label>Tên Hãng Tàu</label>
-            <input v-model="formData.ten_hang_tau" required placeholder="Nhập tên hãng tàu...">
-          </div>
-          <div class="form-group">
-            <label>Địa chỉ</label>
-            <input v-model="formData.dia_chi" placeholder="Nhập địa chỉ...">
-          </div>
-          <div class="form-group">
-            <label>Điện thoại</label>
-            <input
-              v-model="formData.so_dien_thoai"
-              placeholder="0123456789"
-              pattern="[0-9()+\-\.\s]{7,25}"
-              title="Nhập số điện thoại hợp lệ"
-              maxlength="25"
-            >
-          </div>
-          <div class="form-group">
-            <label>Fax</label>
-            <input
-              v-model="formData.so_fax"
-              placeholder="Nhập Fax..."
-              pattern="[0-9()+\-\.\s]{7,25}"
-              title="Nhập số fax hợp lệ"
-              maxlength="25"
-            >
-          </div>
-          <div class="form-group">
-            <label>Ghi chú</label>
-            <textarea v-model="formData.ghi_chu" placeholder="Nhập ghi chú..."></textarea>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
-               {{ isSaving ? 'Đang lưu...' : 'Lưu lại' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const listData = ref([]);
 const accountOptions = ref([]);
 const isLoading = ref(true);
-const isSaving = ref(false);
-const isModalOpen = ref(false);
 const searchFilters = ref({
   ten_hang_tau: '',
   dia_chi: '',
   so_dien_thoai: '',
   so_fax: '',
   nguoi_sua_cuoi: ''
-});
-
-const formData = ref({
-  ma_hang_tau: null,
-  ten_hang_tau: '',
-  dia_chi: '',
-  so_dien_thoai: '', 
-  so_fax: '',
-  ghi_chu: '',
-  nguoi_sua_cuoi: null
 });
 
 const filteredData = computed(() => {
@@ -181,36 +125,6 @@ const fetchAccounts = async () => {
   }
 };
 
-const openModal = (item = null) => {
-  const user = JSON.parse(localStorage.getItem('sincere_user'));
-  const currentUserId = user ? user.ma_tai_khoan : null;
-
-  if (item) {
-    formData.value = { ...item }; 
-  } else {
-    formData.value = { 
-      ma_hang_tau: null, 
-      ten_hang_tau: '', 
-      dia_chi: '', 
-      so_dien_thoai: '', 
-      so_fax: '',
-      ghi_chu: '',
-      nguoi_sua_cuoi: currentUserId
-    };
-  }
-
-  // Luôn cập nhật người sửa cuối thành người dùng hiện tại
-  formData.value.nguoi_sua_cuoi = currentUserId;
-  isModalOpen.value = true;
-};
-
-const isValidContact = (value) => {
-  if (!value) return true;
-  const normalized = value.replace(/\D/g, '');
-  const validChars = /^[0-9()+\-\.\s]+$/;
-  return validChars.test(value) && normalized.length >= 7 && normalized.length <= 15;
-};
-
 const clearFilters = () => {
   searchFilters.value = {
     ten_hang_tau: '',
@@ -219,43 +133,6 @@ const clearFilters = () => {
     so_fax: '',
     nguoi_sua_cuoi: ''
   };
-};
-
-const saveData = async () => {
-  if (formData.value.so_dien_thoai && !isValidContact(formData.value.so_dien_thoai)) {
-    alert('Số điện thoại không hợp lệ. Vui lòng nhập lại.');
-    return;
-  }
-  if (formData.value.so_fax && !isValidContact(formData.value.so_fax)) {
-    alert('Số fax không hợp lệ. Vui lòng nhập lại.');
-    return;
-  }
-
-  isSaving.value = true;
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/hang-tau/save', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json' 
-      },
-      body: JSON.stringify(formData.value)
-    });
-    const data = await response.json();
-    console.log('Response from server:', data);
-    if (data.success) {
-      alert(data.message);
-      isModalOpen.value = false;
-      fetchData(); 
-    } else {
-      alert("Lỗi: " + data.message);
-    }
-  } catch (error) {
-    console.error('Save error:', error);
-    alert("Lỗi kết nối máy chủ khi lưu!");
-  } finally {
-    isSaving.value = false;
-  }
 };
 
 const handleDelete = async (ma_hang_tau) => {
