@@ -33,6 +33,16 @@
           <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí phát sinh khi giao nhận</router-link> 
         </div>
 
+        <router-link to="/van-tai" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
+        <div v-show="isVanTaiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
+          
+        </div>
+        
+        <router-link to="/bao-cao-thong-ke" active-class="active-menu"> Quản lý Báo cáo và Thống kê</router-link>
+        <div v-show="isBaoCaoRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
+          
+        </div>
+
       </nav>
       <div class="logout-box">
         <button @click="handleLogout" class="btn-logout">🚪 Đăng xuất</button>
@@ -69,6 +79,8 @@ const isHeThongRoute = computed(() => route.path.startsWith('/he-thong'));
 const isDanhMucRoute = computed(() => route.path.startsWith('/danh-muc'));
 const isLoHangRoute = computed(() => route.path.startsWith('/lo-hang'));
 const isChiPhiRoute = computed(() => route.path.startsWith('/chi-phi-va-thanh-toan'));
+const isVanTaiRoute = computed(() => route.path.startsWith('/van-tai'));
+const isBaoCaoRoute = computed(() => route.path.startsWith('/bao-cao-thong-ke'));
 const userName = ref('Khách');
 const userRole = ref('Chưa xác định');
 const userInitials = ref('K');

@@ -18,6 +18,8 @@ import QuanlyBooking from '../views/lohang/QuanLyBooking.vue'
 import QuanLyChiPhivaThanhToan from '../views/QuanLyChiPhivaThanhToan.vue'
 import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
+import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
+import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,7 +80,27 @@ const router = createRouter({
           children: [
             { path: 'chi-phi', name: 'chi-phi', component: QuanLyChiPhi }
           ]
-        }
+        },
+        
+        {
+          path: 'van-tai',
+          name: 'van-tai',
+          component: QuanLyVanTai
+          // redirect: '/van-tai/',
+          // children: [
+            
+          // ]
+        },
+        
+        {
+          path: 'bao-cao-thong-ke',
+          name: 'bao-cao-thong-ke',
+          component: BaoCaoThongKe
+          // redirect: '/van-tai/',
+          // children: [
+            
+          // ]
+        },
 
       ]
     }
