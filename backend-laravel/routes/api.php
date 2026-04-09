@@ -16,6 +16,7 @@ use App\Http\Controllers\QuanLyQuyen;
 use App\Http\Controllers\QuanLyBooking;
 use App\Http\Controllers\QuanLyLoHang;
 use App\Http\Controllers\QuanLyChiTietLoHang;
+use App\Http\Controllers\QuanLyVanDon;
 use App\Http\Controllers\QuanLyChungTu;
 use App\Http\Controllers\QuanLyLenhGiaoHang;
 
@@ -147,6 +148,13 @@ Route::post('/chi-tiet-lo-hang/delete', [QuanLyChiTietLoHang::class, 'delete']);
 
 /*
 |--------------------------------------------------------------------------
+|. API QUẢN LÝ VẬN ĐƠN
+|--------------------------------------------------------------------------
+*/
+Route::get('/van-don', [QuanLyVanDon::class, 'index']);
+Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
+Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
+Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
 | 14. QUẢN LÝ CHỨNG TỪ SỐ HÓA
 |--------------------------------------------------------------------------
 */

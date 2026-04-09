@@ -20,6 +20,7 @@ import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
 import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
+import QuanLyVanDon from '../views/vantai/QuanLyVanDon.vue' 
 import KhachHangForm from '../views/danhmuc/KhachHangForm.vue'
 import KhoCangForm from '../views/danhmuc/KhoCangForm.vue'
 import HangTauForm from '../views/danhmuc/HangTauForm.vue'
@@ -154,9 +155,10 @@ const router = createRouter({
           path: 'van-tai',
           name: 'van-tai',
           component: QuanLyVanTai,
-
+          redirect: '/van-tai/Quan-ly-van-don',
           children: [
-          { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang }
+            { path: 'Quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
+            { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang }
           ] 
         },
         
