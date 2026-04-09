@@ -21,6 +21,14 @@ import QuanLyHeThong from '../views/QuanLyHeThong.vue'
 import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
 import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
 import QuanLyVanDon from '../views/vantai/QuanLyVanDon.vue' 
+import KhachHangForm from '../views/danhmuc/KhachHangForm.vue'
+import KhoCangForm from '../views/danhmuc/KhoCangForm.vue'
+import HangTauForm from '../views/danhmuc/HangTauForm.vue'
+import HangVanTaiForm from '../views/danhmuc/HangVanTaiForm.vue'
+import HangHoaForm from '../views/danhmuc/HangHoaForm.vue'
+import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
+import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
+import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,6 +69,64 @@ const router = createRouter({
             { path: 'don-vi-tinh', name: 'danh-muc-don-vi-tinh', component: DonViTinh }
           ]
         },
+        {
+          path: '/danh-muc/khach-hang/add',
+          component: KhachHangForm
+        },
+        {
+          path: '/danh-muc/khach-hang/edit/:id',
+          component: KhachHangForm
+        },
+        {
+          path: '/danh-muc/hang-tau/add',
+          name: 'danh-muc-hang-tau-add',
+          component: HangTauForm
+        },
+        {
+          path: '/danh-muc/hang-tau/edit/:id',
+          name: 'danh-muc-hang-tau-edit',
+          component: HangTauForm
+        },
+        {
+          path: '/danh-muc/hang-van-tai/add',
+          name: 'danh-muc-hang-van-tai-add',
+          component: HangVanTaiForm
+        },
+        {
+          path: '/danh-muc/hang-van-tai/edit/:id',
+          name: 'danh-muc-hang-van-tai-edit',
+          component: HangVanTaiForm
+        },
+        {
+          path: '/danh-muc/hang-hoa/add',
+          name: 'danh-muc-hang-hoa-add',
+          component: HangHoaForm
+        },
+        {
+          path: '/danh-muc/hang-hoa/edit/:id',
+          name: 'danh-muc-hang-hoa-edit',
+          component: HangHoaForm
+        },
+        {
+          path: '/danh-muc/kho-cang/add',
+          name: 'danh-muc-kho-cang-add',
+          component: KhoCangForm
+        },
+        {
+          path: '/danh-muc/kho-cang/edit/:id',
+          name: 'danh-muc-kho-cang-edit',
+          component: KhoCangForm
+        },
+        {
+          path: '/danh-muc/don-vi-tinh/add',
+          name: 'danh-muc-don-vi-tinh-add',
+          component: DonViTinhForm
+        },
+        {
+          path: '/danh-muc/don-vi-tinh/edit/:id',
+          name: 'danh-muc-don-vi-tinh-edit',
+          component: DonViTinhForm
+        },
 
         {
           path: 'lo-hang',
@@ -69,7 +135,9 @@ const router = createRouter({
           redirect: '/lo-hang/thong-tin-lo-hang',
           children: [
             { path: 'thong-tin-lo-hang', name: 'lo-hang-thong-tin-lo-hang', component: QuanLyThongTinLoHang },
-            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking }
+            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking },
+            // ĐÃ SỬA: Đưa chung-tu vào nằm trong Lô hàng
+            { path: 'chung-tu', name: 'lo-hang-chung-tu', component: QuanLyChungTu } 
           ]
         },
         
@@ -89,20 +157,16 @@ const router = createRouter({
           component: QuanLyVanTai,
           redirect: '/van-tai/Quan-ly-van-don',
           children: [
-            { path: 'Quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon }
-          ]
+            { path: 'Quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
+            { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang }
+          ] 
         },
         
         {
           path: 'bao-cao-thong-ke',
           name: 'bao-cao-thong-ke',
           component: BaoCaoThongKe
-          // redirect: '/van-tai/',
-          // children: [
-            
-          // ]
-        },
-
+        }
       ]
     }
   ] 

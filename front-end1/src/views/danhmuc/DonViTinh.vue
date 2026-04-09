@@ -11,7 +11,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="openModal()">+ TẠO ĐƠN VỊ TÍNH MỚI</button>
+      <button class="btn btn-success" @click="router.push('/danh-muc/don-vi-tinh/add')">+ TẠO ĐƠN VỊ TÍNH MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -32,47 +32,24 @@
             <td class="fw-bold">{{ d.ma_don_vi_tinh }}</td>
             <td class="fw-bold">{{ d.ten_don_vi_tinh }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="openModal(d)" title="Sửa">✏️</button>
+              <button class="action-btn text-primary" @click="router.push('/danh-muc/don-vi-tinh/edit/' + d.ma_don_vi_tinh)" title="Sửa">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(d.ma_don_vi_tinh)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content">
-        <h3>{{ formData.ma_don_vi_tinh ? 'Cập nhật đơn vị tính' : 'Thêm đơn vị tính mới' }}</h3>
-        <form @submit.prevent="saveData">
-          <div class="form-group">
-            <label>Tên Đơn Vị Tính</label>
-            <input v-model="formData.ten_don_vi_tinh" required placeholder="Nhập tên đơn vị tính">
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
-               {{ isSaving ? 'Đang lưu...' : 'Lưu lại' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const listData = ref([]);
 const isLoading = ref(true);
-const isSaving = ref(false);
-const isModalOpen = ref(false);
 const searchFilters = ref({
-  ten_don_vi_tinh: ''
-});
-
-const formData = ref({
-  ma_don_vi_tinh: null,
   ten_don_vi_tinh: ''
 });
 
@@ -99,49 +76,10 @@ const fetchData = async () => {
   }
 };
 
-const openModal = (item = null) => {
-  if (item) {
-    formData.value = { ...item }; 
-  } else {
-    formData.value = { 
-      ma_don_vi_tinh: null, 
-      ten_don_vi_tinh: ''
-    };
-  }
-
-  isModalOpen.value = true;
-};
-
 const clearFilters = () => {
   searchFilters.value = {
     ten_don_vi_tinh: ''
   };
-};
-
-const saveData = async () => {
-  isSaving.value = true;
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/don-vi-tinh/save', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json' 
-      },
-      body: JSON.stringify(formData.value)
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert(data.message);
-      isModalOpen.value = false;
-      fetchData(); 
-    } else {
-      alert("Lỗi: " + data.message);
-    }
-  } catch (error) {
-    alert("Lỗi kết nối máy chủ khi lưu!");
-  } finally {
-    isSaving.value = false;
-  }
 };
 
 const handleDelete = async (ma_don_vi_tinh) => {

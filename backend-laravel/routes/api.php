@@ -17,6 +17,8 @@ use App\Http\Controllers\QuanLyBooking;
 use App\Http\Controllers\QuanLyLoHang;
 use App\Http\Controllers\QuanLyChiTietLoHang;
 use App\Http\Controllers\QuanLyVanDon;
+use App\Http\Controllers\QuanLyChungTu;
+use App\Http\Controllers\QuanLyLenhGiaoHang;
 
 /*
 |--------------------------------------------------------------------------
@@ -153,3 +155,19 @@ Route::get('/van-don', [QuanLyVanDon::class, 'index']);
 Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
 Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
 Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
+| 14. QUẢN LÝ CHỨNG TỪ SỐ HÓA
+|--------------------------------------------------------------------------
+*/
+Route::get('/chung-tu', [QuanLyChungTu::class, 'index']);
+Route::post('/chung-tu/save', [QuanLyChungTu::class, 'store']);
+Route::post('/chung-tu/delete', [QuanLyChungTu::class, 'destroy']);
+
+/*
+|--------------------------------------------------------------------------
+| 15. QUẢN LÝ LỆNH GIAO HÀNG (D/O)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/lenh-giao-hang', [QuanLyLenhGiaoHang::class, 'index']);
+Route::post('/lenh-giao-hang/save', [QuanLyLenhGiaoHang::class, 'store']);
+Route::post('/lenh-giao-hang/delete', [QuanLyLenhGiaoHang::class, 'destroy']);
