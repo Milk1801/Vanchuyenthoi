@@ -14,7 +14,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="openModal()">+ TẠO HÀNG HÓA MỚI</button>
+      <button class="btn btn-success" @click="router.push('/danh-muc/hang-hoa/add')">+ TẠO HÀNG HÓA MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -37,52 +37,24 @@
             <td class="fw-bold">{{ h.ten_hang_hoa }}</td>
             <td>{{ h.hs_code || '-' }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="openModal(h)" title="Sửa">✏️</button>
+              <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-hoa/edit/' + h.ma_hang_hoa)" title="Sửa">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(h.ma_hang_hoa)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content">
-        <h3>{{ formData.ma_hang_hoa ? 'Cập nhật hàng hóa' : 'Thêm hàng hóa mới' }}</h3>
-        <form @submit.prevent="saveData">
-          <div class="form-group">
-            <label>Tên Hàng Hóa</label>
-            <input v-model="formData.ten_hang_hoa" required placeholder="Nhập tên hàng hóa...">
-          </div>
-          <div class="form-group">
-            <label>HS Code</label>
-            <input v-model="formData.hs_code" placeholder="Nhập HS Code...">
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
-               {{ isSaving ? 'Đang lưu...' : 'Lưu lại' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const listData = ref([]);
 const isLoading = ref(true);
-const isSaving = ref(false);
-const isModalOpen = ref(false);
 const searchFilters = ref({
-  ten_hang_hoa: '',
-  hs_code: ''
-});
-
-const formData = ref({
-  ma_hang_hoa: null,
   ten_hang_hoa: '',
   hs_code: ''
 });
@@ -111,51 +83,11 @@ const fetchData = async () => {
   }
 };
 
-const openModal = (item = null) => {
-  if (item) {
-    formData.value = { ...item }; 
-  } else {
-    formData.value = { 
-      ma_hang_hoa: null, 
-      ten_hang_hoa: '', 
-      hs_code: ''
-    };
-  }
-
-  isModalOpen.value = true;
-};
-
 const clearFilters = () => {
   searchFilters.value = {
     ten_hang_hoa: '',
     hs_code: '' 
   };
-};
-
-const saveData = async () => {
-  isSaving.value = true;
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/hang-hoa/save', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json' 
-      },
-      body: JSON.stringify(formData.value)
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert(data.message);
-      isModalOpen.value = false;
-      fetchData(); 
-    } else {
-      alert("Lỗi: " + data.message);
-    }
-  } catch (error) {
-    alert("Lỗi kết nối máy chủ khi lưu!");
-  } finally {
-    isSaving.value = false;
-  }
 };
 
 const handleDelete = async (ma_hang_hoa) => {
