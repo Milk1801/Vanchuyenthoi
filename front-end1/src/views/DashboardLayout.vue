@@ -27,19 +27,20 @@
         <div v-show="isLoHangRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
           <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý thông tin Lô hàng</router-link>
           <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>    
-          <router-link to="/lo-hang/chung-tu" active-class="active-submenu"> Quản lý Chứng từ số hóa</router-link>        
+          <router-link to="/lo-hang/chung-tu" active-class="active-submenu">📁 Quản lý Chứng từ số hóa</router-link>        
         </div>
+        
         <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">💰 Quản lý Chi phí và Thanh Toán</router-link>
         <div v-show="isChiPhiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
           <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí phát sinh khi giao nhận</router-link> 
         </div>
 
-        <router-link to="/van-tai" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
+        <router-link to="/van-tai/lenh-giao-hang" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
         <div v-show="isVanTaiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
-          
+          <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Quản lý Lệnh Giao Hàng (D/O)</router-link>
         </div>
         
-        <router-link to="/bao-cao-thong-ke" active-class="active-menu"> Quản lý Báo cáo và Thống kê</router-link>
+        <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Quản lý Báo cáo và Thống kê</router-link>
         <div v-show="isBaoCaoRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
           
         </div>
