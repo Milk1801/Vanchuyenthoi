@@ -148,13 +148,6 @@ Route::post('/chi-tiet-lo-hang/delete', [QuanLyChiTietLoHang::class, 'delete']);
 
 /*
 |--------------------------------------------------------------------------
-|. API QUẢN LÝ VẬN ĐƠN
-|--------------------------------------------------------------------------
-*/
-Route::get('/van-don', [QuanLyVanDon::class, 'index']);
-Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
-Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
-Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
 | 14. QUẢN LÝ CHỨNG TỪ SỐ HÓA
 |--------------------------------------------------------------------------
 */
@@ -171,3 +164,13 @@ Route::post('/chung-tu/delete', [QuanLyChungTu::class, 'destroy']);
 Route::get('/lenh-giao-hang', [QuanLyLenhGiaoHang::class, 'index']);
 Route::post('/lenh-giao-hang/save', [QuanLyLenhGiaoHang::class, 'store']);
 Route::post('/lenh-giao-hang/delete', [QuanLyLenhGiaoHang::class, 'destroy']);
+
+/*
+|--------------------------------------------------------------------------
+| 16 . API QUẢN LÝ VẬN ĐƠN
+|--------------------------------------------------------------------------
+*/
+Route::get('/van-don', [QuanLyVanDon::class, 'index']);
+Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
+Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
+Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
