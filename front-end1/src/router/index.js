@@ -26,6 +26,8 @@ import HangTauForm from '../views/danhmuc/HangTauForm.vue'
 import HangVanTaiForm from '../views/danhmuc/HangVanTaiForm.vue'
 import HangHoaForm from '../views/danhmuc/HangHoaForm.vue'
 import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
+import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
+import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -132,7 +134,9 @@ const router = createRouter({
           redirect: '/lo-hang/thong-tin-lo-hang',
           children: [
             { path: 'thong-tin-lo-hang', name: 'lo-hang-thong-tin-lo-hang', component: QuanLyThongTinLoHang },
-            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking }
+            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking },
+            // ĐÃ SỬA: Đưa chung-tu vào nằm trong Lô hàng
+            { path: 'chung-tu', name: 'lo-hang-chung-tu', component: QuanLyChungTu } 
           ]
         },
         
@@ -149,23 +153,18 @@ const router = createRouter({
         {
           path: 'van-tai',
           name: 'van-tai',
-          component: QuanLyVanTai
-          // redirect: '/van-tai/',
-          // children: [
-            
-          // ]
+          component: QuanLyVanTai,
+
+          children: [
+          { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang }
+          ] 
         },
         
         {
           path: 'bao-cao-thong-ke',
           name: 'bao-cao-thong-ke',
           component: BaoCaoThongKe
-          // redirect: '/van-tai/',
-          // children: [
-            
-          // ]
-        },
-
+        }
       ]
     }
   ] 
