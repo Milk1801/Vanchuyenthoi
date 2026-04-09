@@ -20,6 +20,7 @@ import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
 import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
+import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,7 +69,9 @@ const router = createRouter({
           redirect: '/lo-hang/thong-tin-lo-hang',
           children: [
             { path: 'thong-tin-lo-hang', name: 'lo-hang-thong-tin-lo-hang', component: QuanLyThongTinLoHang },
-            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking }
+            { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking },
+            // ĐÃ SỬA: Đưa chung-tu vào nằm trong Lô hàng
+            { path: 'chung-tu', name: 'lo-hang-chung-tu', component: QuanLyChungTu } 
           ]
         },
         
@@ -86,22 +89,13 @@ const router = createRouter({
           path: 'van-tai',
           name: 'van-tai',
           component: QuanLyVanTai
-          // redirect: '/van-tai/',
-          // children: [
-            
-          // ]
         },
         
         {
           path: 'bao-cao-thong-ke',
           name: 'bao-cao-thong-ke',
           component: BaoCaoThongKe
-          // redirect: '/van-tai/',
-          // children: [
-            
-          // ]
-        },
-
+        }
       ]
     }
   ] 
