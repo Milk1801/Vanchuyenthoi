@@ -26,7 +26,8 @@
         <router-link to="/lo-hang/thong-tin-lo-hang" :class="['menu-item', { 'active-menu': isLoHangRoute }]">📦 Quản lý lô hàng</router-link>
         <div v-show="isLoHangRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
           <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý thông tin Lô hàng</router-link>
-          <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>          
+          <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>    
+          <router-link to="/lo-hang/chung-tu" active-class="active-submenu"> Quản lý Chứng từ số hóa</router-link>        
         </div>
         <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">💰 Quản lý Chi phí và Thanh Toán</router-link>
         <div v-show="isChiPhiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
