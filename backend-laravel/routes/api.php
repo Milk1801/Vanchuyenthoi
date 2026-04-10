@@ -146,6 +146,7 @@ Route::get('/lo-hang/references', [QuanLyLoHang::class, 'getReferences']);
 Route::get('/chi-tiet-lo-hang', [QuanLyChiTietLoHang::class, 'index']);
 Route::post('/chi-tiet-lo-hang/save', [QuanLyChiTietLoHang::class, 'save']);
 Route::post('/chi-tiet-lo-hang/delete', [QuanLyChiTietLoHang::class, 'delete']);
+Route::get('/chi-tiet-lo-hang/references', [QuanLyChiTietLoHang::class, 'getReferences']);
 
 /*
 |--------------------------------------------------------------------------

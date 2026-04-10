@@ -42,11 +42,12 @@ class QuanLyLoHang extends Controller
             if ($ma_lo_hang) {
                 DB::table('lo_hang')->where('ma_lo_hang', $ma_lo_hang)->update($data);
                 $message = "Cập nhật lô hàng thành công!";
+                return response()->json(['success' => true, 'message' => $message, 'ma_lo_hang' => $ma_lo_hang]);
             } else {
-                DB::table('lo_hang')->insert($data);
+                $newId = DB::table('lo_hang')->insertGetId($data);
                 $message = "Tạo lô hàng mới thành công!";
+                return response()->json(['success' => true, 'ma_lo_hang' => $newId, 'message' => $message]);
             }
-            return response()->json(['success' => true, 'message' => $message]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => "Lỗi: " . $e->getMessage()]);
         }
@@ -68,15 +69,27 @@ class QuanLyLoHang extends Controller
         }
     }
     
-    public function getReferences()
+    public function getReferences(Request $request)
     {
         try {
+            $ma_lo_hang = $request->query('ma_lo_hang');
+
             $khachHang = DB::table('khach_hang')
                 ->where('thoi_gian_xoa', '<', '2000-01-01')
                 ->get(['ma_khach_hang', 'ten_khach_hang']);
 
             $booking = DB::table('booking')
                 ->where('thoi_gian_xoa', '<', '2000-01-01')
+                ->whereNotIn('ma_booking', function($q) use ($ma_lo_hang) {
+                    $q->select('ma_booking')
+                      ->from('lo_hang')
+                      ->where('thoi_gian_xoa', '<', '2000-01-01')
+                      ->whereNotNull('ma_booking');
+                    
+                    if ($ma_lo_hang) {
+                        $q->where('ma_lo_hang', '!=', $ma_lo_hang);
+                    }
+                })
                 ->get(['ma_booking', 'so_booking', 'ten_con_tau']);
 
             return response()->json([
