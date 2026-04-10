@@ -36,26 +36,40 @@ class QuanLyChungTu extends Controller
     public function store(Request $request)
     {
         try {
+            $request->validate([
+                'hinh_anh' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf|max:10240', // Tối đa 10MB
+                'loai_chung_tu' => 'required',
+                'ma_lo_hang' => 'required'
+            ]);
+
+            $ma_chung_tu = $request->input('ma_chung_tu');
             $data = [
                 'loai_chung_tu' => $request->input('loai_chung_tu'),
                 'ma_lo_hang' => $request->input('ma_lo_hang'),
             ];
 
             if ($request->hasFile('hinh_anh')) {
+                if ($ma_chung_tu) {
+                    $oldDoc = DB::table('chung_tu_so_hoa')->where('ma_chung_tu', $ma_chung_tu)->first();
+                    if ($oldDoc && $oldDoc->hinh_anh && file_exists(public_path($oldDoc->hinh_anh))) {
+                        unlink(public_path($oldDoc->hinh_anh));
+                    }
+                }
+
                 $file = $request->file('hinh_anh');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 
-                $path = public_path('uploads');
+                $path = public_path('uploads/chungtu');
                 if(!File::isDirectory($path)){
                     File::makeDirectory($path, 0777, true, true);
                 }
 
                 $file->move($path, $filename);
-                $data['hinh_anh'] = 'uploads/' . $filename; 
+                $data['hinh_anh'] = 'uploads/chungtu/' . $filename; 
             }
 
-            if ($request->has('ma_chung_tu') && $request->input('ma_chung_tu')) {
-                DB::table('chung_tu_so_hoa')->where('ma_chung_tu', $request->input('ma_chung_tu'))->update($data);
+            if ($ma_chung_tu) {
+                DB::table('chung_tu_so_hoa')->where('ma_chung_tu', $ma_chung_tu)->update($data);
                 $msg = "Đã cập nhật chứng từ!";
             } else {
                 DB::table('chung_tu_so_hoa')->insert($data);

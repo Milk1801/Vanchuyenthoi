@@ -27,6 +27,7 @@ import HangTauForm from '../views/danhmuc/HangTauForm.vue'
 import HangVanTaiForm from '../views/danhmuc/HangVanTaiForm.vue'
 import HangHoaForm from '../views/danhmuc/HangHoaForm.vue'
 import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
+import LoHangForm from '@/views/lohang/LoHangForm.vue'
 import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 
@@ -136,9 +137,28 @@ const router = createRouter({
           children: [
             { path: 'thong-tin-lo-hang', name: 'lo-hang-thong-tin-lo-hang', component: QuanLyThongTinLoHang },
             { path: 'booking', name: 'lo-hang-booking', component: QuanlyBooking },
-            // ĐÃ SỬA: Đưa chung-tu vào nằm trong Lô hàng
             { path: 'chung-tu', name: 'lo-hang-chung-tu', component: QuanLyChungTu } 
           ]
+        },
+        {
+          path: '/lo-hang/thong-tin-lo-hang/add',
+          name: 'lo-hang-add',
+          component: LoHangForm
+        },
+        {
+          path: '/lo-hang/thong-tin-lo-hang/edit/:id',
+          name: 'lo-hang-edit',
+          component: LoHangForm
+        },
+        {
+          path: '/danh-muc/don-vi-tinh/add',
+          name: 'danh-muc-don-vi-tinh-add',
+          component: DonViTinhForm
+        },
+        {
+          path: '/danh-muc/don-vi-tinh/edit/:id',
+          name: 'danh-muc-don-vi-tinh-edit',
+          component: DonViTinhForm
         },
         
         {

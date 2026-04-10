@@ -145,6 +145,7 @@ Route::get('/lo-hang/references', [QuanLyLoHang::class, 'getReferences']);
 Route::get('/chi-tiet-lo-hang', [QuanLyChiTietLoHang::class, 'index']);
 Route::post('/chi-tiet-lo-hang/save', [QuanLyChiTietLoHang::class, 'save']);
 Route::post('/chi-tiet-lo-hang/delete', [QuanLyChiTietLoHang::class, 'delete']);
+Route::get('/chi-tiet-lo-hang/references', [QuanLyChiTietLoHang::class, 'getReferences']);
 
 /*
 |--------------------------------------------------------------------------
@@ -173,4 +174,5 @@ Route::post('/lenh-giao-hang/delete', [QuanLyLenhGiaoHang::class, 'destroy']);
 Route::get('/van-don', [QuanLyVanDon::class, 'index']);
 Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
 Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
+Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
 Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);

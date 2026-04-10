@@ -34,8 +34,16 @@
     
     <div v-else class="document-grid">
       <div class="doc-card" v-for="doc in filteredDocs" :key="doc.ma_chung_tu">
-        <div class="doc-image-wrapper" @click="zoomImage(doc.hinh_anh)">
-          <img :src="getImageUrl(doc.hinh_anh)" alt="Chứng từ" class="doc-image" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2965/2965335.png'">
+        <div class="doc-image-wrapper" @click="handleViewFile(doc.hinh_anh)">
+          <template v-if="isImage(doc.hinh_anh)">
+            <img :src="getImageUrl(doc.hinh_anh)" alt="Chứng từ" class="doc-image" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2965/2965335.png'">
+          </template>
+          <template v-else>
+            <div class="pdf-placeholder" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa;">
+              <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" style="width: 60px; margin-bottom: 10px;">
+              <span style="font-size: 12px; color: #7f8c8d;">Tài liệu PDF</span>
+            </div>
+          </template>
           <div class="zoom-overlay">🔍 Xem chi tiết</div>
         </div>
         
@@ -95,10 +103,14 @@
           </div>
 
           <div class="form-group upload-area">
-            <label>Chọn file ảnh chứng từ {{ formData.ma_chung_tu ? '(Bỏ trống nếu giữ nguyên)' : '*' }}</label>
-            <input type="file" @change="handleFileUpload" accept="image/*" :required="!formData.ma_chung_tu" class="file-input">
+            <label>Chọn file chứng từ (Ảnh/PDF) {{ formData.ma_chung_tu ? '(Bỏ trống nếu giữ nguyên)' : '*' }}</label>
+            <input type="file" @change="handleFileUpload" accept="image/*,.pdf" :required="!formData.ma_chung_tu" class="file-input">
             <div v-if="previewUrl" class="preview-container">
-              <img :src="previewUrl" class="preview-img">
+              <img v-if="isImage(previewUrl) || (fileToUpload && fileToUpload.type.includes('image'))" :src="previewUrl" class="preview-img">
+              <div v-else class="pdf-preview-box" style="padding: 20px; text-align: center; background: #eee; border-radius: 8px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" style="width: 40px;">
+                <p style="margin-top: 5px; font-size: 13px;">File đã chọn: {{ fileToUpload?.name }}</p>
+              </div>
             </div>
           </div>
 
@@ -141,9 +153,16 @@ const formData = ref({
   ma_lo_hang: null
 });
 
+const isImage = (path) => {
+  if (!path) return true;
+  const extension = path.split('.').pop().toLowerCase();
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+};
+
 const getImageUrl = (path) => {
   if (!path) return 'https://cdn-icons-png.flaticon.com/512/2965/2965335.png';
   if (path.startsWith('http')) return path;
+  if (path.startsWith('blob:')) return path; // Cho preview
   return `http://127.0.0.1:8000/${path}`;
 };
 
@@ -240,8 +259,13 @@ const openModal = async (doc = null) => {
   isModalOpen.value = true;
 };
 
-const zoomImage = (path) => {
-  if (path) zoomedImage.value = path;
+const handleViewFile = (path) => {
+  if (!path) return;
+  if (isImage(path)) {
+    zoomedImage.value = path;
+  } else {
+    window.open(getImageUrl(path), '_blank');
+  }
 };
 
 // Cập nhật hàm saveDoc để hỗ trợ API Update
