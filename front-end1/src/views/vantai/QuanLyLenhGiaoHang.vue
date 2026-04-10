@@ -1,19 +1,32 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Lệnh Giao Hàng (D/O)</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Chứng Từ Giao Nhận</h3>
     
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc;">
+      <button 
+        @click="currentTab = 'AN'" 
+        :style="tabStyle(currentTab === 'AN')">
+        📢 THÔNG BÁO HÀNG ĐẾN
+      </button>
+      <button 
+        @click="currentTab = 'DO'" 
+        :style="tabStyle(currentTab === 'DO')">
+        📦 LỆNH GIAO HÀNG (D/O)
+      </button>
+    </div>
+
     <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="🔍 Tìm theo Số Booking hoặc Tên lô hàng..."
+          placeholder="🔍 Tìm theo Số Booking, Tên lô hàng..."
           style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;"
         >
       </div>
       <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
-      <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px;">
-        ➕ TẠO LỆNH GIAO HÀNG
+      <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
+        ➕ THÊM MỚI {{ currentTab === 'AN' ? 'THÔNG BÁO' : 'LỆNH D/O' }}
       </button>
     </div>
 
@@ -21,28 +34,44 @@
       <table style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
-            <th style="padding: 12px 15px; width: 100px;">Mã Lệnh</th>
+            <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
             <th style="padding: 12px 15px;">Số Booking</th>
-            <th style="padding: 12px 15px;">Ngày phát hành</th>
+            
+            <th v-if="currentTab === 'AN'" style="padding: 12px 15px;">Khách Hàng</th>
+            <th v-if="currentTab === 'AN'" style="padding: 12px 15px;">Tên Tàu</th>
+
+            <th v-if="currentTab === 'DO'" style="padding: 12px 15px;">Số Vận Đơn</th>
+            <th v-if="currentTab === 'DO'" style="padding: 12px 15px;">Số Container</th>
+
+            <th style="padding: 12px 15px;">Ngày Phát Hành</th>
             <th style="padding: 12px 15px; text-align: center; width: 150px;">Hành động</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="isLoading">
-            <td colspan="5" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td>
+            <td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td>
           </tr>
           <tr v-else-if="filteredList.length === 0">
-            <td colspan="5" style="text-align: center; padding: 20px;">Không có dữ liệu!</td>
+            <td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu!</td>
           </tr>
-          <tr v-for="item in filteredList" :key="item.ma_lenh_giao_hang" style="border-bottom: 1px solid #eee;">
-            <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">#{{ item.ma_lenh_giao_hang }}</td>
+          <tr v-for="item in filteredList" :key="item.ma_phieu" style="border-bottom: 1px solid #eee;">
+            <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">
+              {{ currentTab === 'AN' ? 'TB-' : 'DO-' }}{{ item.ma_phieu }}
+            </td>
             <td style="padding: 12px 15px;">{{ item.ten_lo_hang || 'N/A' }}</td>
             <td style="padding: 12px 15px;">{{ item.so_booking || 'N/A' }}</td>
+            
+            <td v-if="currentTab === 'AN'" style="padding: 12px 15px;">{{ item.ten_khach_hang || 'N/A' }}</td>
+            <td v-if="currentTab === 'AN'" style="padding: 12px 15px;">{{ item.ten_con_tau || 'N/A' }}</td>
+
+            <td v-if="currentTab === 'DO'" style="padding: 12px 15px; font-weight: bold;">{{ item.so_van_don || 'N/A' }}</td>
+            <td v-if="currentTab === 'DO'" style="padding: 12px 15px;">{{ item.so_cont || 'N/A' }}</td>
+
             <td style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             <td style="padding: 12px 15px; text-align: center;">
               <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none;" title="Sửa">✏️</button>
-              <button @click="handleDelete(item.ma_lenh_giao_hang)" style="cursor: pointer; border: none; background: none;" title="Xóa">🗑️</button>
+              <button @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none;" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -51,7 +80,9 @@
 
     <div v-if="isModalOpen" class="modal-overlay">
       <div class="modal-content" style="max-width: 500px; padding: 20px; background: white; border-radius: 8px; width: 100%;">
-        <h3 style="margin-top: 0;">{{ formData.ma_lenh_giao_hang ? 'Cập nhật Lệnh Giao Hàng' : 'Thêm Lệnh Giao Hàng' }}</h3>
+        <h3 style="margin-top: 0;">
+          {{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} {{ currentTab === 'AN' ? 'Thông Báo Hàng Đến' : 'Lệnh Giao Hàng' }}
+        </h3>
         
         <form @submit.prevent="saveData">
           
@@ -112,7 +143,9 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
-const listData = ref([]);
+const currentTab = ref('AN'); // Mặc định mở Tab Thông Báo Hàng Đến
+const listAN = ref([]);
+const listDO = ref([]);
 const listLoHang = ref([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
@@ -120,12 +153,24 @@ const isModalOpen = ref(false);
 
 const searchQuery = ref(''); 
 
+// Style Tab Button
+const tabStyle = (isActive) => ({
+  padding: '10px 20px',
+  border: 'none',
+  background: 'transparent',
+  fontWeight: 'bold',
+  fontSize: '16px',
+  cursor: 'pointer',
+  borderBottom: isActive ? '3px solid #3498db' : '3px solid transparent',
+  color: isActive ? '#3498db' : '#7f8c8d'
+});
+
 // Biến cho Combobox Tìm kiếm
 const searchLoHangInput = ref('');
 const isDropdownOpen = ref(false);
 
 const formData = ref({
-  ma_lenh_giao_hang: null,
+  ma_phieu: null,
   ma_lo_hang: null,
   ngay_phat_hanh: ''
 });
@@ -137,9 +182,10 @@ const formatDateTime = (dateStr) => {
   return date.toLocaleString('vi-VN');
 };
 
-// 1. Lọc danh sách Bảng chính
+// 1. Lọc danh sách Bảng chính (Thay đổi động dựa trên currentTab)
 const filteredList = computed(() => {
-  return listData.value.filter(item => {
+  const data = currentTab.value === 'AN' ? listAN.value : listDO.value;
+  return data.filter(item => {
     const search = searchQuery.value.toLowerCase();
     return !search || 
       (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || 
@@ -159,16 +205,13 @@ const filteredLoHangOptions = computed(() => {
 
 // 3. Xử lý khi click chọn Lô hàng từ danh sách thả xuống
 const selectLoHang = (lo) => {
-  formData.value.ma_lo_hang = lo.ma_lo_hang; // Lưu ID để gửi xuống DB
-  searchLoHangInput.value = `[${lo.so_booking}] - ${lo.ten_lo_hang}`; // Hiện text đẹp mắt lên ô input
-  isDropdownOpen.value = false; // Đóng menu
+  formData.value.ma_lo_hang = lo.ma_lo_hang; 
+  searchLoHangInput.value = `[${lo.so_booking}] - ${lo.ten_lo_hang}`; 
+  isDropdownOpen.value = false; 
 };
 
-// Theo dõi nếu người dùng tự ý xóa ô tìm kiếm thì reset ID
 watch(searchLoHangInput, (newVal) => {
-  if (newVal === '') {
-    formData.value.ma_lo_hang = null;
-  }
+  if (newVal === '') formData.value.ma_lo_hang = null;
 });
 
 const fetchData = async () => {
@@ -177,7 +220,8 @@ const fetchData = async () => {
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang');
     const data = await res.json();
     if (data.success) {
-      listData.value = data.data;
+      listAN.value = data.data_an;
+      listDO.value = data.data_do;
       listLoHang.value = data.lo_hang;
     }
   } catch (error) {
@@ -189,14 +233,11 @@ const fetchData = async () => {
 
 const openModal = (item = null) => {
   if (item) {
-    // Nếu là SỬA: gán giá trị cũ vào form
     formData.value = { 
-      ma_lenh_giao_hang: item.ma_lenh_giao_hang, 
+      ma_phieu: item.ma_phieu, // Đã được xử lý bí danh từ PHP
       ma_lo_hang: item.ma_lo_hang,
       ngay_phat_hanh: item.ngay_phat_hanh ? new Date(item.ngay_phat_hanh).toISOString().slice(0, 16) : ''
     };
-    
-    // Tìm lô hàng tương ứng để hiển thị tên lên ô tìm kiếm
     const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
     if (selectedLo) {
       searchLoHangInput.value = `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}`;
@@ -204,8 +245,7 @@ const openModal = (item = null) => {
       searchLoHangInput.value = '';
     }
   } else {
-    // Nếu là THÊM MỚI
-    formData.value = { ma_lenh_giao_hang: null, ma_lo_hang: null, ngay_phat_hanh: '' };
+    formData.value = { ma_phieu: null, ma_lo_hang: null, ngay_phat_hanh: '' };
     searchLoHangInput.value = '';
   }
   
@@ -221,10 +261,15 @@ const saveData = async () => {
 
   isSaving.value = true;
   try {
+    const payload = {
+      ...formData.value,
+      loai: currentTab.value // Truyền thêm 'AN' hoặc 'DO' xuống Backend
+    };
+
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData.value)
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (data.success) {
@@ -241,12 +286,12 @@ const saveData = async () => {
 };
 
 const handleDelete = async (id) => {
-  if (!confirm("Hủy vĩnh viễn lệnh giao hàng này?")) return;
+  if (!confirm(`Hủy vĩnh viễn phiếu này?`)) return;
   try {
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang/delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ma_lenh_giao_hang: id })
+      body: JSON.stringify({ ma_phieu: id, loai: currentTab.value })
     });
     const data = await res.json();
     if (data.success) fetchData();
