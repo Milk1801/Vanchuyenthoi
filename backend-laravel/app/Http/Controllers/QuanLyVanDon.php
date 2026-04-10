@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 class QuanLyVanDon extends Controller
@@ -27,7 +28,7 @@ class QuanLyVanDon extends Controller
                     'cang_di.ten_cang as ten_cang_di',
                     'cang_den.ten_cang as ten_cang_den',
                     'lo_hang.ten_lo_hang',
-                    'tai_khoan.ho_ten as nguoi_sua_doi'
+                    'tai_khoan.ho_ten as nguoi_sua_doi' // Ensure this is unique if joined twice
                 )
                 ->where('van_don.thoi_gian_xoa', '<', '2000-01-01')
                 ->orderBy('van_don.ma_van_don', 'asc')
@@ -64,6 +65,62 @@ class QuanLyVanDon extends Controller
                 "success" => false,
                 "message" => "Lỗi tải danh mục tham chiếu: " . $e->getMessage()
             ]);
+        }
+    }
+
+    public function exportPdf($id)
+    {
+        try {
+            $vanDon = DB::table('van_don')
+                ->leftJoin('khach_hang as nguoi_gui', 'van_don.ma_nguoi_gui_hang', '=', 'nguoi_gui.ma_khach_hang')
+                ->leftJoin('khach_hang as nguoi_nhan', 'van_don.ma_nguoi_nhan_hang', '=', 'nguoi_nhan.ma_khach_hang')
+                ->leftJoin('khach_hang as ben_thong_bao', 'van_don.ma_ben_duoc_thong_bao', '=', 'ben_thong_bao.ma_khach_hang')
+                ->leftJoin('cang_bien as cang_di', 'van_don.ma_cang_di', '=', 'cang_di.ma_cang')
+                ->leftJoin('cang_bien as cang_den', 'van_don.ma_cang_den', '=', 'cang_den.ma_cang')
+                ->leftJoin('lo_hang', 'van_don.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
+                ->select(
+                    'van_don.*',
+                    'nguoi_gui.ten_khach_hang as ten_nguoi_gui_hang',
+                    'nguoi_gui.dia_chi as dia_chi_nguoi_gui',
+                    'nguoi_nhan.ten_khach_hang as ten_nguoi_nhan_hang',
+                    'nguoi_nhan.dia_chi as dia_chi_nguoi_nhan',
+                    'ben_thong_bao.ten_khach_hang as ten_ben_duoc_thong_bao',
+                    'ben_thong_bao.dia_chi as dia_chi_ben_thong_bao',
+                    'cang_di.ten_cang as ten_cang_di',
+                    'cang_den.ten_cang as ten_cang_den',
+                    'lo_hang.ten_lo_hang'
+                )
+                ->where('van_don.ma_van_don', $id)
+                ->where('van_don.thoi_gian_xoa', '<', '2000-01-01') // Only active records
+                ->first();
+
+            if (!$vanDon) {
+                return response()->json(['success' => false, 'message' => 'Không tìm thấy vận đơn.'], 404);
+            }
+
+            // Format date for display in PDF
+            $vanDon->ngay_phat_hanh_formatted = $vanDon->ngay_phat_hanh ? Carbon::parse($vanDon->ngay_phat_hanh)->format('d/m/Y H:i') : 'N/A';
+
+            // Lấy chi tiết hàng hóa từ lô hàng
+            $chiTietHangHoa = DB::table('chi_tiet_lo_hang')
+                ->leftJoin('hang_hoa', 'chi_tiet_lo_hang.ma_hang_hoa', '=', 'hang_hoa.ma_hang_hoa')
+                ->leftJoin('don_vi_tinh', 'chi_tiet_lo_hang.ma_don_vi_tinh', '=', 'don_vi_tinh.ma_don_vi_tinh')
+                ->where('chi_tiet_lo_hang.ma_lo_hang', $vanDon->ma_lo_hang)
+                ->select(
+                    'chi_tiet_lo_hang.*',
+                    'hang_hoa.ten_hang_hoa',
+                    'don_vi_tinh.ten_don_vi_tinh'
+                )
+                ->get();
+
+            // Load view and generate PDF
+            $pdf = Pdf::loadView('pdfs.van_don', compact('vanDon', 'chiTietHangHoa'));
+
+            // Return PDF for download
+            return $pdf->download('VanDon_' . $vanDon->so_van_don . '.pdf');
+
+        } catch (\Exception $e) {
+            return response()->json(["success" => false, "message" => "Lỗi khi tạo PDF: " . $e->getMessage()], 500);
         }
     }
 

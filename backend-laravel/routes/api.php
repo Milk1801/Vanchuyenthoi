@@ -175,6 +175,8 @@ Route::get('/van-don', [QuanLyVanDon::class, 'index']);
 Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
 Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
 Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
+Route::get('/van-don/export-pdf/{id}', [App\Http\Controllers\QuanLyVanDon::class, 'exportPdf']);
+
 
 /*
 |--------------------------------------------------------------------------
