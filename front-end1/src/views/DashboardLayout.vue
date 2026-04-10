@@ -35,10 +35,11 @@
           <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí phát sinh khi giao nhận</router-link> 
         </div>
 
-        <router-link to="/van-tai/lenh-giao-hang" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
+        <router-link to="/van-tai" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
         <div v-show="isVanTaiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
-          <router-link to="/van-tai/Quan-ly-van-don" active-class="active-submenu">📑 Quản lý Vận đơn</router-link>
+          <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu">📑 Quản lý Vận đơn</router-link>
           <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Quản lý Lệnh Giao Hàng (D/O)</router-link>
+          <router-link to="/van-tai/to-khai-hai-quan" active-class="active-submenu">🚢 Quản lý Tờ khai hải quan</router-link>
         </div>
         
         <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Quản lý Báo cáo và Thống kê</router-link>
@@ -112,7 +113,7 @@ const handleLogout = () => {
 
 <style scoped>
 /* Khung bọc toàn bộ */
-.dashboard-wrapper { display: flex; height: 100vh; background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, sans-serif; }
+.dashboard-wrapper { display: flex; height: 120vh; background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, sans-serif; }
 
 /* Sidebar */
 .sidebar { width: 260px; background-color: #2c3e50; color: white; display: flex; flex-direction: column; flex-shrink: 0; }

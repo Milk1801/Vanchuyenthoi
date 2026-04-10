@@ -30,6 +30,8 @@ import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
 import LoHangForm from '@/views/lohang/LoHangForm.vue'
 import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
+import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
+import QuanLyToKhaiHaiQuan from '@/views/vantai/QuanLyToKhaiHaiQuan.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,10 +74,12 @@ const router = createRouter({
         },
         {
           path: '/danh-muc/khach-hang/add',
+          name: 'danh-muc-khach-hang-add',
           component: KhachHangForm
         },
         {
           path: '/danh-muc/khach-hang/edit/:id',
+          name: 'danh-muc-khach-hang-edit',
           component: KhachHangForm
         },
         {
@@ -175,11 +179,22 @@ const router = createRouter({
           path: 'van-tai',
           name: 'van-tai',
           component: QuanLyVanTai,
-          redirect: '/van-tai/Quan-ly-van-don',
+          redirect: '/van-tai/quan-ly-van-don',
           children: [
-            { path: 'Quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
-            { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang }
+            { path: 'quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
+            { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang },
+            { path: 'to-khai-hai-quan', name: 'van-tai-to-khai-hai-quan', component: QuanLyToKhaiHaiQuan }
           ] 
+        },
+        {
+          path: '/van-tai/Quan-ly-van-don/add',
+          name: 'van-tai-quan-ly-van-don-add',
+          component: QuanLyVanDonForm
+        },
+        {
+          path: '/van-tai/Quan-ly-van-don/edit/:id',
+          name: 'van-tai-quan-ly-van-don-edit',
+          component: QuanLyVanDonForm
         },
         
         {

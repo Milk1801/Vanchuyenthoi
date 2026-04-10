@@ -18,6 +18,7 @@ use App\Http\Controllers\QuanLyLoHang;
 use App\Http\Controllers\QuanLyChiTietLoHang;
 use App\Http\Controllers\QuanLyVanDon;
 use App\Http\Controllers\QuanLyChungTu;
+use App\Http\Controllers\QuanLyToKhaiHaiQuan;
 use App\Http\Controllers\QuanLyLenhGiaoHang;
 
 /*
@@ -175,4 +176,13 @@ Route::get('/van-don', [QuanLyVanDon::class, 'index']);
 Route::get('/van-don/references', [QuanLyVanDon::class, 'getReferences']);
 Route::post('/van-don/save', [QuanLyVanDon::class, 'save']);
 Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
-Route::post('/van-don/delete', [QuanLyVanDon::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 17. API QUẢN LÝ TỜ KHAI HẢI QUAN
+|--------------------------------------------------------------------------
+*/
+Route::get('/to-khai-hai-quan', [QuanLyToKhaiHaiQuan::class, 'index']);
+Route::get('/to-khai-hai-quan/references', [QuanLyToKhaiHaiQuan::class, 'getReferences']);
+Route::post('/to-khai-hai-quan/save', [QuanLyToKhaiHaiQuan::class, 'save']);
+Route::post('/to-khai-hai-quan/delete', [QuanLyToKhaiHaiQuan::class, 'delete']);
