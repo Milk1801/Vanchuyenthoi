@@ -115,7 +115,7 @@ const fetchData = async () => {
 };
 
 const handleDelete = async (id) => {
-  if (!confirm("Bạn có chắc muốn xóa lô hàng này?")) return;
+  if (!confirm("Bạn có chắc muốn xóa vận đơn này?")) return;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   try {
     const res = await fetch('http://127.0.0.1:8000/api/van-don/delete', {

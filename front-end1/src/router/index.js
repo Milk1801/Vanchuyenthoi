@@ -30,6 +30,7 @@ import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
 import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
+import QuanLyToKhaiHaiQuan from '@/views/vantai/QuanLyToKhaiHaiQuan.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -160,7 +161,8 @@ const router = createRouter({
           redirect: '/van-tai/quan-ly-van-don',
           children: [
             { path: 'quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
-            { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang }
+            { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang },
+            { path: 'to-khai-hai-quan', name: 'van-tai-to-khai-hai-quan', component: QuanLyToKhaiHaiQuan }
           ] 
         },
         {

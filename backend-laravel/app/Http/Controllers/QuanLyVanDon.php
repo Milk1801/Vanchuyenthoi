@@ -30,7 +30,7 @@ class QuanLyVanDon extends Controller
                     'tai_khoan.ho_ten as nguoi_sua_doi'
                 )
                 ->where('van_don.thoi_gian_xoa', '<', '2000-01-01')
-                ->orderBy('van_don.ma_van_don', 'desc')
+                ->orderBy('van_don.ma_van_don', 'asc')
                 ->get();
             return response()->json(["success" => true, "data" => $van_don]);
         } catch (\Exception $e) {
