@@ -129,6 +129,9 @@
           <button type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
              {{ isSaving ? 'Đang lưu...' : 'Lưu Vận Đơn' }}
           </button>
+          <button v-if="formData.ma_van_don" type="button" @click="handleExportPdf(formData.ma_van_don, formData.so_van_don)" class="btn-cancel" style="background: #17a2b8; color: white; border: none; padding: 10px 25px;">
+            📄 Xuất PDF
+          </button>
         </div>
       </form>
     </div>
@@ -217,6 +220,28 @@ const saveVanDon = async () => {
     else { alert("Lỗi: " + data.message); }
   } catch (e) { alert("Lỗi server!"); }
   finally { isSaving.value = false; }
+};
+
+const handleExportPdf = async (id, soVanDon) => {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/api/van-don/export-pdf/${id}`);
+    if (!response.ok) {
+      const errorData = await response.json(); // Attempt to read error message from JSON
+      throw new Error(errorData.message || 'Lỗi khi tạo PDF');
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `VanDon_${soVanDon}.pdf`); // Tên file PDF khi tải về
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    alert("Lỗi khi xuất PDF: " + error.message);
+    console.error("Lỗi khi xuất PDF:", error);
+  }
 };
 
 onMounted(async () => {
