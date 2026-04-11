@@ -63,47 +63,152 @@
         </form>
       </div>
 
-      <!-- Tab 2: Chi tiết hàng hóa (Packing List) -->
+      <!-- Tab 2: Chi tiết hàng hóa-->
       <div v-show="activeTab === 'details'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h4 style="margin: 0; color: #34495e;">Danh sách hàng hóa trong lô</h4>
-          <button type="button" class="btn-success" @click="addDetail">➕ Thêm chi tiết hàng</button>
+          <h4 style="margin: 0; color: #34495e;">📋 Danh sách hàng hóa trong lô</h4>
+          <button v-if="!isDetailFormVisible" type="button" class="btn-success" @click="addDetail">➕ Thêm chi tiết hàng</button>
         </div>
         
+        <!-- Inline Form: Hiển thị trên đầu danh sách-->
+        <div v-if="isDetailFormVisible" class="inline-form-box" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #3498db; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          <h4 style="margin-top: 0; color: #2980b9; margin-bottom: 15px;">
+            {{ editingIndex > -1 ? '✏️ Đang chỉnh sửa hàng hóa' : '➕ Thêm hàng hóa mới vào lô' }}
+          </h4>
+          
+          <form @submit.prevent="saveDetailItem">
+            <div class="form-group">
+              <label>Tên hàng / Mô tả chi tiết *</label>
+              <input v-model="detailFormData.ten_hang" required placeholder="VD: Máy giặt Toshiba AW-DUK1150HV">
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+              <div class="form-group" style="flex: 2; min-width: 200px;">
+                <label>Loại hàng hóa (Danh mục) *</label>
+                <select v-model="detailFormData.ma_hang_hoa">
+                  <option :value="null">-- Chọn loại hàng --</option>
+                  <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1; min-width: 150px;">
+                <label>Đơn vị tính *</label>
+                <select v-model="detailFormData.ma_don_vi_tinh" required>
+                  <option :value="null">-- Chọn ĐVT --</option>
+                  <option v-for="dvt in listDonViTinh" :key="dvt.ma_don_vi_tinh" :value="dvt.ma_don_vi_tinh">{{ dvt.ten_don_vi_tinh }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+              <div class="form-group" style="flex: 1;">
+                <label>Số lượng *</label>
+                <input type="number" v-model="detailFormData.so_luong" required min="1">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Số kiện *</label>
+                <input type="number" v-model="detailFormData.so_kien" required min="1">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Giá cả *</label>
+                <input type="number" v-model="detailFormData.gia_ca" required min="0" step="1">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Trọng lượng (kg) *</label>
+                <input type="number" v-model="detailFormData.trong_luong" required min="0" step="0.01">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Thể tích (CBM) *</label>
+                <input type="number" v-model="detailFormData.the_tich" required min="0" step="0.0001">
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+              <button type="button" class="btn-cancel" @click="isDetailFormVisible = false" style="background: #e74c3c; color: white; border: none;">❌ Hủy bỏ</button>
+              <button type="submit" class="btn-save" style="background: #27ae60; color: white; border: none;">
+                {{ editingIndex > -1 ? '✅ Xác nhận cập nhật' : '✅ Xác nhận thêm' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <div class="filter-toolbar" style="display: flex; gap: 10px; margin-bottom: 15px; background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid #e1e4e8; align-items: center; flex-wrap: wrap;">
+          <div style="flex: 2; min-width: 200px;">
+            <input v-model="searchTenHang" placeholder="🔍 Tìm tên hàng / mô tả..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
+          </div>
+          
+          <select v-model="filterHangHoa" style="flex: 1; min-width: 150px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
+            <option :value="null">📂 Loại hàng (Tất cả)</option>
+            <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
+          </select>
+
+          <select v-model="filterDVT" style="flex: 1; min-width: 120px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
+            <option :value="null">📏 ĐVT (Tất cả)</option>
+            <option v-for="dvt in listDonViTinh" :key="dvt.ma_don_vi_tinh" :value="dvt.ma_don_vi_tinh">{{ dvt.ten_don_vi_tinh }}</option>
+          </select>
+
+          <select v-model="filterUser" style="flex: 1; min-width: 150px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
+            <option :value="null">👤 Người sửa (Tất cả)</option>
+            <option v-for="user in uniqueUsers" :key="user" :value="user">{{ user }}</option>
+          </select>
+          
+          <button @click="resetFilters" class="btn-cancel" style="padding: 0 15px; height: 36px; background: #95a5a6; color: white; border: none; font-size: 13px;">🧹 Xóa lọc</button>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div v-if="listDetails.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span>Hiển thị</span>
+            <select v-model="pageSize" style="padding: 5px 8px; border-radius: 5px; border: 1px solid #ccc;">
+              <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
+            </select>
+            <span>mục mỗi trang</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button @click="prevPage" :disabled="currentPage === 1" class="btn-pagination">◀ Trước</button>
+            <span style="font-weight: bold;">Trang {{ currentPage }} / {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="btn-pagination">Sau ▶</button>
+          </div>
+        </div>
+
+        <div v-if="filteredDetailsPaginated.length === 0 && listDetails.length > 0" style="text-align: center; padding: 20px; color: #7f8c8d; background: #fefefe; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px;">
+          Không tìm thấy chi tiết hàng hóa nào phù hợp với bộ lọc hiện tại.
+        </div>
+        <div v-else-if="listDetails.length === 0" style="text-align: center; padding: 30px; color: #e74c3c; font-weight: bold; background: #fefefe; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px;">
+          ⚠️ Lô hàng chưa có chi tiết hàng hóa. Vui lòng thêm ít nhất 1 mục!
+        </div>
+
         <table class="detail-table" style="width: 100%; border-collapse: collapse;">
           <thead style="background: #f1f3f5;">
             <tr>
-              <th>Tên hàng</th>
+              <th style="width: 50px; text-align: center;">STT</th>
+              <th style="min-width: 200px;">Tên hàng</th>
               <th>Loại hàng</th>
-              <th>Số lượng</th>
-              <th>Số kiện</th>
+              <th @click="sortBy('so_luong')" style="cursor: pointer; user-select: none;" title="Sắp xếp Số lượng">Số lượng {{ getSortIcon('so_luong') }}</th>
+              <th @click="sortBy('so_kien')" style="cursor: pointer; user-select: none;" title="Sắp xếp Số kiện">Số kiện {{ getSortIcon('so_kien') }}</th>
               <th>ĐVT</th>
-              <th>Thể tích</th>
-              <th>Trọng lượng</th>
-              <th>Giá cả</th>
+              <th @click="sortBy('the_tich')" style="cursor: pointer; user-select: none;" title="Sắp xếp Thể tích">Thể tích {{ getSortIcon('the_tich') }}</th>
+              <th @click="sortBy('trong_luong')" style="cursor: pointer; user-select: none;" title="Sắp xếp Trọng lượng">Trọng lượng {{ getSortIcon('trong_luong') }}</th>
+              <th @click="sortBy('gia_ca')" style="cursor: pointer; user-select: none;" title="Sắp xếp Giá cả">Giá cả {{ getSortIcon('gia_ca') }}</th>
               <th>Người sửa cuối</th>
               <th style="text-align: center;">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in listDetails" :key="index">
-              <td class="fw-bold">{{ item.ten_hang }}</td>
-              <td>{{ item.ten_hang_hoa || getHangHoaName(item.ma_hang_hoa) }}</td>
+            <tr v-for="(item, index) in filteredDetailsPaginated" :key="item.ma_chi_tiet_lo_hang || 'new-' + index">
+              <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+              <td class="fw-bold" style="color: #2c3e50;">{{ item.ten_hang }}</td>
+              <td>{{ getHangHoaName(item.ma_hang_hoa) }}</td>
               <td style="text-align: center;">{{ item.so_luong }}</td>
               <td style="text-align: center;">{{ item.so_kien }}</td>
-              <td>{{ item.ten_don_vi_tinh || getDonViTinhName(item.ma_don_vi_tinh) }}</td>
+              <td>{{ getDonViTinhName(item.ma_don_vi_tinh) }}</td>
               <td style="text-align: center;">{{ item.the_tich }}</td>
               <td style="text-align: center;">{{ item.trong_luong }}</td>
               <td style="text-align: right;">{{ item.gia_ca }}</td>
               <td style="color: #2980b9;">{{ item.nguoi_sua_cuoi }}</td>
               <td style="text-align: center;">
-                <button @click="editDetail(index)" class="action-btn text-primary" title="Sửa">✏️</button>
-                <button @click="deleteDetail(index)" class="action-btn text-danger" title="Xóa">🗑️</button>
-              </td>
-            </tr>
-            <tr v-if="listDetails.length === 0">
-              <td colspan="10" style="text-align: center; padding: 30px; color: #e74c3c; font-weight: bold;">
-                ⚠️ Lô hàng chưa có chi tiết hàng hóa. Vui lòng thêm ít nhất 1 mục!
+                <button @click="handleEdit(item)" class="action-btn text-primary" title="Sửa">✏️</button>
+                <button @click="deleteDetail(item)" class="action-btn text-danger" title="Xóa">🗑️</button>
               </td>
             </tr>
           </tbody>
@@ -117,77 +222,11 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal thêm/sửa chi tiết hàng hóa -->
-    <div v-if="isDetailModalOpen" class="modal-overlay">
-      <div class="modal-content" style="max-width: 700px; width: 90%;">
-        <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-          {{ detailFormData.ma_chi_tiet_lo_hang ? '✏️ Cập nhật hàng hóa' : '➕ Thêm hàng hóa mới' }}
-        </h3>
-        
-        <form @submit.prevent="saveDetailItem">
-          <div class="form-group">
-            <label>Tên hàng / Mô tả chi tiết *</label>
-            <input v-model="detailFormData.ten_hang" required placeholder="VD: Máy giặt Toshiba AW-DUK1150HV">
-          </div>
-
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Loại hàng hóa (Danh mục)</label>
-              <select v-model="detailFormData.ma_hang_hoa">
-                <option :value="null">-- Chọn loại hàng --</option>
-                <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
-              </select>
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Đơn vị tính *</label>
-              <select v-model="detailFormData.ma_don_vi_tinh" required>
-                <option :value="null">-- Chọn ĐVT --</option>
-                <option v-for="dvt in listDonViTinh" :key="dvt.ma_don_vi_tinh" :value="dvt.ma_don_vi_tinh">{{ dvt.ten_don_vi_tinh }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Số lượng *</label>
-              <input type="number" v-model="detailFormData.so_luong" required min="1">
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Số kiện (Packages)</label>
-              <input type="number" v-model="detailFormData.so_kien" min="0">
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Giá cả (VNĐ/USD)</label>
-              <input type="number" v-model="detailFormData.gia_ca" min="0" step="0.01">
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Trọng lượng (kg) *</label>
-              <input type="number" v-model="detailFormData.trong_luong" required min="0" step="0.01">
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Thể tích (CBM)</label>
-              <input type="number" v-model="detailFormData.the_tich" min="0" step="0.0001">
-            </div>
-          </div>
-
-          <div class="modal-actions" style="margin-top: 20px; text-align: right;">
-            <button type="button" class="btn-cancel" @click="isDetailModalOpen = false" style="margin-right: 10px;">Hủy bỏ</button>
-            <button type="submit" class="btn-save" :disabled="isSavingDetail">
-              {{ isSavingDetail ? 'Đang lưu...' : 'Lưu thông tin' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
@@ -195,7 +234,7 @@ const route = useRoute();
 const activeTab = ref('info');
 const isSaving = ref(false);
 const isSavingDetail = ref(false);
-const isDetailModalOpen = ref(false);
+const isDetailFormVisible = ref(false);
 const editingIndex = ref(-1);
 
 const listKhachHang = ref([]);
@@ -204,6 +243,17 @@ const listDetails = ref([]); // Đây là mảng đệm (buffer) để hiển th
 const listDeletedDetails = ref([]); // Lưu ID của các chi tiết bị xóa để gửi lên server khi ấn Hoàn tất
 const listHangHoa = ref([]);
 const listDonViTinh = ref([]);
+
+// Pagination State
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+// Filter & Sort State
+const searchTenHang = ref('');
+const filterHangHoa = ref(null);
+const filterDVT = ref(null);
+const filterUser = ref(null);
+const sortConfig = ref({ key: null, direction: 'asc' });
 
 const formData = ref({
   ma_lo_hang: null, ten_lo_hang: '', dieu_kien_thuong_mai: 'FOB',
@@ -221,33 +271,177 @@ const detailFormData = ref({
 const getHangHoaName = (id) => listHangHoa.value.find(x => x.ma_hang_hoa === id)?.ten_hang_hoa || '---';
 const getDonViTinhName = (id) => listDonViTinh.value.find(x => x.ma_don_vi_tinh === id)?.ten_don_vi_tinh || '---';
 
+// Logic Lọc và Sắp xếp
+const filteredAndSortedDetails = computed(() => {
+  let result = [...listDetails.value];
+  
+  // 1. Lọc theo tên
+  if (searchTenHang.value) {
+    const q = searchTenHang.value.toLowerCase();
+    result = result.filter(item => item.ten_hang?.toLowerCase().includes(q));
+  }
+  
+  // 2. Lọc theo loại hàng
+  if (filterHangHoa.value) {
+    result = result.filter(item => item.ma_hang_hoa === filterHangHoa.value);
+  }
+  
+  // 3. Lọc theo DVT
+  if (filterDVT.value) {
+    result = result.filter(item => item.ma_don_vi_tinh === filterDVT.value);
+  }
+  
+  // 4. Lọc theo Người sửa
+  if (filterUser.value) {
+    result = result.filter(item => item.nguoi_sua_cuoi === filterUser.value);
+  }
+
+  // 5. Sắp xếp
+  if (sortConfig.value.key) {
+    const { key, direction } = sortConfig.value;
+    result.sort((a, b) => {
+      let vA = a[key] ?? 0;
+      let vB = b[key] ?? 0;
+      // Chuyển đổi sang số nếu là chuỗi chứa số để so sánh chính xác
+      if (typeof vA === 'string' && !isNaN(vA)) vA = parseFloat(vA);
+      if (typeof vB === 'string' && !isNaN(vB)) vB = parseFloat(vB);
+      
+      if (vA < vB) return direction === 'asc' ? -1 : 1;
+      if (vA > vB) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+  return result;
+});
+
+// Computed property for paginated details
+const filteredDetailsPaginated = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredAndSortedDetails.value.slice(start, end);
+});
+
+// Computed property for total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredAndSortedDetails.value.length / pageSize.value);
+});
+
+const pageSizes = [10, 20, 50];
+
+// Lấy danh sách người sửa duy nhất cho combo box
+const uniqueUsers = computed(() => {
+  const users = listDetails.value.map(item => item.nguoi_sua_cuoi).filter(Boolean);
+  return [...new Set(users)];
+});
+
+const resetFilters = () => {
+  searchTenHang.value = '';
+  filterHangHoa.value = null;
+  filterDVT.value = null;
+  filterUser.value = null;
+  currentPage.value = 1;
+};
+
 const addDetail = () => {
   editingIndex.value = -1;
   detailFormData.value = {
-    ma_chi_tiet_lo_hang: null, ten_hang: '', so_luong: 1, so_kien: 0,
+    ma_chi_tiet_lo_hang: null, ten_hang: '', so_luong: 1, so_kien: 1,
     the_tich: 0, trong_luong: 0, gia_ca: 0, ma_hang_hoa: null,
     ma_lo_hang: formData.value.ma_lo_hang, ma_don_vi_tinh: null
   };
-  isDetailModalOpen.value = true;
+  currentPage.value = 1; 
+  isDetailFormVisible.value = true;
 };
 
-const editDetail = (index) => {
+const handleEdit = (item) => {
+  const index = listDetails.value.findIndex(x => x === item);
   editingIndex.value = index;
   detailFormData.value = { ...listDetails.value[index] };
-  isDetailModalOpen.value = true;
+  isDetailFormVisible.value = true;
+  currentPage.value = Math.ceil((index + 1) / pageSize.value); 
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const sortBy = (key) => {
+  if (sortConfig.value.key === key) {
+    sortConfig.value.direction = sortConfig.value.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortConfig.value.key = key;
+    sortConfig.value.direction = 'asc';
+  }
+};
+
+const getSortIcon = (key) => {
+  if (sortConfig.value.key !== key) return '↕️';
+  return sortConfig.value.direction === 'asc' ? '🔼' : '🔽';
 };
 
 // Chỉ lưu vào mảng local, chưa gửi API
 const saveDetailItem = () => {
+  // Validation logic trước khi xác nhận thêm/sửa
+  const d = detailFormData.value;
+  if (!d.ten_hang || d.ten_hang.trim() === '') {
+    alert("Vui lòng nhập tên hàng hoặc mô tả chi tiết!");
+    return;
+  }
+  if (!d.ma_hang_hoa) {
+    alert("Vui lòng chọn loại hàng hóa (danh mục)!");
+    return;
+  }
+  if (!d.ma_don_vi_tinh) {
+    alert("Vui lòng chọn đơn vị tính!");
+    return;
+  }
+  if (d.so_luong === null || d.so_luong <= 0) {
+    alert("Số lượng hàng hóa phải lớn hơn 0!");
+    return;
+  }
+  if (d.so_kien === null || d.so_kien <= 0) {
+    alert("Số kiện phải phải lớn hơn 0!");
+    return;
+  }
+  if (d.trong_luong === null || d.trong_luong <= 0) {
+    alert("Trọng lượng phải lớn hơn 0!");
+    return;
+  }
+  if (d.the_tich === null || d.the_tich <= 0) {
+    alert("Thể tích phải lớn hơn 0!");
+    return;
+  }
+  if (d.gia_ca === null || d.gia_ca < 0) {
+    alert("Giá cả không hợp lệ (không được để trống hoặc nhỏ hơn 0)!");
+    return;
+  }
+
   if (editingIndex.value > -1) {
     listDetails.value[editingIndex.value] = { ...detailFormData.value };
   } else {
     listDetails.value.push({ ...detailFormData.value });
   }
-  isDetailModalOpen.value = false;
+  // currentPage.value = 1;
+  isDetailFormVisible.value = false;
 };
 
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+watch([searchTenHang, filterHangHoa, filterDVT, filterUser, pageSize], () => {
+  currentPage.value = 1;
+});
+
 const fetchDetailReferences = async () => {
+  if (listHangHoa.value.length > 0 && listDonViTinh.value.length > 0) {
+    return;
+  }
   const res = await fetch('http://127.0.0.1:8000/api/chi-tiet-lo-hang/references');
   const data = await res.json();
   if (data.success) {
@@ -256,12 +450,11 @@ const fetchDetailReferences = async () => {
   }
 };
 
-const deleteDetail = (index) => {
-  const item = listDetails.value[index];
+const deleteDetail = (item) => {
   if (item.ma_chi_tiet_lo_hang) {
     listDeletedDetails.value.push(item.ma_chi_tiet_lo_hang);
   }
-  listDetails.value.splice(index, 1);
+  listDetails.value.splice(listDetails.value.indexOf(item), 1); // Remove by item reference
 };
 
 const fetchReferences = async () => {
@@ -353,7 +546,6 @@ const handleSaveAll = async () => {
     // 3. Gán mã lô hàng vào từng chi tiết và lưu
     for (let i = 0; i < listDetails.value.length; i++) {
       const item = listDetails.value[i];
-      // Đảm bảo ma_lo_hang được gán đúng từ lô hàng vừa lưu/sửa
       const detailPayload = {
         ...item,
         ma_lo_hang: maLoHang, 
