@@ -28,7 +28,7 @@ class QuanLyVanDon extends Controller
                     'cang_di.ten_cang as ten_cang_di',
                     'cang_den.ten_cang as ten_cang_den',
                     'lo_hang.ten_lo_hang',
-                    'tai_khoan.ho_ten as nguoi_sua_doi' // Ensure this is unique if joined twice
+                    'tai_khoan.ho_ten as nguoi_sua_doi' // Lấy tên người sửa cuối cùng từ bảng tai_khoan
                 )
                 ->where('van_don.thoi_gian_xoa', '<', '2000-01-01')
                 ->orderBy('van_don.ma_van_don', 'asc')
@@ -78,6 +78,7 @@ class QuanLyVanDon extends Controller
                 ->leftJoin('cang_bien as cang_di', 'van_don.ma_cang_di', '=', 'cang_di.ma_cang')
                 ->leftJoin('cang_bien as cang_den', 'van_don.ma_cang_den', '=', 'cang_den.ma_cang')
                 ->leftJoin('lo_hang', 'van_don.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
+                ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
                 ->select(
                     'van_don.*',
                     'nguoi_gui.ten_khach_hang as ten_nguoi_gui_hang',
@@ -88,7 +89,8 @@ class QuanLyVanDon extends Controller
                     'ben_thong_bao.dia_chi as dia_chi_ben_thong_bao',
                     'cang_di.ten_cang as ten_cang_di',
                     'cang_den.ten_cang as ten_cang_den',
-                    'lo_hang.ten_lo_hang'
+                    'lo_hang.ten_lo_hang',
+                    'booking.ten_con_tau as ten_tau'
                 )
                 ->where('van_don.ma_van_don', $id)
                 ->where('van_don.thoi_gian_xoa', '<', '2000-01-01') // Only active records
@@ -98,8 +100,8 @@ class QuanLyVanDon extends Controller
                 return response()->json(['success' => false, 'message' => 'Không tìm thấy vận đơn.'], 404);
             }
 
-            // Format date for display in PDF
-            $vanDon->ngay_phat_hanh_formatted = $vanDon->ngay_phat_hanh ? Carbon::parse($vanDon->ngay_phat_hanh)->format('d/m/Y H:i') : 'N/A';
+            // Định dạng ngày phát hành cho PDF 
+            $vanDon->ngay_phat_hanh_formatted = $vanDon->ngay_phat_hanh ? Carbon::parse($vanDon->ngay_phat_hanh)->format('d/m/Y') : 'N/A';
 
             // Lấy chi tiết hàng hóa từ lô hàng
             $chiTietHangHoa = DB::table('chi_tiet_lo_hang')
@@ -109,14 +111,15 @@ class QuanLyVanDon extends Controller
                 ->select(
                     'chi_tiet_lo_hang.*',
                     'hang_hoa.ten_hang_hoa',
+                    'hang_hoa.hs_code',
                     'don_vi_tinh.ten_don_vi_tinh'
                 )
                 ->get();
 
-            // Load view and generate PDF
+            // Load view PDF với dữ liệu vận đơn và chi tiết hàng hóa
             $pdf = Pdf::loadView('pdfs.van_don', compact('vanDon', 'chiTietHangHoa'));
 
-            // Return PDF for download
+            // Trả về file PDF để tải xuống
             return $pdf->download('VanDon_' . $vanDon->so_van_don . '.pdf');
 
         } catch (\Exception $e) {
@@ -129,7 +132,7 @@ class QuanLyVanDon extends Controller
         $ma_van_don = $request->input('ma_van_don');
         $so_van_don = $request->input('so_van_don');
         $ma_lo_hang = $request->input('ma_lo_hang');
-        $nguoi_sua_cuoi = $request->input('nguoi_sua_cuoi'); // Assuming this comes from the frontend, or get from auth
+        $nguoi_sua_cuoi = $request->input('nguoi_sua_cuoi'); 
 
         if (!$so_van_don) {
             return response()->json(['success' => false, 'message' => 'Vui lòng nhập số vận đơn.']);
@@ -139,12 +142,12 @@ class QuanLyVanDon extends Controller
         }
 
         try {
-            // Check for duplicate so_van_don
+            // Kiểm tra trùng số vận đơn (chỉ với các bản ghi chưa bị xóa)
             $query = DB::table('van_don')
                         ->where('so_van_don', $so_van_don)
                         ->where('thoi_gian_xoa', '<', '2000-01-01'); // Only check active records
 
-            if ($ma_van_don) { // If updating, exclude current record
+            if ($ma_van_don) { // Nếu đang cập nhật, loại trừ bản ghi hiện tại khỏi kiểm tra
                 $query->where('ma_van_don', '!=', $ma_van_don);
             }
 
@@ -167,7 +170,7 @@ class QuanLyVanDon extends Controller
                 'ma_cang_di' => $request->input('ma_cang_di'),
                 'ma_cang_den' => $request->input('ma_cang_den'),
                 'ma_lo_hang' => $ma_lo_hang,
-                'nguoi_sua_cuoi' => $nguoi_sua_cuoi // This should ideally come from authenticated user
+                'nguoi_sua_cuoi' => $nguoi_sua_cuoi // Cập nhật người sửa cuối cùng
             ];
 
             if ($ma_van_don) {
@@ -187,7 +190,7 @@ class QuanLyVanDon extends Controller
     public function delete(Request $request)
     {
         $ma_van_don = $request->input('ma_van_don');
-        $nguoi_sua_cuoi = $request->input('nguoi_sua_cuoi'); // Assuming this comes from the frontend, or get from auth
+        $nguoi_sua_cuoi = $request->input('nguoi_sua_cuoi'); // Lấy người sửa cuối cùng để ghi nhận ai đã xóa
 
         if (empty($ma_van_don)) {
             return response()->json(['success' => false, 'message' => 'Thiếu mã vận đơn.']);
@@ -198,7 +201,7 @@ class QuanLyVanDon extends Controller
                 ->where('ma_van_don', $ma_van_don)
                 ->update([
                     'thoi_gian_xoa' => Carbon::now(),
-                    'nguoi_sua_cuoi' => $nguoi_sua_cuoi // Update who deleted it
+                    'nguoi_sua_cuoi' => $nguoi_sua_cuoi // Ghi nhận người đã xóa
                 ]);
             return response()->json(['success' => true, 'message' => 'Đã xóa vận đơn thành công!']);
         } catch (\Exception $e) {
