@@ -12,17 +12,19 @@ class QuanLyTaiKhoan extends Controller
     {
         try {
             $accounts = DB::table('tai_khoan')
-                ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
+                ->leftJoin('chi_tiet_quyen', 'tai_khoan.ma_tai_khoan', '=', 'chi_tiet_quyen.ma_tai_khoan')
+                ->leftJoin('quyen', 'chi_tiet_quyen.ma_quyen', '=', 'quyen.ma_quyen')
                 ->select(
                     'tai_khoan.ma_tai_khoan', 
                     'tai_khoan.ho_ten', 
                     'tai_khoan.email', 
                     'tai_khoan.trang_thai', 
                     'tai_khoan.ngay_sinh', 
-                    'tai_khoan.ma_quyen', // Bổ sung để frontend giữ được chức vụ khi sửa
-                    'quyen.ten_quyen'
+                    DB::raw('GROUP_CONCAT(quyen.ten_quyen SEPARATOR ", ") as ten_quyen'),
+                    DB::raw('GROUP_CONCAT(quyen.ma_quyen) as ds_ma_quyen')
                 )
                 ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01')
+                ->groupBy('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.email', 'tai_khoan.trang_thai', 'tai_khoan.ngay_sinh')
                 ->orderBy('tai_khoan.ma_tai_khoan', 'asc')
                 ->get();
             return response()->json(["success" => true, "data" => $accounts]);
@@ -41,6 +43,8 @@ class QuanLyTaiKhoan extends Controller
         }
 
         try {
+            DB::beginTransaction();
+
             $emailCheck = DB::table('tai_khoan')->where('email', $email)->where('thoi_gian_xoa', '<', '2000-01-01');
             if ($ma_tai_khoan) $emailCheck->where('ma_tai_khoan', '!=', $ma_tai_khoan);
             if ($emailCheck->exists()) return response()->json(['success' => false, 'message' => 'Email này đã tồn tại!']);
@@ -51,7 +55,6 @@ class QuanLyTaiKhoan extends Controller
                 'ngay_sinh' => $request->input('ngay_sinh'),
             ];
 
-            if ($request->has('ma_quyen')) $dataToSave['ma_quyen'] = $request->input('ma_quyen');
             if ($request->has('trang_thai')) $dataToSave['trang_thai'] = $request->input('trang_thai');
 
             if ($ma_tai_khoan) {
@@ -60,11 +63,30 @@ class QuanLyTaiKhoan extends Controller
                 $message = "Cập nhật thành công!";
             } else {
                 $dataToSave['mat_khau'] = Hash::make($request->input('mat_khau'));
-                DB::table('tai_khoan')->insert($dataToSave);
+                $ma_tai_khoan = DB::table('tai_khoan')->insertGetId($dataToSave);
                 $message = "Tạo mới thành công!";
             }
+
+            // Xử lý lưu nhiều quyền vào bảng chi_tiet_quyen
+            $quyen_input = $request->input('ma_quyen'); // Có thể là mảng hoặc một giá trị đơn lẻ
+            if ($quyen_input !== null) {
+                $ds_quyen = is_array($quyen_input) ? $quyen_input : [$quyen_input];
+                
+                // Xóa các quyền cũ
+                DB::table('chi_tiet_quyen')->where('ma_tai_khoan', $ma_tai_khoan)->delete();
+                
+                // Chèn các quyền mới
+                $data_quyen = array_map(function($id_quyen) use ($ma_tai_khoan) {
+                    return ['ma_tai_khoan' => $ma_tai_khoan, 'ma_quyen' => $id_quyen];
+                }, $ds_quyen);
+                
+                DB::table('chi_tiet_quyen')->insert($data_quyen);
+            }
+
+            DB::commit();
             return response()->json(['success' => true, 'message' => $message]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]);
         }
     }

@@ -24,7 +24,14 @@
         <option value="Khác">Khác</option>
       </select>
 
-      <button @click="fetchData()" class="btn-refresh">🔄 Cập nhật kho</button>
+      <select v-model="filterLoHang" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; width: 250px; font-weight: bold;">
+        <option value="ALL">📦 Tất cả lô hàng</option>
+        <option v-for="lo in listLoHang" :key="lo.ma_lo_hang" :value="lo.ma_lo_hang">
+          [{{ lo.so_booking }}] - {{ lo.ten_lo_hang }}
+        </option>
+      </select>
+
+      <button @click="fetchData()" class="btn-refresh">🔄 Làm mới</button>
       <button class="btn btn-success" @click="openModal()" style="border-radius: 20px; padding: 10px 20px; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);">
         ☁️ TẢI LÊN CHỨNG TỪ
       </button>
@@ -144,6 +151,7 @@ const zoomedImage = ref(null);
 
 const searchQuery = ref(''); 
 const filterLoai = ref('ALL');
+const filterLoHang = ref('ALL');
 const fileToUpload = ref(null);
 const previewUrl = ref('');
 
@@ -196,12 +204,13 @@ const downloadFile = async (path, fileName) => {
 const filteredDocs = computed(() => {
   return listDocs.value.filter(doc => {
     const matchLoai = filterLoai.value === 'ALL' || doc.loai_chung_tu === filterLoai.value;
+    const matchLoHang = filterLoHang.value === 'ALL' || doc.ma_lo_hang === filterLoHang.value;
     const search = searchQuery.value.toLowerCase();
     const matchSearch = !search || 
       (doc.so_booking && doc.so_booking.toLowerCase().includes(search)) || 
       (doc.ten_lo_hang && doc.ten_lo_hang.toLowerCase().includes(search));
     
-    return matchLoai && matchSearch;
+    return matchLoai && matchLoHang && matchSearch;
   });
 });
 

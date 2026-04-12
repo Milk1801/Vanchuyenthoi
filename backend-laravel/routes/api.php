@@ -108,14 +108,7 @@ Route::post('/don-vi-tinh/delete', [QuanLyDonViTinh::class, 'delete']);
 Route::get('/costs', [QuanLyChiPhi::class, 'index']);
 Route::post('/costs/save', [QuanLyChiPhi::class, 'save']);
 
-/*
-|--------------------------------------------------------------------------
-| 10. API QUẢN LÝ QUYỀN
-|--------------------------------------------------------------------------
-*/
-Route::get('/quyen', [QuanLyQuyen::class, 'index']);
-Route::post('/quyen/save', [QuanLyQuyen::class, 'save']);
-Route::post('/quyen/delete', [QuanLyQuyen::class, 'delete']);
+
 
 /*
 |--------------------------------------------------------------------------

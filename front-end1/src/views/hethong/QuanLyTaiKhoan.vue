@@ -6,7 +6,7 @@
       <div class="search-box">
         <input type="text" v-model="searchQuery" placeholder="Tìm kiếm tên, mã tài khoản...">
       </div>
-      <button class="btn btn-success" @click="openModal()">+ TẠO TÀI KHOẢN MỚI</button>
+      <button class="btn btn-success" @click="goToAdd">+ TẠO TÀI KHOẢN MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -39,80 +39,24 @@
               </span>
             </td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="openModal(acc)" title="Sửa">✏️</button>
+              <button class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content">
-        <h3>{{ formData.ma_tai_khoan ? 'Cập nhật tài khoản' : 'Thêm tài khoản mới' }}</h3>
-        <form @submit.prevent="saveAccount">
-          <div class="form-group">
-            <label>Họ và Tên</label>
-            <input v-model="formData.ho_ten" required placeholder="Nhập tên nhân viên...">
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" v-model="formData.email" required placeholder="email@sincere.com">
-          </div>
-          <div class="form-group">
-            <label>Ngày sinh</label>
-            <input type="date" v-model="formData.ngay_sinh">
-          </div>
-          <div class="form-group">
-            <label>Mật khẩu {{ formData.ma_tai_khoan ? '(Để trống nếu không đổi)' : '' }}</label>
-            <input type="password" v-model="formData.mat_khau" :required="!formData.ma_tai_khoan">
-          </div>
-          <div class="form-group">
-            <label>Quyền hệ thống</label>
-            <select v-model="formData.ma_quyen">
-              <option value="1">Chứng từ</option>
-              <option value="2">Kế toán</option>
-              <option value="3">Giao nhận</option>
-              <option value="4">Khai báo Hải quan</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Trạng thái</label>
-            <select v-model="formData.trang_thai">
-              <option value="Hoạt động">Hoạt động</option>
-              <option value="Tạm khóa">Tạm khóa</option>
-            </select>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
-               {{ isSaving ? 'Đang lưu...' : 'Lưu lại' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const listAccounts = ref([]);
 const isLoading = ref(true);
-const isSaving = ref(false);
-const isModalOpen = ref(false);
 const searchQuery = ref('');
-
-const formData = ref({
-  ma_tai_khoan: null,
-  ho_ten: '',
-  email: '',
-  ngay_sinh: '', 
-  mat_khau: '',
-  ma_quyen: 1,
-  trang_thai: 'Hoạt động'
-});
 
 const formatDate = (dateString) => {
   if (!dateString) return "Chưa cập nhật";
@@ -149,48 +93,12 @@ const fetchAccounts = async () => {
   }
 };
 
-const openModal = (acc = null) => {
-  if (acc) {
-    formData.value = { ...acc, mat_khau: '' }; 
-  } else {
-    formData.value = { 
-      ma_tai_khoan: null, 
-      ho_ten: '', 
-      email: '', 
-      ngay_sinh: '', 
-      mat_khau: '', 
-      ma_quyen: 1, 
-      trang_thai: 'Hoạt động' 
-    };
-  }
-  isModalOpen.value = true;
+const goToAdd = () => {
+  router.push('/he-thong/tai-khoan/add');
 };
 
-// ĐÃ SỬA: Trỏ về API Laravel
-const saveAccount = async () => {
-  isSaving.value = true;
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/accounts/save', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json' 
-      },
-      body: JSON.stringify(formData.value)
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert(data.message);
-      isModalOpen.value = false;
-      fetchAccounts(); 
-    } else {
-      alert("Lỗi: " + data.message);
-    }
-  } catch (error) {
-    alert("Lỗi kết nối máy chủ khi lưu!");
-  } finally {
-    isSaving.value = false;
-  }
+const goToEdit = (id) => {
+  router.push(`/he-thong/tai-khoan/edit/${id}`);
 };
 
 // ĐÃ SỬA: Trỏ về API Laravel
@@ -224,3 +132,28 @@ onMounted(fetchAccounts);
 </script>
 
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
+<style scoped>
+/* Style bổ sung cho danh sách checkbox quyền */
+.checkbox-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+  margin-bottom: 0;
+  font-size: 14px;
+}
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+</style>

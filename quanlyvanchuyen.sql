@@ -90,6 +90,18 @@ CREATE TABLE `chi_phi` (
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `chi_tiet_quyen`
+--
+
+CREATE TABLE `chi_tiet_quyen` (
+  `ma_chi_tiet_quyen` int(11) NOT NULL,
+  `ma_tai_khoan` int(11) NOT NULL,
+  `ma_quyen` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `chi_tiet_lo_hang`
 --
 
@@ -263,7 +275,6 @@ CREATE TABLE `tai_khoan` (
   `email` varchar(100) NOT NULL,
   `ho_ten` varchar(50) NOT NULL,
   `ngay_sinh` date DEFAULT NULL,
-  `ma_quyen` int(11) DEFAULT NULL,
   `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -271,9 +282,17 @@ CREATE TABLE `tai_khoan` (
 -- Đang đổ dữ liệu cho bảng `tai_khoan`
 --
 
-INSERT INTO `tai_khoan` (`ma_tai_khoan`, `mat_khau`, `trang_thai`, `email`, `ho_ten`, `ngay_sinh`, `ma_quyen`) VALUES
-(1, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hoạt động', 'duongminhle99@gmail.com', 'Lê Nhật Minh', '2004-01-18', 1),
-(2, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hoạt động', 'minh95261@st.vimaru.edu.vn', 'Lê Hoàng Linh', '2026-04-23', 4);
+INSERT INTO `tai_khoan` (`ma_tai_khoan`, `mat_khau`, `trang_thai`, `email`, `ho_ten`, `ngay_sinh`) VALUES
+(1, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hoạt động', 'duongminhle99@gmail.com', 'Lê Nhật Minh', '2004-01-18'),
+(2, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hoạt động', 'minh95261@st.vimaru.edu.vn', 'Lê Hoàng Linh', '2026-04-23');
+
+--
+-- Đang đổ dữ liệu cho bảng `chi_tiet_quyen`
+--
+
+INSERT INTO `chi_tiet_quyen` (`ma_chi_tiet_quyen`, `ma_tai_khoan`, `ma_quyen`) VALUES
+(1, 1, 1),
+(2, 2, 4);
 
 -- --------------------------------------------------------
 
@@ -355,6 +374,14 @@ ALTER TABLE `bien_ban_giao_nhan`
   ADD PRIMARY KEY (`ma_bien_ban_giao_nhan`),
   ADD KEY `ma_lo_hang` (`ma_lo_hang`),
   ADD KEY `ma_hang_van_tai` (`ma_hang_van_tai`);
+
+--
+-- Chỉ mục cho bảng `chi_tiet_quyen`
+--
+ALTER TABLE `chi_tiet_quyen`
+  ADD PRIMARY KEY (`ma_chi_tiet_quyen`),
+  ADD KEY `ma_tai_khoan` (`ma_tai_khoan`),
+  ADD KEY `ma_quyen` (`ma_quyen`);
 
 --
 -- Chỉ mục cho bảng `booking`
@@ -477,7 +504,6 @@ ALTER TABLE `quyen`
 ALTER TABLE `tai_khoan`
   ADD PRIMARY KEY (`ma_tai_khoan`),
   ADD UNIQUE KEY `email` (`email`, `thoi_gian_xoa`),
-  ADD KEY `ma_quyen` (`ma_quyen`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
@@ -547,6 +573,18 @@ ALTER TABLE `chi_phi`
   MODIFY `ma_chi_phi` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT cho bảng `chi_tiet_quyen`
+--
+ALTER TABLE `chi_tiet_quyen`
+  MODIFY `ma_chi_tiet_quyen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT cho bảng `tai_khoan`
+--
+ALTER TABLE `tai_khoan`
+  MODIFY `ma_tai_khoan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT cho bảng `chi_tiet_lo_hang`
 --
 ALTER TABLE `chi_tiet_lo_hang`
@@ -607,12 +645,6 @@ ALTER TABLE `quyen`
   MODIFY `ma_quyen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT cho bảng `tai_khoan`
---
-ALTER TABLE `tai_khoan`
-  MODIFY `ma_tai_khoan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
 -- AUTO_INCREMENT cho bảng `thong_bao_hang_den`
 --
 ALTER TABLE `thong_bao_hang_den`
@@ -646,6 +678,13 @@ ALTER TABLE `van_don`
 ALTER TABLE `bien_ban_giao_nhan`
   ADD CONSTRAINT `bien_ban_giao_nhan_ibfk_1` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
   ADD CONSTRAINT `bien_ban_giao_nhan_ibfk_2` FOREIGN KEY (`ma_hang_van_tai`) REFERENCES `hang_van_tai` (`ma_hang_van_tai`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `chi_tiet_quyen`
+--
+ALTER TABLE `chi_tiet_quyen`
+  ADD CONSTRAINT `chi_tiet_quyen_ibfk_1` FOREIGN KEY (`ma_tai_khoan`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE CASCADE,
+  ADD CONSTRAINT `chi_tiet_quyen_ibfk_2` FOREIGN KEY (`ma_quyen`) REFERENCES `quyen` (`ma_quyen`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `booking`
@@ -691,12 +730,6 @@ ALTER TABLE `lo_hang`
   ADD CONSTRAINT `lo_hang_ibfk_2` FOREIGN KEY (`ma_booking`) REFERENCES `booking` (`ma_booking`) ON DELETE SET NULL,
   ADD CONSTRAINT `lo_hang_ibfk_3` FOREIGN KEY (`ma_khach_hang`) REFERENCES `khach_hang` (`ma_khach_hang`),
   ADD CONSTRAINT `lo_hang_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
-
---
--- Các ràng buộc cho bảng `tai_khoan`
---
-ALTER TABLE `tai_khoan`
-  ADD CONSTRAINT `tai_khoan_ibfk_1` FOREIGN KEY (`ma_quyen`) REFERENCES `quyen` (`ma_quyen`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `thong_bao_hang_den`

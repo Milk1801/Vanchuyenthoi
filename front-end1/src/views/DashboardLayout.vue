@@ -9,7 +9,6 @@
         <router-link to="/he-thong" active-class="active-menu">⚙️ Quản lý hệ thống</router-link>
         <div v-show="isHeThongRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
           <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Quản lý người dùng</router-link>
-          <router-link to="/he-thong/quyen" active-class="active-submenu">🔑 Quản lý phân quyền người dùng</router-link>
           <router-link to="/he-thong/ho-so" active-class="active-submenu">👤 Quản lý hồ sơ cá nhân</router-link>
         </div>
         

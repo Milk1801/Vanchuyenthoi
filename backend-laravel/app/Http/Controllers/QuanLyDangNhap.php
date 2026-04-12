@@ -18,8 +18,7 @@ class QuanLyDangNhap extends Controller
 
         try {
             $user = DB::table('tai_khoan')
-                ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
-                ->select('tai_khoan.*', 'quyen.ten_quyen')
+                ->select('tai_khoan.*')
                 ->where('tai_khoan.email', $email)
                 ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01')
                 ->first();
@@ -29,13 +28,20 @@ class QuanLyDangNhap extends Controller
                     return response()->json(['success' => false, 'message' => 'Tài khoản của bạn đã bị khóa!']);
                 }
 
+
+                $list_quyen = DB::table('chi_tiet_quyen')
+                    ->join('quyen', 'chi_tiet_quyen.ma_quyen', '=', 'quyen.ma_quyen')
+                    ->where('chi_tiet_quyen.ma_tai_khoan', $user->ma_tai_khoan)
+                    ->pluck('quyen.ten_quyen')
+                    ->toArray();
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Đăng nhập thành công! Chào mừng ' . $user->ho_ten,
                     'user' => [
                         'ma_tai_khoan' => $user->ma_tai_khoan,
                         'ho_ten' => $user->ho_ten,
-                        'chuc_vu' => $user->ten_quyen,
+                        'chuc_vu' => implode(', ', $list_quyen),
                         'email' => $user->email
                     ]
                 ]);
@@ -56,13 +62,22 @@ class QuanLyDangNhap extends Controller
 
         try {
             $user = DB::table('tai_khoan')
-                ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
                 ->where('tai_khoan.ma_tai_khoan', $ma_tai_khoan)
                 ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01') 
-                ->select('tai_khoan.*', 'quyen.ten_quyen') 
+                ->select('tai_khoan.*') 
                 ->first();
                 
-            if ($user) return response()->json(["success" => true, "data" => $user]);
+            if ($user) {
+                // Lấy danh sách chi tiết các mã quyền và tên quyền
+                $ds_quyen = DB::table('chi_tiet_quyen')
+                    ->join('quyen', 'chi_tiet_quyen.ma_quyen', '=', 'quyen.ma_quyen')
+                    ->where('chi_tiet_quyen.ma_tai_khoan', $ma_tai_khoan)
+                    ->select('quyen.ma_quyen', 'quyen.ten_quyen')
+                    ->get();
+                
+                $user->ds_quyen = $ds_quyen;
+                return response()->json(["success" => true, "data" => $user]);
+            }
             return response()->json(["success" => false, "message" => "Không tìm thấy user."]);
         } catch (\Exception $e) {
             return response()->json(["success" => false, "message" => "Lỗi DB: " . $e->getMessage()], 500);

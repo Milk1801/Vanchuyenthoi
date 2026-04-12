@@ -3,7 +3,6 @@ import Login from '../views/login.vue'
 import DashboardLayout from '../views/DashboardLayout.vue'
 import Home from '../views/Home.vue'
 import QuanLyTaiKhoan from '../views/hethong/QuanLyTaiKhoan.vue'
-import QuanLyQuyen from '../views/hethong/QuanLyQuyen.vue'
 import QuanLyDanhMuc from '../views/QuanLyDanhMuc.vue'
 import HoSoCaNhan from '../views/hethong/HoSoCaNhan.vue'
 import KhachHang from '../views/danhmuc/KhachHang.vue'
@@ -29,6 +28,7 @@ import HangHoaForm from '../views/danhmuc/HangHoaForm.vue'
 import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
 import LoHangForm from '@/views/lohang/LoHangForm.vue'
 import BookingForm from '@/views/lohang/BookingForm.vue'
+import TaiKhoanForm from '@/views/hethong/TaiKhoanForm.vue'
 import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
@@ -55,9 +55,18 @@ const router = createRouter({
           redirect: '/he-thong/tai-khoan',
           children: [
             { path: 'tai-khoan', name: 'he-thong-tai-khoan', component: QuanLyTaiKhoan },
-            { path: 'quyen', name: 'he-thong-quyen', component: QuanLyQuyen },
             { path: 'ho-so', name: 'he-thong-ho-so', component: HoSoCaNhan }
           ]
+        },
+        {
+          path: '/he-thong/tai-khoan/add',
+          name: 'he-thong-tai-khoan-add',
+          component: TaiKhoanForm
+        },
+        {
+          path: '/he-thong/tai-khoan/edit/:id',
+          name: 'he-thong-tai-khoan-edit',
+          component: TaiKhoanForm
         },
         {
           path: 'danh-muc',
