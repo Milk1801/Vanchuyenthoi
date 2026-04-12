@@ -172,6 +172,8 @@ CREATE TABLE `hang_tau` (
 CREATE TABLE `hang_van_tai` (
   `ma_hang_van_tai` int(11) NOT NULL,
   `ten_hang_van_tai` varchar(50) NOT NULL,
+  `dia_chi` varchar(200) DEFAULT NULL,
+  `so_dien_thoai` varchar(15) DEFAULT NULL,
   `tuyen_thuong_xuyen` TEXT DEFAULT NULL,
   `cac_loai_xe` TEXT DEFAULT NULL,
   `ghi_chu` varchar(500) DEFAULT NULL,
@@ -420,6 +422,8 @@ ALTER TABLE `hang_hoa`
 --
 ALTER TABLE `hang_tau`
   ADD PRIMARY KEY (`ma_hang_tau`),
+  ADD UNIQUE KEY `so_dien_thoai` (`so_dien_thoai`, `thoi_gian_xoa`),
+  ADD UNIQUE KEY `so_fax` (`so_fax`, `thoi_gian_xoa`),
   ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
@@ -428,6 +432,7 @@ ALTER TABLE `hang_tau`
 --
 ALTER TABLE `hang_van_tai`
   ADD PRIMARY KEY (`ma_hang_van_tai`),
+  ADD UNIQUE KEY `so_dien_thoai` (`so_dien_thoai`, `thoi_gian_xoa`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
@@ -435,6 +440,8 @@ ALTER TABLE `hang_van_tai`
 --
 ALTER TABLE `khach_hang`
   ADD PRIMARY KEY (`ma_khach_hang`),
+  ADD UNIQUE KEY `so_dien_thoai` (`so_dien_thoai`, `thoi_gian_xoa`),
+  ADD UNIQUE KEY `so_fax` (`so_fax`, `thoi_gian_xoa`),
   ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
@@ -469,6 +476,7 @@ ALTER TABLE `quyen`
 --
 ALTER TABLE `tai_khoan`
   ADD PRIMARY KEY (`ma_tai_khoan`),
+  ADD UNIQUE KEY `email` (`email`, `thoi_gian_xoa`),
   ADD KEY `ma_quyen` (`ma_quyen`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
