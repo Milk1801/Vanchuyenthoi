@@ -17,13 +17,13 @@ return [
 
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['*'],
+    'allowed_methods' => ['*'], // Cho phép tất cả các method GET, POST, DELETE...
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['*'], // QUAN TRỌNG NHẤT: Cho phép tất cả các domain gọi vào
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => ['*'], // Cho phép tất cả các loại headers
 
     'exposed_headers' => [],
 

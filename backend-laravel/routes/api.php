@@ -159,6 +159,7 @@ Route::post('/chung-tu/delete', [QuanLyChungTu::class, 'destroy']);
 Route::get('/lenh-giao-hang', [QuanLyLenhGiaoHang::class, 'index']);
 Route::post('/lenh-giao-hang/save', [QuanLyLenhGiaoHang::class, 'store']);
 Route::post('/lenh-giao-hang/delete', [QuanLyLenhGiaoHang::class, 'destroy']);
+Route::get('/lenh-giao-hang/export-pdf', [QuanLyLenhGiaoHang::class, 'exportPdf']);
 
 /*
 |--------------------------------------------------------------------------
