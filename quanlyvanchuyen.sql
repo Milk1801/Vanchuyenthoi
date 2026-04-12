@@ -172,8 +172,8 @@ CREATE TABLE `hang_tau` (
 CREATE TABLE `hang_van_tai` (
   `ma_hang_van_tai` int(11) NOT NULL,
   `ten_hang_van_tai` varchar(50) NOT NULL,
-  `tuyen_thuong_xuyen` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tuyen_thuong_xuyen`)),
-  `cac_loai_xe` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`cac_loai_xe`)),
+  `tuyen_thuong_xuyen` TEXT DEFAULT NULL,
+  `cac_loai_xe` TEXT DEFAULT NULL,
   `ghi_chu` varchar(500) DEFAULT NULL,
   `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -256,7 +256,7 @@ INSERT INTO `quyen` (`ma_quyen`, `ten_quyen`, `trang_thai`) VALUES
 
 CREATE TABLE `tai_khoan` (
   `ma_tai_khoan` int(11) NOT NULL,
-  `mat_khau` varchar(50) NOT NULL,
+  `mat_khau` varchar(255) NOT NULL,
   `trang_thai` enum('Hoạt động','Tạm khóa') DEFAULT 'Hoạt động',
   `email` varchar(100) NOT NULL,
   `ho_ten` varchar(50) NOT NULL,
@@ -270,8 +270,8 @@ CREATE TABLE `tai_khoan` (
 --
 
 INSERT INTO `tai_khoan` (`ma_tai_khoan`, `mat_khau`, `trang_thai`, `email`, `ho_ten`, `ngay_sinh`, `ma_quyen`) VALUES
-(1, '1234567', 'Hoạt động', 'duongminhle99@gmail.com', 'Lê Nhật Minh', '2004-01-18', 1),
-(2, '123456', 'Hoạt động', 'minh95261@st.vimaru.edu.vn', 'Lê Hoàng Linh', '2026-04-23', 4);
+(1, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hoạt động', 'duongminhle99@gmail.com', 'Lê Nhật Minh', '2004-01-18', 1),
+(2, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hoạt động', 'minh95261@st.vimaru.edu.vn', 'Lê Hoàng Linh', '2026-04-23', 4);
 
 -- --------------------------------------------------------
 
@@ -324,7 +324,7 @@ CREATE TABLE `to_khai_hai_quan` (
 
 CREATE TABLE `van_don` (
   `ma_van_don` int(11) NOT NULL,
-  `loai_van_don` enum('Master B/L','House B/L','Surrendered B/L','Seaway Bill') DEFAULT NULL,
+  `loai_van_don` enum('Original B/L','Surrendered B/L','Seaway Bill') DEFAULT NULL,
   `ngay_phat_hanh` datetime DEFAULT NULL,
   `so_van_don_goc` varchar(30) DEFAULT NULL,
   `so_van_don` varchar(30) DEFAULT NULL,

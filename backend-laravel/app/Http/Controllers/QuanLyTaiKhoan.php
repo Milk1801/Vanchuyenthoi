@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class QuanLyTaiKhoan extends Controller
 {
@@ -12,7 +13,15 @@ class QuanLyTaiKhoan extends Controller
         try {
             $accounts = DB::table('tai_khoan')
                 ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
-                ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.email', 'tai_khoan.trang_thai', 'tai_khoan.ngay_sinh', 'quyen.ten_quyen')
+                ->select(
+                    'tai_khoan.ma_tai_khoan', 
+                    'tai_khoan.ho_ten', 
+                    'tai_khoan.email', 
+                    'tai_khoan.trang_thai', 
+                    'tai_khoan.ngay_sinh', 
+                    'tai_khoan.ma_quyen', // Bổ sung để frontend giữ được chức vụ khi sửa
+                    'quyen.ten_quyen'
+                )
                 ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01')
                 ->orderBy('tai_khoan.ma_tai_khoan', 'asc')
                 ->get();
@@ -40,16 +49,17 @@ class QuanLyTaiKhoan extends Controller
                 'ho_ten' => $request->input('ho_ten'),
                 'email' => $email,
                 'ngay_sinh' => $request->input('ngay_sinh'),
-                'ma_quyen' => $request->input('ma_quyen'),
-                'trang_thai' => $request->input('trang_thai')
             ];
 
+            if ($request->has('ma_quyen')) $dataToSave['ma_quyen'] = $request->input('ma_quyen');
+            if ($request->has('trang_thai')) $dataToSave['trang_thai'] = $request->input('trang_thai');
+
             if ($ma_tai_khoan) {
-                if ($request->filled('mat_khau')) $dataToSave['mat_khau'] = $request->input('mat_khau');
+                if ($request->filled('mat_khau')) $dataToSave['mat_khau'] = Hash::make($request->input('mat_khau'));
                 DB::table('tai_khoan')->where('ma_tai_khoan', $ma_tai_khoan)->update($dataToSave);
                 $message = "Cập nhật thành công!";
             } else {
-                $dataToSave['mat_khau'] = $request->input('mat_khau');
+                $dataToSave['mat_khau'] = Hash::make($request->input('mat_khau'));
                 DB::table('tai_khoan')->insert($dataToSave);
                 $message = "Tạo mới thành công!";
             }
