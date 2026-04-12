@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Chứng Từ Giao Nhận</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý về giấy tờ giao nhận</h3>
     
     <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; overflow-x: auto;">
       <button 
