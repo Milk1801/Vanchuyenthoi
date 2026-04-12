@@ -19,12 +19,21 @@
             <option v-for="kq in listKetQua" :key="kq" :value="kq">{{ kq }}</option>
           </select>
         </div>
+        <div class="search-box" style="flex:1 1 200px; min-width:180px;">
+          <input type="date" v-model="searchFilters.ngay_thong_quan" title="Lọc theo ngày thông quan">
+        </div>
+        <div class="search-box" style="flex:1 1 200px; min-width:180px;">
+          <select v-model="searchFilters.ten_nguoi_sua">
+            <option value="">-- Tất cả người sửa --</option>
+            <option v-for="name in uniqueNguoiSua" :key="name" :value="name">{{ name }}</option>
+          </select>
+        </div>
 
         <div class="search-box" style="flex:0 0 auto; min-width:140px; display:flex; align-items:flex-end;">
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="openModal()">+ TẠO TỜ KHAI MỚI</button>
+      <button class="btn btn-success" @click="router.push('/van-tai/to-khai-hai-quan/add')">+ TẠO TỜ KHAI MỚI</button>
     </div>
 
     <div v-if="isLoadingData" style="text-align: center; padding: 20px; color: #3498db;">
@@ -61,62 +70,12 @@
             </td>
             <td>{{ tk.ten_nguoi_sua || 'N/A' }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="openModal(tk)" title="Sửa">✏️</button>
+              <button class="action-btn text-primary" @click="router.push('/van-tai/to-khai-hai-quan/edit/' + tk.ma_to_khai_hai_quan)" title="Sửa">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(tk.ma_to_khai_hai_quan)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Modal Thêm/Sửa Tờ Khai -->
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content" style="max-width: 500px;">
-        <h3>{{ formData.ma_to_khai_hai_quan ? 'Cập Nhật Tờ Khai' : 'Thêm Tờ Khai Mới' }}</h3>
-        <form @submit.prevent="saveToKhai">
-          <div class="form-group">
-            <label>Lô Hàng Liên Kết *</label>
-            <select v-model="formData.ma_lo_hang" required>
-              <option :value="null">-- Chọn lô hàng --</option>
-              <option v-for="lh in listLoHang" :key="lh.ma_lo_hang" :value="lh.ma_lo_hang">
-                {{ lh.ten_lo_hang }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Ngày Thông Quan</label>
-            <input type="datetime-local" v-model="formData.ngay_thong_quan">
-          </div>
-
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Phân Luồng</label>
-              <select v-model="formData.phan_luong">
-                <option v-for="pl in listPhanLuong" :key="pl" :value="pl">{{ pl }}</option>
-              </select>
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Kết Quả</label>
-              <select v-model="formData.ket_qua_thong_quan">
-                <option v-for="kq in listKetQua" :key="kq" :value="kq">{{ kq }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Ghi chú (Tùy chọn)</label>
-            <textarea v-model="formData.ghi_chu" rows="2" style="width:100%; border:1px solid #ddd; border-radius:6px; padding:10px;"></textarea>
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
-              {{ isSaving ? 'Đang lưu...' : 'Lưu Tờ Khai' }}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   </div>
 </template>
@@ -127,10 +86,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const listToKhai = ref([]);
-const listLoHang = ref([]);
 const isLoadingData = ref(true);
-const isSaving = ref(false);
-const isModalOpen = ref(false);
 
 const listPhanLuong = ['Luồng Xanh', 'Luồng Vàng', 'Luồng Đỏ'];
 const listKetQua = ['Chờ xử lý', 'Đã thông quan', 'Từ chối'];
@@ -138,16 +94,14 @@ const listKetQua = ['Chờ xử lý', 'Đã thông quan', 'Từ chối'];
 const searchFilters = ref({
   ten_lo_hang: '',
   phan_luong: '',
-  ket_qua_thong_quan: ''
+  ket_qua_thong_quan: '',
+  ngay_thong_quan: '',
+  ten_nguoi_sua: ''
 });
 
-const formData = ref({
-  ma_to_khai_hai_quan: null,
-  ngay_thong_quan: '',
-  phan_luong: 'Luồng Xanh',
-  ket_qua_thong_quan: 'Chờ xử lý',
-  ma_lo_hang: null,
-  nguoi_sua_cuoi: null
+const uniqueNguoiSua = computed(() => {
+  const names = listToKhai.value.map(item => item.ten_nguoi_sua).filter(Boolean);
+  return [...new Set(names)];
 });
 
 const filteredData = computed(() => {
@@ -156,8 +110,11 @@ const filteredData = computed(() => {
       (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(searchFilters.value.ten_lo_hang.toLowerCase()));
     const matchPhanLuong = !searchFilters.value.phan_luong || item.phan_luong === searchFilters.value.phan_luong;
     const matchKetQua = !searchFilters.value.ket_qua_thong_quan || item.ket_qua_thong_quan === searchFilters.value.ket_qua_thong_quan;
+    
+    const matchDate = !searchFilters.value.ngay_thong_quan || (item.ngay_thong_quan && item.ngay_thong_quan.includes(searchFilters.value.ngay_thong_quan));
+    const matchNguoiSua = !searchFilters.value.ten_nguoi_sua || item.ten_nguoi_sua === searchFilters.value.ten_nguoi_sua;
 
-    return matchLoHang && matchPhanLuong && matchKetQua;
+    return matchLoHang && matchPhanLuong && matchKetQua && matchDate && matchNguoiSua;
   });
 });
 
@@ -169,9 +126,6 @@ const fetchData = async () => {
     if (data.success) {
       listToKhai.value = data.data;
     }
-    
-    // Đồng thời lấy tham chiếu lô hàng
-    await fetchReferences();
   } catch (error) {
     console.error('Fetch error:', error);
     alert("Không thể kết nối API lấy danh sách!");
@@ -180,61 +134,13 @@ const fetchData = async () => {
   }
 };
 
-const fetchReferences = async () => {
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/to-khai-hai-quan/references');
-    const data = await response.json();
-    if (data.success) listLoHang.value = data.lo_hang;
-  } catch (error) {
-    console.error('Fetch refs error:', error);
-  }
-};
-
-const openModal = (item = null) => {
-  if (item) {
-    formData.value = { 
-      ...item,
-      ngay_thong_quan: item.ngay_thong_quan ? new Date(item.ngay_thong_quan).toISOString().slice(0, 16) : ''
-    };
-  } else {
-    formData.value = {
-      ma_to_khai_hai_quan: null,
-      ngay_thong_quan: '',
-      phan_luong: 'Luồng Xanh',
-      ket_qua_thong_quan: 'Chờ xử lý',
-      ma_lo_hang: null,
-      nguoi_sua_cuoi: null
-    };
-  }
-  isModalOpen.value = true;
-};
-
-const saveToKhai = async () => {
-  isSaving.value = true;
-  const user = JSON.parse(localStorage.getItem('sincere_user'));
-  formData.value.nguoi_sua_cuoi = user ? (user.id || user.ma_tai_khoan) : null;
-  
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/to-khai-hai-quan/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData.value)
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message);
-      isModalOpen.value = false;
-      fetchData();
-    } else { alert("Lỗi: " + data.message); }
-  } catch (e) { alert("Lỗi kết nối máy chủ!"); }
-  finally { isSaving.value = false; }
-};
-
 const clearFilters = () => {
   searchFilters.value = {
     ten_lo_hang: '',
     phan_luong: '',
-    ket_qua_thong_quan: ''
+    ket_qua_thong_quan: '',
+    ngay_thong_quan: '',
+    ten_nguoi_sua: ''
   };
 };
 

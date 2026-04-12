@@ -32,6 +32,7 @@ import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
 import QuanLyToKhaiHaiQuan from '@/views/vantai/QuanLyToKhaiHaiQuan.vue'
+import QuanLyToKhaiHaiQuanForm from '@/views/vantai/QuanLyToKhaiHaiQuanForm.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -195,6 +196,16 @@ const router = createRouter({
           path: '/van-tai/Quan-ly-van-don/edit/:id',
           name: 'van-tai-quan-ly-van-don-edit',
           component: QuanLyVanDonForm
+        },
+        {
+          path: '/van-tai/to-khai-hai-quan/add',
+          name: 'van-tai-to-khai-hai-quan-add',
+          component: QuanLyToKhaiHaiQuanForm
+        },
+        {
+          path: '/van-tai/to-khai-hai-quan/edit/:id',
+          name: 'van-tai-to-khai-hai-quan-edit',
+          component: QuanLyToKhaiHaiQuanForm
         },
         
         {
