@@ -113,7 +113,7 @@
             <td class="fw-bold" style="color: #2980b9;">{{ bk.so_booking }}</td>
             <td>
               <strong>{{ bk.ten_con_tau || 'N/A' }}</strong><br>
-              <span style="font-size: 12px; color: #7f8c8d;">V. {{ bk.so_chuyen || 'N/A' }}</span>
+              <span style="font-size: 12px; color: #7f8c8d;">{{ bk.so_chuyen || 'N/A' }}</span>
             </td>
             <td>{{ bk.ten_hang_tau || 'Chưa rõ' }}</td>
             <td class="fw-bold">{{ bk.ten_cang_di || '---' }}</td>

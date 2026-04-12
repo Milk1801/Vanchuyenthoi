@@ -12,6 +12,15 @@
         >
       </div>
 
+      <div class="search-box" style="flex: 1; min-width: 250px;">
+        <input 
+          type="text" 
+          v-model="searchItemQuery" 
+          placeholder="🔍 Tìm theo tên hàng hóa..."
+          style="width: 100%; padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc;"
+        >
+      </div>
+
       <select v-model="filterKhachHang" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
         <option :value="null">👤 Khách hàng (Tất cả)</option>
         <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">{{ kh.ten_khach_hang }}</option>
@@ -20,6 +29,11 @@
       <select v-model="filterIncoterms" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 150px;">
         <option :value="null">🚚 Incoterms (Tất cả)</option>
         <option v-for="dk in ['FOB', 'CIF', 'EXW', 'DAP', 'DDP', 'CFR']" :key="dk" :value="dk">{{ dk }}</option>
+      </select>
+
+      <select v-model="filterHangHoa" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
+        <option :value="null">📦 Loại hàng (Tất cả)</option>
+        <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
       </select>
 
       <select v-model="filterTrangThai" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
@@ -77,6 +91,7 @@
                   <th>Khách Hàng</th>
                   <th>Điều kiện</th>
                   <th>Booking</th>
+                  <th>Nguồn gốc</th>
                   <th>Trạng thái</th>
                   <th>Người sửa cuối</th>
                   <th style="text-align: center;">Thao tác</th>
@@ -95,6 +110,7 @@
                       <button v-if="lh.ma_booking" @click="showBookingInfo(lh)" class="view-btn" title="Xem Booking">👁️</button>
                     </div>
                   </td>
+                  <td>{{ lh.nguon_goc || '---' }}</td>
                   <td>
                     <span class="badge" :class="statusClass(lh.trang_thai_lo_hang)" style="white-space: nowrap;">
                       {{ lh.trang_thai_lo_hang }}
@@ -189,10 +205,13 @@ const listKhachHang = ref([]);
 const listBooking = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
+const searchItemQuery = ref('');
 const filterTrangThai = ref('ALL');
 const filterKhachHang = ref(null);
 const filterIncoterms = ref(null);
 const filterUser = ref(null);
+const filterHangHoa = ref(null);
+const listHangHoa = ref([]);
 
 // State cho Side Panel
 const viewType = ref('none'); // 'none', 'booking', 'items'
@@ -229,12 +248,21 @@ const filteredLoHang = computed(() => {
       (lh.ma_lo_hang && lh.ma_lo_hang.toString().includes(search)) ||
       (lh.nguon_goc && lh.nguon_goc.toLowerCase().includes(search));
       
+    const itemSearch = searchItemQuery.value.toLowerCase();
+    const matchItemSearch = !itemSearch || (lh.ds_ten_hang && lh.ds_ten_hang.toLowerCase().includes(itemSearch));
+
     const matchTrangThai = filterTrangThai.value === 'ALL' || lh.trang_thai_lo_hang === filterTrangThai.value;
     const matchKhachHang = !filterKhachHang.value || lh.ma_khach_hang === filterKhachHang.value;
     const matchIncoterms = !filterIncoterms.value || lh.dieu_kien_thuong_mai === filterIncoterms.value;
     const matchUser = !filterUser.value || (lh.nguoi_sua_cuoi === filterUser.value || lh.nguoi_sua_doi === filterUser.value);
 
-    return matchSearch && matchTrangThai && matchKhachHang && matchIncoterms && matchUser;
+    let matchHangHoa = true;
+    if (filterHangHoa.value) {
+      const ids = lh.ds_ma_hang_hoa ? String(lh.ds_ma_hang_hoa).split(',').map(Number) : [];
+      matchHangHoa = ids.includes(Number(filterHangHoa.value));
+    }
+
+    return matchSearch && matchItemSearch && matchTrangThai && matchKhachHang && matchIncoterms && matchUser && matchHangHoa;
   });
 });
 
@@ -259,6 +287,8 @@ const resetFilters = () => {
   filterKhachHang.value = null;
   filterIncoterms.value = null;
   filterUser.value = null;
+  filterHangHoa.value = null;
+  searchItemQuery.value = '';
   currentPage.value = 1;
   fetchData();
   fetchReferences();
@@ -301,7 +331,7 @@ const showShipmentItems = async (lh) => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-watch([searchQuery, filterTrangThai, filterKhachHang, filterIncoterms, filterUser, pageSize], () => {
+watch([searchQuery, searchItemQuery, filterTrangThai, filterKhachHang, filterIncoterms, filterUser, filterHangHoa, pageSize], () => {
   currentPage.value = 1;
 });
 
@@ -320,6 +350,11 @@ const fetchReferences = async () => {
     if (dataBk.success) {
       listBooking.value = dataBk.data;
     }
+
+    // 3. Lấy danh mục hàng hóa (phục vụ bộ lọc)
+    const resHH = await fetch('http://127.0.0.1:8000/api/chi-tiet-lo-hang/references');
+    const dataHH = await resHH.json();
+    if (dataHH.success) listHangHoa.value = dataHH.hang_hoa;
   } catch (error) {
     console.error("Lỗi lấy dữ liệu tham chiếu");
   }

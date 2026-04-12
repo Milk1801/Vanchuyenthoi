@@ -4,7 +4,6 @@
       <h3 style="margin: 0; color: #2c3e50;">
         {{ formData.ma_tai_khoan ? '👤 Cập nhật tài khoản #' + formData.ma_tai_khoan : '👤 Thêm tài khoản mới' }}
       </h3>
-      <button @click="handleCancel" class="btn-cancel" type="button">✖ Đóng</button>
     </div>
 
     <div class="table-card" style="padding: 30px; max-width: 600px; margin: 0 auto;">
