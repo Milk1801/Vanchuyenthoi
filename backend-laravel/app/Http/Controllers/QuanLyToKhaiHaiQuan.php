@@ -33,12 +33,24 @@ class QuanLyToKhaiHaiQuan extends Controller
         }
     }
 
-    public function getReferences()
+    public function getReferences(Request $request)
     {
         try {
-            // Lấy danh sách lô hàng chưa bị xóa để gán vào tờ khai
+            $ma_to_khai = $request->query('ma_to_khai_hai_quan');
+
+            // Lấy danh sách lô hàng chưa bị xóa
+            // Chỉ lấy các lô hàng chưa được liên kết với tờ khai nào khác
             $loHang = DB::table('lo_hang')
                 ->where('thoi_gian_xoa', '<', '2000-01-01')
+                ->whereNotIn('ma_lo_hang', function($q) use ($ma_to_khai) {
+                    $q->select('ma_lo_hang')
+                      ->from('to_khai_hai_quan')
+                      ->whereNotNull('ma_lo_hang');
+                    
+                    if ($ma_to_khai) {
+                        $q->where('ma_to_khai_hai_quan', '!=', $ma_to_khai);
+                    }
+                })
                 ->get(['ma_lo_hang', 'ten_lo_hang']);
 
             return response()->json([
@@ -56,6 +68,14 @@ class QuanLyToKhaiHaiQuan extends Controller
     public function save(Request $request)
     {
         $ma_to_khai = $request->input('ma_to_khai_hai_quan');
+        $ma_lo_hang = $request->input('ma_lo_hang');
+
+        if (empty($ma_lo_hang)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lô hàng liên kết là thông tin bắt buộc.'
+            ]);
+        }
         
         $data = [
             'ngay_thong_quan'    => $request->input('ngay_thong_quan'),
