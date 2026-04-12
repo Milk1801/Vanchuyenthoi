@@ -14,12 +14,12 @@
           <input v-model="formData.ten_hang_van_tai" required placeholder="Nhập tên hãng vận tải...">
         </div>
         <div class="form-group">
-          <label>Tuyến Thường Xuyên (JSON)</label>
-          <textarea v-model="formData.tuyen_thuong_xuyen" placeholder="Nhập dạng JSON hoặc để trống..." rows="3"></textarea>
+          <label>Tuyến Thường Xuyên</label>
+          <input v-model="formData.tuyen_thuong_xuyen" required placeholder="Nhập tuyến thường xuyên...">
         </div>
         <div class="form-group">
-          <label>Các Loại Xe (JSON)</label>
-          <textarea v-model="formData.cac_loai_xe" placeholder="Nhập dạng JSON hoặc để trống..." rows="3"></textarea>
+          <label>Các Loại Xe</label>
+          <input v-model="formData.cac_loai_xe" required placeholder="Nhập các loại xe...">
         </div>
         <div class="form-group">
           <label>Ghi chú</label>

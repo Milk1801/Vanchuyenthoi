@@ -12,23 +12,29 @@
         </div>
 
         <div class="form-group">
-          <label>Mã Tài Khoản (ID)</label>
+          <label>Địa chỉ Email</label>
           <input 
-            type="text" 
-            v-model="maTaiKhoan" 
-            placeholder="Nhập mã số tài khoản của bạn (VD: 1, 2, 3...)" 
+            type="email" 
+            v-model="email" 
+            placeholder="Nhập email của bạn (VD: example@gmail.com)" 
             required
           />
         </div>
 
         <div class="form-group">
           <label>Mật Khẩu</label>
-          <input 
-            type="password" 
-            v-model="password" 
-            placeholder="Nhập mật khẩu..." 
-            required
-          />
+          <div style="position: relative;">
+            <input 
+              :type="showPassword ? 'text' : 'password'" 
+              v-model="password" 
+              placeholder="Nhập mật khẩu..." 
+              required
+              style="width: 100%; padding-right: 40px;"
+            />
+            <span @click="showPassword = !showPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 18px;">
+              {{ showPassword ? '🔓' : '🔒' }}
+            </span>
+          </div>
         </div>
 
         <button type="submit" class="btn-login" :disabled="isLoading">
@@ -44,10 +50,11 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 // Biến lưu trữ
-const maTaiKhoan = ref('');
+const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
+const showPassword = ref(false);
 const router = useRouter();
 
 const handleLogin = async () => {
@@ -63,7 +70,7 @@ const handleLogin = async () => {
         'Accept': 'application/json' // Bổ sung header này để Laravel hiểu đây là request API
       },
       body: JSON.stringify({
-        ma_tai_khoan: maTaiKhoan.value,
+        email: email.value,
         mat_khau: password.value
       })
     });

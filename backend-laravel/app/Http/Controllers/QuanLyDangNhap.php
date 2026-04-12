@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class QuanLyDangNhap extends Controller
 {
@@ -12,34 +13,37 @@ class QuanLyDangNhap extends Controller
      */
     public function login(Request $request)
     {
-        if (!$request->has('ma_tai_khoan') || !$request->has('mat_khau')) {
-            return response()->json(["success" => false, "message" => "Vui lòng nhập đầy đủ Mã tài khoản và Mật khẩu!"]);
-        }
+        $email = $request->input('email');
+        $password = $request->input('mat_khau');
 
-        $user = DB::table('tai_khoan')
-            ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
-            ->where('tai_khoan.ma_tai_khoan', $request->input('ma_tai_khoan'))
-            ->where('tai_khoan.mat_khau', $request->input('mat_khau'))
-            ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01') 
-            ->select('tai_khoan.ma_tai_khoan', 'tai_khoan.ho_ten', 'tai_khoan.trang_thai', 'quyen.ten_quyen')
-            ->first();
+        try {
+            $user = DB::table('tai_khoan')
+                ->leftJoin('quyen', 'tai_khoan.ma_quyen', '=', 'quyen.ma_quyen')
+                ->select('tai_khoan.*', 'quyen.ten_quyen')
+                ->where('tai_khoan.email', $email)
+                ->where('tai_khoan.thoi_gian_xoa', '<', '2000-01-01')
+                ->first();
 
-        if ($user) {
-            if ($user->trang_thai === 'Tạm khóa') {
-                return response()->json(["success" => false, "message" => "Tài khoản của bạn đã bị khóa!"]);
+            if ($user && Hash::check($password, $user->mat_khau)) {
+                if ($user->trang_thai === 'Tạm khóa') {
+                    return response()->json(['success' => false, 'message' => 'Tài khoản của bạn đã bị khóa!']);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Đăng nhập thành công! Chào mừng ' . $user->ho_ten,
+                    'user' => [
+                        'ma_tai_khoan' => $user->ma_tai_khoan,
+                        'ho_ten' => $user->ho_ten,
+                        'chuc_vu' => $user->ten_quyen,
+                        'email' => $user->email
+                    ]
+                ]);
             }
-            return response()->json([
-                "success" => true, 
-                "message" => "Đăng nhập thành công!",
-                "user" => [
-                    "ma_tai_khoan" => $user->ma_tai_khoan,
-                    "ho_ten" => $user->ho_ten,
-                    "chuc_vu" => $user->ten_quyen
-                ]
-            ]);
+            return response()->json(['success' => false, 'message' => 'Email hoặc mật khẩu không chính xác!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
         }
-        
-        return response()->json(["success" => false, "message" => "Mã tài khoản hoặc mật khẩu không chính xác!"]);
     }
 
     /**
@@ -94,11 +98,11 @@ class QuanLyDangNhap extends Controller
 
         try {
             $user = DB::table('tai_khoan')->where('ma_tai_khoan', $ma_tai_khoan)->first();
-            if (!$user || $user->mat_khau !== $current_pass) {
+            if (!$user || !Hash::check($current_pass, $user->mat_khau)) {
                 return response()->json(["success" => false, "message" => "Mật khẩu hiện tại không chính xác!"]);
             }
 
-            DB::table('tai_khoan')->where('ma_tai_khoan', $ma_tai_khoan)->update(['mat_khau' => $new_pass]);
+            DB::table('tai_khoan')->where('ma_tai_khoan', $ma_tai_khoan)->update(['mat_khau' => Hash::make($new_pass)]);
             return response()->json(["success" => true, "message" => "Đổi mật khẩu thành công!"]);
         } catch (\Exception $e) {
             return response()->json(["success" => false, "message" => "Lỗi: " . $e->getMessage()]);
