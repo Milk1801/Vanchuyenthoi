@@ -130,7 +130,7 @@
              {{ isSaving ? 'Đang lưu...' : 'Lưu Vận Đơn' }}
           </button>
           <button v-if="formData.ma_van_don" type="button" @click="handleExportPdf(formData.ma_van_don, formData.so_van_don)" class="btn-cancel" style="background: #17a2b8; color: white; border: none; padding: 10px 25px;">
-            📄 Xuất PDF
+            Xuất PDF 🖨️
           </button>
         </div>
       </form>
