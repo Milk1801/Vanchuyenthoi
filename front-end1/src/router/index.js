@@ -28,6 +28,7 @@ import HangVanTaiForm from '../views/danhmuc/HangVanTaiForm.vue'
 import HangHoaForm from '../views/danhmuc/HangHoaForm.vue'
 import DonViTinhForm from '../views/danhmuc/DonViTinhForm.vue'
 import LoHangForm from '@/views/lohang/LoHangForm.vue'
+import BookingForm from '@/views/lohang/BookingForm.vue'
 import QuanLyChungTu from '@/views/lohang/QuanLyChungTu.vue'
 import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
@@ -155,9 +156,14 @@ const router = createRouter({
           component: LoHangForm
         },
         {
-          path: '/danh-muc/don-vi-tinh/add',
-          name: 'danh-muc-don-vi-tinh-add',
-          component: DonViTinhForm
+          path: '/lo-hang/booking/add',
+          name: 'lo-hang-booking-add',
+          component: BookingForm
+        },
+        {
+          path: '/lo-hang/booking/edit/:id',
+          name: 'lo-hang-booking-edit',
+          component: BookingForm
         },
         {
           path: '/danh-muc/don-vi-tinh/edit/:id',

@@ -78,6 +78,7 @@
                   <th>Điều kiện</th>
                   <th>Booking</th>
                   <th>Trạng thái</th>
+                  <th>Người sửa cuối</th>
                   <th style="text-align: center;">Thao tác</th>
                 </tr>
               </thead>
@@ -99,6 +100,7 @@
                       {{ lh.trang_thai_lo_hang }}
                     </span>
                   </td>
+                  <td>{{ lh.nguoi_sua_doi || 'N/A' }}</td>
                   <td style="text-align: center;">
                     <div style="display: flex; gap: 8px; justify-content: center;">
                       <button 
@@ -112,7 +114,7 @@
                   </td>
                 </tr>
                 <tr v-if="filteredLoHang.length === 0">
-                  <td colspan="8" style="text-align: center; padding: 20px; color: #7f8c8d;">
+                  <td colspan="9" style="text-align: center; padding: 20px; color: #7f8c8d;">
                     Không tìm thấy lô hàng nào!
                   </td>
                 </tr>

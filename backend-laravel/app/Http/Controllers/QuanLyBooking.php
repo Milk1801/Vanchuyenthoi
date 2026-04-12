@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class QuanLyBooking extends Controller
 {
-    // 1. Lấy danh sách Booking (kèm tên Cảng và Hãng tàu)
     public function index()
     {
         try {
@@ -15,11 +14,13 @@ class QuanLyBooking extends Controller
                 ->leftJoin('cang_bien as cang_di', 'booking.ma_cang_di', '=', 'cang_di.ma_cang')
                 ->leftJoin('cang_bien as cang_den', 'booking.ma_cang_den', '=', 'cang_den.ma_cang')
                 ->leftJoin('hang_tau', 'booking.ma_hang_tau', '=', 'hang_tau.ma_hang_tau')
+                ->leftJoin('tai_khoan', 'booking.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
                 ->select(
                     'booking.*', 
                     'cang_di.ten_cang as ten_cang_di', 
                     'cang_den.ten_cang as ten_cang_den', 
-                    'hang_tau.ten_hang_tau'
+                    'hang_tau.ten_hang_tau', 
+                    'tai_khoan.ho_ten as nguoi_sua_doi'
                 )
                 ->where('booking.thoi_gian_xoa', '<', '2000-01-01')
                 ->orderBy('booking.ma_booking', 'desc')
@@ -31,7 +32,6 @@ class QuanLyBooking extends Controller
         }
     }
 
-    // 2. Lấy dữ liệu danh mục cho Dropdown (Hãng tàu, Cảng)
     public function getReferences()
     {
         try {
@@ -48,8 +48,7 @@ class QuanLyBooking extends Controller
         }
     }
 
-    // 3. Thêm mới / Cập nhật Booking
-    public function store(Request $request)
+    public function save(Request $request)
     {
         try {
             $data = [
@@ -78,8 +77,7 @@ class QuanLyBooking extends Controller
         }
     }
 
-    // 4. Xóa mềm Booking
-    public function destroy(Request $request)
+    public function delete(Request $request)
     {
         try {
             DB::table('booking')

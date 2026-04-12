@@ -2,60 +2,114 @@
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Booking Cước Tàu</h3>
     
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap;">
+    <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="Tìm theo số Booking, Tên tàu, Số chuyến..."
-          style="width: 100%; padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc;"
+          placeholder="🔍 Tìm số Booking, Tên tàu, Số chuyến..."
+          style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc;"
         >
       </div>
 
       <select 
         v-model="filterHangTau" 
         @mouseenter="loadReferences()" 
-        style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 200px;"
+        style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 180px;"
       >
-        <option value="ALL">- Tất cả Hãng tàu -</option>
+        <option value="ALL">🚢 Tất cả Hãng tàu</option>
         <option v-for="ht in listHangTau" :key="ht.ma_hang_tau" :value="ht.ma_hang_tau">
           {{ ht.ten_hang_tau }}
         </option>
       </select>
 
+      <select v-model="filterCangDi" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
+        <option :value="null">🛳️ Cảng Đi (Tất cả)</option>
+        <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">{{ c.ten_cang }}</option>
+      </select>
+
+      <select v-model="filterCangDen" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
+        <option :value="null">⛴️ Cảng Đến (Tất cả)</option>
+        <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">{{ c.ten_cang }}</option>
+      </select>
+
       <button 
-        @click="loadReferences(); fetchBookings();" 
-        style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; transition: 0.2s;"
-        title="Tải lại dữ liệu mới nhất"
-        onmouseover="this.style.background='#f1f2f6'"
-        onmouseout="this.style.background='#fff'"
+        @click="resetFilters" 
+        style="padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;"
+        title="Xóa bộ lọc"
       >
-        🔄 Làm mới
+        🧹 Xóa lọc
       </button>
 
-      <button class="btn btn-success" @click="openModal()">+ TẠO BOOKING MỚI</button>
+      <button class="btn btn-success" @click="router.push('/lo-hang/booking/add')" style="padding: 10px 20px;">+ TẠO BOOKING MỚI</button>
+    </div>
+
+    <!-- Bộ lọc thời gian nâng cao -->
+    <div class="filter-dates" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e1e4e8; font-size: 13px;">
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label>⏰ Cut-off (Từ - Đến)</label>
+        <div style="display: flex; gap: 5px;">
+          <input type="date" v-model="dateFilters.cutoffStart" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+          <input type="date" v-model="dateFilters.cutoffEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label>📅 ETD (Từ - Đến)</label>
+        <div style="display: flex; gap: 5px;">
+          <input type="date" v-model="dateFilters.etdStart" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+          <input type="date" v-model="dateFilters.etdEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label>📅 ETA (Từ - Đến)</label>
+        <div style="display: flex; gap: 5px;">
+          <input type="date" v-model="dateFilters.etaStart" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+          <input type="date" v-model="dateFilters.etaEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+      </div>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
       Đang tải dữ liệu Booking...
     </div>
 
-    <div v-else class="table-card" style="margin-top: 15px;">
+    <div v-else>
+      <!-- Pagination Controls -->
+      <div v-if="filteredBookings.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span>Hiển thị</span>
+          <select v-model="pageSize" style="padding: 5px 8px; border-radius: 5px; border: 1px solid #ccc;">
+            <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
+          </select>
+          <span>mục</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button @click="currentPage--" :disabled="currentPage === 1" class="btn-pagination">◀</button>
+          <span style="font-weight: bold;">Trang {{ currentPage }} / {{ totalPages }}</span>
+          <button @click="currentPage++" :disabled="currentPage === totalPages" class="btn-pagination">▶</button>
+        </div>
+      </div>
+
+      <div class="table-card">
       <table>
         <thead>
           <tr>
+            <th style="width: 50px; text-align: center;">STT</th>
             <th>Số Booking</th>
             <th>Tên Tàu / Chuyến</th>
             <th>Hãng Tàu</th>
             <th>Cảng Đi (POL)</th>
             <th>Cảng Đến (POD)</th>
-            <th>ETD (Dự kiến đi)</th>
             <th>Cut-off (Cắt máng)</th>
+            <th>ETD (Dự kiến đi)</th>
+            <th>ETA (Dự kiến đến)</th>
+            <th>Người sửa cuối</th>
             <th style="text-align: center;">Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="bk in filteredBookings" :key="bk.ma_booking">
+          <tr v-for="(bk, index) in paginatedBookings" :key="bk.ma_booking">
+            <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
             <td class="fw-bold" style="color: #2980b9;">{{ bk.so_booking }}</td>
             <td>
               <strong>{{ bk.ten_con_tau || 'N/A' }}</strong><br>
@@ -65,139 +119,63 @@
             <td class="fw-bold">{{ bk.ten_cang_di || '---' }}</td>
             <td class="fw-bold">{{ bk.ten_cang_den || '---' }}</td>
             <td>
-              <span class="badge badge-active">{{ formatDateTime(bk.etd) }}</span>
+              <span class="badge badge-warning" style="white-space: nowrap;">{{ formatDateTime(bk.gio_cat_mang) }}</span>
             </td>
             <td>
-              <span class="badge badge-warning">{{ formatDateTime(bk.gio_cat_mang) }}</span>
+              <span class="badge" style="background-color: #3498db; color: white; white-space: nowrap;">{{ formatDateTime(bk.etd) }}</span>
             </td>
+            <td>
+              <span class="badge" style="background-color: #2ecc71; color: white; white-space: nowrap;">{{ formatDateTime(bk.eta) }}</span>
+            </td>
+            <td>{{ bk.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="openModal(bk)" title="Cập nhật">✏️</button>
+              <button class="action-btn text-primary" @click="router.push('/lo-hang/booking/edit/' + bk.ma_booking)" title="Cập nhật">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(bk.ma_booking)" title="Xóa">🗑️</button>
             </td>
           </tr>
           <tr v-if="filteredBookings.length === 0">
-            <td colspan="8" style="text-align: center; padding: 20px; color: #7f8c8d;">
+            <td colspan="11" style="text-align: center; padding: 20px; color: #7f8c8d;">
               Không tìm thấy Booking nào!
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content" style="max-width: 850px;">
-        <h3>{{ formData.ma_booking ? 'Cập nhật Booking' : 'Tạo Booking mới' }}</h3>
-        <form @submit.prevent="saveBooking">
-          
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Số Booking *</label>
-              <input v-model="formData.so_booking" required placeholder="Nhập mã Booking từ hãng tàu...">
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Hãng Tàu *</label>
-              <select v-model="formData.ma_hang_tau" required>
-                <option :value="null">-- Chọn Hãng tàu --</option>
-                <option v-for="ht in listHangTau" :key="ht.ma_hang_tau" :value="ht.ma_hang_tau">
-                  {{ ht.ten_hang_tau }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 2;">
-              <label>Tên Con Tàu</label>
-              <input v-model="formData.ten_con_tau" placeholder="VD: EVER GIVEN">
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Số Chuyến (Voyage)</label>
-              <input v-model="formData.so_chuyen" placeholder="VD: 045E">
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 15px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Cảng Đi (POL)</label>
-              <select v-model="formData.ma_cang_di">
-                <option :value="null">-- Chọn Cảng Đi --</option>
-                <option v-for="cang in listCangBien" :key="cang.ma_cang" :value="cang.ma_cang">
-                  {{ cang.ten_cang }}
-                </option>
-              </select>
-            </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Cảng Đến (POD)</label>
-              <select v-model="formData.ma_cang_den">
-                <option :value="null">-- Chọn Cảng Đến --</option>
-                <option v-for="cang in listCangBien" :key="cang.ma_cang" :value="cang.ma_cang">
-                  {{ cang.ten_cang }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-            
-            <div class="form-group" style="flex: 1 1 45%; min-width: 220px;">
-              <label>Giờ Cắt Máng (Cut-off)</label>
-              <input type="datetime-local" v-model="formData.gio_cat_mang" style="width: 100%; box-sizing: border-box;">
-            </div>
-            
-            <div class="form-group" style="flex: 1 1 45%; min-width: 220px;">
-              <label>ETD (Dự kiến đi)</label>
-              <input type="datetime-local" v-model="formData.etd" style="width: 100%; box-sizing: border-box;">
-            </div>
-            
-            <div class="form-group" style="flex: 1 1 100%; min-width: 220px;">
-              <label>ETA (Dự kiến đến)</label>
-              <input type="datetime-local" v-model="formData.eta" style="width: 100%; box-sizing: border-box;">
-            </div>
-
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
-              {{ isSaving ? 'Đang lưu...' : 'Lưu Booking' }}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const listBookings = ref([]);
 const listCangBien = ref([]);
 const listHangTau = ref([]);
 const isLoading = ref(true);
-const isSaving = ref(false);
-const isModalOpen = ref(false);
 
 const searchQuery = ref('');
 const filterHangTau = ref('ALL');
+const filterCangDi = ref(null);
+const filterCangDen = ref(null);
 
-const formData = ref({
-  ma_booking: null, so_booking: '', ten_con_tau: '', so_chuyen: '',
-  etd: '', eta: '', gio_cat_mang: '', ma_cang_di: null, ma_cang_den: null,
-  ma_hang_tau: null, nguoi_sua_cuoi: null
+const dateFilters = ref({
+  etdStart: '', etdEnd: '',
+  etaStart: '', etaEnd: '',
+  cutoffStart: '', cutoffEnd: ''
 });
+
+const currentPage = ref(1);
+const pageSize = ref(10);
+const pageSizes = [10, 20, 50];
 
 // Hàm format ngày giờ đẹp (VD: 15:30 12/05/2024)
 const formatDateTime = (dateString) => {
   if (!dateString) return "--";
   const d = new Date(dateString);
   return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} ${d.toLocaleDateString('vi-VN')}`;
-};
-
-// Hàm chuyển đổi datetime của MySQL để hiển thị đúng trong thẻ <input type="datetime-local">
-const formatForInput = (dateString) => {
-  if (!dateString) return '';
-  return new Date(dateString).toISOString().slice(0, 16);
 };
 
 // Lọc dữ liệu
@@ -210,9 +188,51 @@ const filteredBookings = computed(() => {
       (bk.so_chuyen && bk.so_chuyen.toLowerCase().includes(search));
       
     const matchHangTau = filterHangTau.value === 'ALL' || bk.ma_hang_tau === filterHangTau.value;
+    const matchCangDi = !filterCangDi.value || bk.ma_cang_di === filterCangDi.value;
+    const matchCangDen = !filterCangDen.value || bk.ma_cang_den === filterCangDen.value;
 
-    return matchSearch && matchHangTau;
+    // Lọc thời gian: Trước/Sau/Trong khoảng
+    const checkRange = (val, start, end) => {
+      if (!val) return true;
+      const dateVal = new Date(val).setHours(0,0,0,0);
+      if (start && dateVal < new Date(start).setHours(0,0,0,0)) return false;
+      if (end && dateVal > new Date(end).setHours(0,0,0,0)) return false;
+      return true;
+    };
+
+    const matchETD = checkRange(bk.etd, dateFilters.value.etdStart, dateFilters.value.etdEnd);
+    const matchETA = checkRange(bk.eta, dateFilters.value.etaStart, dateFilters.value.etaEnd);
+    const matchCutoff = checkRange(bk.gio_cat_mang, dateFilters.value.cutoffStart, dateFilters.value.cutoffEnd);
+
+    return matchSearch && matchHangTau && matchCangDi && matchCangDen && matchETD && matchETA && matchCutoff;
   });
+});
+
+const paginatedBookings = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredBookings.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredBookings.value.length / pageSize.value) || 1;
+});
+
+const resetFilters = () => {
+  searchQuery.value = '';
+  filterHangTau.value = 'ALL';
+  filterCangDi.value = null;
+  filterCangDen.value = null;
+  dateFilters.value = {
+    etdStart: '', etdEnd: '',
+    etaStart: '', etaEnd: '',
+    cutoffStart: '', cutoffEnd: ''
+  };
+  currentPage.value = 1;
+};
+
+watch([searchQuery, filterHangTau, filterCangDi, filterCangDen, dateFilters, pageSize], () => {
+  currentPage.value = 1;
 });
 
 const loadReferences = async () => {
@@ -238,53 +258,6 @@ const fetchBookings = async () => {
     console.error("Lỗi mạng!");
   } finally {
     isLoading.value = false;
-  }
-};
-
-const openModal = async (bk = null) => {
-  // Bắt buộc lấy lại danh sách Hãng tàu & Cảng mới nhất từ DB
-  await loadReferences();
-
-  if (bk) {
-    formData.value = { 
-      ...bk,
-      etd: formatForInput(bk.etd),
-      eta: formatForInput(bk.eta),
-      gio_cat_mang: formatForInput(bk.gio_cat_mang)
-    };
-  } else {
-    formData.value = {
-      ma_booking: null, so_booking: '', ten_con_tau: '', so_chuyen: '',
-      etd: '', eta: '', gio_cat_mang: '', ma_cang_di: null, ma_cang_den: null,
-      ma_hang_tau: null, nguoi_sua_cuoi: null
-    };
-  }
-  isModalOpen.value = true;
-};
-
-const saveBooking = async () => {
-  isSaving.value = true;
-  const user = JSON.parse(localStorage.getItem('sincere_user'));
-  formData.value.nguoi_sua_cuoi = user ? (user.id || user.ma_tai_khoan) : null;
-
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/bookings/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData.value)
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message);
-      isModalOpen.value = false;
-      fetchBookings();
-    } else {
-      alert("Lỗi: " + data.message);
-    }
-  } catch (e) {
-    alert("Lỗi server!");
-  } finally {
-    isSaving.value = false;
   }
 };
 
@@ -317,4 +290,8 @@ onMounted(() => {
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
 <style scoped>
 .badge-warning { background-color: #f39c12; color: white; }
+.btn-pagination {
+  padding: 5px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;
+}
+.btn-pagination:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
