@@ -16,51 +16,87 @@
     <div class="table-card" style="padding: 25px; min-height: 400px;">
       <!-- Tab 1: Thông tin Lô hàng -->
       <div v-show="activeTab === 'info'">
-        <form @submit.prevent="handleSaveStep1">
-          <div class="form-group">
-            <label>Tên Lô Hàng *</label>
-            <input v-model="formData.ten_lo_hang" required placeholder="VD: Lô hàng linh kiện điện tử Samsung tháng 4">
-          </div>
-          <div style="display: flex; gap: 20px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Khách Hàng *</label>
-              <select v-model="formData.ma_khach_hang" required>
-                <option :value="null">-- Chọn khách hàng --</option>
-                <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">{{ kh.ten_khach_hang }}</option>
-              </select>
+        <div style="display: flex; gap: 25px; align-items: flex-start;">
+          <!-- FORM NHẬP LIỆU -->
+          <form @submit.prevent="handleSaveStep1" style="flex: 1;">
+            <div class="form-group">
+              <label>Tên Lô Hàng *</label>
+              <input v-model="formData.ten_lo_hang" required placeholder="VD: Lô hàng linh kiện điện tử Samsung tháng 4">
             </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Điều kiện thương mại (Incoterms)</label>
-              <select v-model="formData.dieu_kien_thuong_mai">
-                <option v-for="dk in ['FOB', 'CIF', 'EXW', 'DAP', 'DDP', 'CFR']" :key="dk" :value="dk">{{ dk }}</option>
-              </select>
+            <div style="display: flex; gap: 20px;">
+              <div class="form-group" style="flex: 1;">
+                <label>Khách Hàng *</label>
+                <select v-model="formData.ma_khach_hang" required>
+                  <option :value="null">-- Chọn khách hàng --</option>
+                  <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">{{ kh.ten_khach_hang }}</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Điều kiện thương mại (Incoterms)</label>
+                <select v-model="formData.dieu_kien_thuong_mai">
+                  <option v-for="dk in ['FOB', 'CIF', 'EXW', 'DAP', 'DDP', 'CFR']" :key="dk" :value="dk">{{ dk }}</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div style="display: flex; gap: 20px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Booking liên kết</label>
-              <select v-model="formData.ma_booking">
-                <option :value="null">-- Không có booking --</option>
-                <option v-for="bk in listBooking" :key="bk.ma_booking" :value="bk.ma_booking">{{ bk.so_booking }}</option>
-              </select>
+            <div style="display: flex; gap: 20px;">
+              <div class="form-group" style="flex: 1;">
+                <label>Booking liên kết</label>
+                <div style="display: flex; gap: 5px;">
+                  <div style="flex: 1; position: relative;">
+                    <input 
+                      type="text" 
+                      :value="selectedBooking ? selectedBooking.so_booking : 'Chưa chọn booking'" 
+                      readonly 
+                      style="background: #f9f9f9; cursor: default;"
+                    >
+                    <button 
+                      v-if="formData.ma_booking" 
+                      type="button" 
+                      @click="formData.ma_booking = null; showBookingPanel = false" 
+                      style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #e74c3c; font-weight: bold;"
+                    >✖</button>
+                  </div>
+                  <button type="button" class="btn-success" @click="isBookingPickerOpen = true" style="padding: 0 15px; height: 40px; white-space: nowrap;">
+                    🔍 Chọn Booking
+                  </button>
+                  <button v-if="formData.ma_booking" type="button" @click="showBookingPanel = !showBookingPanel" class="view-btn" style="padding: 0 12px; height: 40px;">
+                    {{ showBookingPanel ? '✖ Đóng' : '👁️ Xem' }}
+                  </button>
+                </div>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Trạng thái</label>
+                <select v-model="formData.trang_thai_lo_hang">
+                  <option v-for="tt in ['Mới tạo', 'Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy']" :key="tt" :value="tt">{{ tt }}</option>
+                </select>
+              </div>
             </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Trạng thái</label>
-              <select v-model="formData.trang_thai_lo_hang">
-                <option v-for="tt in ['Mới tạo', 'Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy']" :key="tt" :value="tt">{{ tt }}</option>
-              </select>
+            <div class="form-group">
+              <label>Nguồn gốc</label>
+              <textarea v-model="formData.nguon_goc" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"></textarea>
             </div>
+            <div style="text-align: right; margin-top: 20px;">
+              <button type="submit" class="btn-save">
+                {{ isSaving ? 'Đang lưu...' : (formData.ma_lo_hang ? 'Cập nhật & Tiếp tục ➔' : 'Khởi tạo lô hàng & Tiếp tục ➔') }}
+              </button>
+            </div>
+          </form>
+
+          <!-- KHUNG CHI TIẾT BOOKING (HIỂN THỊ Ở KHU VỰC BÊN PHẢI TAB 1) -->
+          <div v-if="showBookingPanel && selectedBooking" class="side-panel-booking">
+            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📦 Thông tin Booking</h4>
+            <div class="info-row"><span>Số Booking:</span> <strong>{{ selectedBooking.so_booking }}</strong></div>
+            <div class="info-row"><span>Hãng tàu:</span> <strong>{{ selectedBooking.ten_hang_tau || 'N/A' }}</strong></div>
+            <div class="info-row"><span>Tên tàu:</span> <strong>{{ selectedBooking.ten_con_tau }}</strong></div>
+            <div class="info-row"><span>Số chuyến:</span> <strong>{{ selectedBooking.so_chuyen }}</strong></div>
+            <div class="info-row"><span>Giờ cắt máng:</span> <strong class="text-danger">{{ formatDateTime(selectedBooking.gio_cat_mang) }}</strong></div>
+            <hr>
+            <div class="info-row"><span>Cảng đi (POL):</span> <strong>{{ selectedBooking.ten_cang_di || '---' }}</strong></div>
+            <div class="info-row"><span>Cảng đến (POD):</span> <strong>{{ selectedBooking.ten_cang_den || '---' }}</strong></div>
+            <div class="info-row"><span>Ngày đi (ETD):</span> <strong class="text-primary">{{ formatDateTime(selectedBooking.etd) }}</strong></div>
+            <div class="info-row"><span>Ngày đến (ETA):</span> <strong class="text-success">{{ formatDateTime(selectedBooking.eta) }}</strong></div>
           </div>
-          <div class="form-group">
-            <label>Nguồn gốc / Ghi chú</label>
-            <textarea v-model="formData.nguon_goc" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"></textarea>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button type="submit" class="btn-save">
-              {{ isSaving ? 'Đang lưu...' : (formData.ma_lo_hang ? 'Cập nhật & Tiếp tục ➔' : 'Khởi tạo lô hàng & Tiếp tục ➔') }}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
 
       <!-- Tab 2: Chi tiết hàng hóa-->
@@ -222,6 +258,59 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL CHỌN BOOKING -->
+    <div v-if="isBookingPickerOpen" class="modal-overlay">
+      <div class="modal-content" style="max-width: 1000px; width: 95%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+          <h3 style="margin: 0; color: #2980b9;">🚢 Danh sách Booking khả dụng</h3>
+          <button @click="isBookingPickerOpen = false" class="close-panel" style="font-size: 24px;">&times;</button>
+        </div>
+
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+          <!-- Bảng danh sách bên trái -->
+          <div style="flex: 1; max-height: 500px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+            <table class="detail-table" style="width: 100%; border-collapse: collapse;">
+              <thead style="position: sticky; top: 0; background: #f8f9fa; z-index: 1;">
+                <tr>
+                  <th style="padding: 12px;">Số Booking</th>
+                  <th>Tàu / Chuyến</th>
+                  <th style="text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="bk in listBooking" :key="bk.ma_booking" :style="previewBooking?.ma_booking === bk.ma_booking ? 'background: #eef7ff' : ''">
+                  <td style="padding: 12px; font-weight: bold; color: #2980b9;">{{ bk.so_booking }}</td>
+                  <td>{{ bk.ten_con_tau }} / {{ bk.so_chuyen }}</td>
+                  <td style="text-align: center; width: 180px;">
+                    <button type="button" @click="previewBooking = bk" class="view-btn" style="margin-right: 5px;">👁️ Xem trước</button>
+                    <button type="button" @click="selectBooking(bk)" class="btn-save" style="font-size: 13px; height: auto;">✅ Chọn</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Panel xem chi tiết bên phải (Chỉ hiện khi nhấn Xem trước) -->
+          <div v-if="previewBooking" class="side-panel-booking" style="position: static; width: 350px; border: 1px solid #3498db;">
+            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📋 Chi tiết: {{ previewBooking.so_booking }}</h4>
+            <div class="info-row"><span>Số Booking:</span> <strong>{{ previewBooking.so_booking }}</strong></div>
+            <div class="info-row"><span>Hãng tàu:</span> <strong>{{ previewBooking.ten_hang_tau || 'N/A' }}</strong></div>
+            <div class="info-row"><span>Tên tàu:</span> <strong>{{ previewBooking.ten_con_tau }}</strong></div>
+            <div class="info-row"><span>Số chuyến:</span> <strong>{{ previewBooking.so_chuyen }}</strong></div>
+            <div class="info-row"><span>Giờ cắt máng:</span> <strong class="text-danger">{{ formatDateTime(previewBooking.gio_cat_mang) }}</strong></div>
+            <hr>
+            <div class="info-row"><span>Cảng đi (POL):</span> <strong>{{ previewBooking.ten_cang_di || '---' }}</strong></div>
+            <div class="info-row"><span>Cảng đến (POD):</span> <strong>{{ previewBooking.ten_cang_den || '---' }}</strong></div>
+            <div class="info-row"><span>Ngày đi (ETD):</span> <strong class="text-primary">{{ formatDateTime(previewBooking.etd) }}</strong></div>
+            <div class="info-row"><span>Ngày đến (ETA):</span> <strong class="text-success">{{ formatDateTime(previewBooking.eta) }}</strong></div>
+          </div>
+          <div v-else style="width: 350px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 1px dashed #ccc; border-radius: 8px; color: #7f8c8d; font-style: italic;">
+             Nhấn "Xem trước" để kiểm tra thông tin
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -243,6 +332,20 @@ const listDetails = ref([]); // Đây là mảng đệm (buffer) để hiển th
 const listDeletedDetails = ref([]); // Lưu ID của các chi tiết bị xóa để gửi lên server khi ấn Hoàn tất
 const listHangHoa = ref([]);
 const listDonViTinh = ref([]);
+
+const isBookingPickerOpen = ref(false);
+const previewBooking = ref(null);
+const showBookingPanel = ref(false);
+
+const formatDateTime = (dateString) => {
+  if (!dateString || dateString.startsWith('1970') || dateString.startsWith('0000')) return "--";
+  const d = new Date(dateString);
+  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} ${d.toLocaleDateString('vi-VN')}`;
+};
+
+const selectedBooking = computed(() => {
+  return listBooking.value.find(b => b.ma_booking === formData.value.ma_booking);
+});
 
 // Pagination State
 const currentPage = ref(1);
@@ -362,6 +465,12 @@ const handleEdit = (item) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+const selectBooking = (bk) => {
+  formData.value.ma_booking = bk.ma_booking;
+  isBookingPickerOpen.value = false;
+  previewBooking.value = null;
+};
+
 const sortBy = (key) => {
   if (sortConfig.value.key === key) {
     sortConfig.value.direction = sortConfig.value.direction === 'asc' ? 'desc' : 'asc';
@@ -459,11 +568,23 @@ const deleteDetail = (item) => {
 
 const fetchReferences = async () => {
   const id = route.params.id || '';
-  const res = await fetch(`http://127.0.0.1:8000/api/lo-hang/references?ma_lo_hang=${id}`);
-  const data = await res.json();
-  if (data.success) {
-    listKhachHang.value = data.khach_hang;
-    listBooking.value = data.booking;
+  try {
+    // 1. Lấy danh sách ID booking hợp lệ (trống hoặc của chính lô hàng này)
+    const resRef = await fetch(`http://127.0.0.1:8000/api/lo-hang/references?ma_lo_hang=${id}`);
+    const dataRef = await resRef.json();
+
+    // 2. Lấy dữ liệu chi tiết của tất cả booking
+    const resAllBk = await fetch('http://127.0.0.1:8000/api/bookings');
+    const dataAllBk = await resAllBk.json();
+
+    if (dataRef.success && dataAllBk.success) {
+      listKhachHang.value = dataRef.khach_hang;
+      // 3. Lọc lại danh sách chi tiết: chỉ giữ những booking ID được backend cho phép
+      const validIds = dataRef.booking.map(b => b.ma_booking);
+      listBooking.value = dataAllBk.data.filter(bk => validIds.includes(bk.ma_booking));
+    }
+  } catch (error) {
+    console.error("Lỗi đồng bộ dữ liệu Booking:", error);
   }
 };
 
@@ -491,6 +612,11 @@ const fetchData = async (id) => {
 };
 
 const handleSaveStep1 = async () => {
+  if (!formData.value.ma_khach_hang) {
+    alert("Vui lòng chọn khách hàng!");
+    return;
+  }
+
   isSaving.value = true;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   formData.value.nguoi_sua_cuoi = user ? (user.id || user.ma_tai_khoan) : null;
@@ -512,6 +638,22 @@ const handleSaveStep1 = async () => {
 };
 
 const handleSaveAll = async () => {
+  // 0. Kiểm tra ràng buộc dữ liệu (Validation) trước khi cho phép lưu toàn bộ
+  if (!formData.value.ten_lo_hang || formData.value.ten_lo_hang.trim() === '') {
+    alert("Vui lòng nhập tên lô hàng tại Tab 1!");
+    activeTab.value = 'info'; // Tự động quay về Tab 1
+    return;
+  }
+  if (!formData.value.ma_khach_hang) {
+    alert("Vui lòng chọn khách hàng tại Tab 1!");
+    activeTab.value = 'info'; // Tự động quay về Tab 1
+    return;
+  }
+  if (listDetails.value.length === 0) {
+    alert("Lô hàng phải có ít nhất một mặt hàng chi tiết!");
+    return;
+  }
+
   isSaving.value = true;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   const userId = user ? (user.id || user.ma_tai_khoan) : null;
@@ -623,4 +765,19 @@ onMounted(async () => {
 .form-group input, .form-group select {
   width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;
 }
+
+.view-btn {
+  background: #ebf5fb; border: 1px solid #3498db; color: #3498db;
+  border-radius: 4px; cursor: pointer; transition: 0.2s; font-weight: bold;
+}
+.view-btn:hover { background: #3498db; color: white; }
+
+.side-panel-booking {
+  width: 350px; background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); height: fit-content;
+  position: sticky; top: 10px; animation: slideIn 0.3s ease;
+}
+.info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+.info-row span { color: #7f8c8d; }
+@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 </style>

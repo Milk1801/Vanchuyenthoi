@@ -26,18 +26,18 @@
 
         <div style="display: flex; gap: 15px;">
           <div class="form-group" style="flex: 2;">
-            <label>Tên Con Tàu</label>
+            <label>Tên Con Tàu *</label>
             <input v-model="formData.ten_con_tau" placeholder="VD: EVER GIVEN" required>
           </div>
           <div class="form-group" style="flex: 1;">
-            <label>Số Chuyến (Voyage)</label>
+            <label>Số Chuyến (Voyage) *</label>
             <input v-model="formData.so_chuyen" placeholder="VD: 045E" required>
           </div>
         </div>
 
         <div style="display: flex; gap: 15px;">
           <div class="form-group" style="flex: 1;">
-            <label>Cảng Đi (POL)</label>
+            <label>Cảng Đi (POL) *</label>
             <select v-model="formData.ma_cang_di" required>
               <option :value="null">-- Chọn Cảng Đi --</option>
               <option v-for="cang in listCangBien" :key="cang.ma_cang" :value="cang.ma_cang">
@@ -46,7 +46,7 @@
             </select>
           </div>
           <div class="form-group" style="flex: 1;">
-            <label>Cảng Đến (POD)</label>
+            <label>Cảng Đến (POD) *</label>
             <select v-model="formData.ma_cang_den" required>
               <option :value="null">-- Chọn Cảng Đến --</option>
               <option v-for="cang in listCangBien" :key="cang.ma_cang" :value="cang.ma_cang">
@@ -58,15 +58,15 @@
 
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
           <div class="form-group" style="flex: 1 1 30%;">
-            <label>Giờ Cắt Máng (Cut-off)</label>
+            <label>Giờ Cắt Máng (Cut-off) *</label>
             <input type="datetime-local" v-model="formData.gio_cat_mang" required>
           </div>
           <div class="form-group" style="flex: 1 1 30%;">
-            <label>ETD (Dự kiến đi)</label>
+            <label>ETD (Dự kiến đi) *</label>
             <input type="datetime-local" v-model="formData.etd" required>
           </div>
           <div class="form-group" style="flex: 1 1 30%;">
-            <label>ETA (Dự kiến đến)</label>
+            <label>ETA (Dự kiến đến) *</label>
             <input type="datetime-local" v-model="formData.eta" required>
           </div>
         </div>

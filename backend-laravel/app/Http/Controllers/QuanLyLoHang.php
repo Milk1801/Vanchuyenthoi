@@ -28,9 +28,21 @@ class QuanLyLoHang extends Controller
                 'tai_khoan.ho_ten as nguoi_sua_doi'
             )
             ->addSelect([
+
                 'has_items' => DB::table('chi_tiet_lo_hang')
                     ->selectRaw('count(*)')
                     ->whereColumn('ma_lo_hang', 'lo_hang.ma_lo_hang')
+                    ->where('thoi_gian_xoa', '<', '2000-01-01'),
+
+                'ds_ma_hang_hoa' => DB::table('chi_tiet_lo_hang')
+                    ->selectRaw('GROUP_CONCAT(DISTINCT ma_hang_hoa)')
+                    ->whereColumn('ma_lo_hang', 'lo_hang.ma_lo_hang')
+                    ->where('thoi_gian_xoa', '<', '2000-01-01'),
+
+                'ds_ten_hang' => DB::table('chi_tiet_lo_hang')
+                    ->selectRaw('GROUP_CONCAT(DISTINCT ten_hang SEPARATOR " ")')
+                    ->whereColumn('ma_lo_hang', 'lo_hang.ma_lo_hang')
+                    ->where('thoi_gian_xoa', '<', '2000-01-01')
             ])
             ->where('lo_hang.thoi_gian_xoa', '<', '2000-01-01')
             ->orderBy('ma_lo_hang', 'desc')
@@ -41,6 +53,7 @@ class QuanLyLoHang extends Controller
         return response()->json(["success" => false, "message" => "Lỗi: " . $e->getMessage()]);
     }
 }
+
 
 
     public function save(Request $request)
