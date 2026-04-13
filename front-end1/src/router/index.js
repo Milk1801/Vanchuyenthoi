@@ -34,6 +34,8 @@ import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
 import QuanLyToKhaiHaiQuan from '@/views/vantai/QuanLyToKhaiHaiQuan.vue'
 import QuanLyToKhaiHaiQuanForm from '@/views/vantai/QuanLyToKhaiHaiQuanForm.vue'
+import QuanLyLuuBai from '@/views/vantai/QuanLyLuuBai.vue'
+import QuanLyLuuBaiForm from '@/views/vantai/QuanLyLuuBaiForm.vue'
 import BaoCaoThongKeVanChuyen from '../views/baocaothongke/BaoCaoThongKeVanChuyen.vue'
 import BaoCaoThongKeSanLuong from '../views/baocaothongke/BaoCaoSanLuong.vue'
 import BaoCaoThongKeBooking from '../views/baocaothongke/BaoCaoThongKeBooking.vue'
@@ -205,7 +207,8 @@ const router = createRouter({
           children: [
             { path: 'quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
             { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang },
-            { path: 'to-khai-hai-quan', name: 'van-tai-to-khai-hai-quan', component: QuanLyToKhaiHaiQuan }
+            { path: 'to-khai-hai-quan', name: 'van-tai-to-khai-hai-quan', component: QuanLyToKhaiHaiQuan },
+            { path: 'luu-bai', name: 'van-tai-luu-bai', component: QuanLyLuuBai }
           ] 
         },
         {
@@ -227,6 +230,16 @@ const router = createRouter({
           path: '/van-tai/to-khai-hai-quan/edit/:id',
           name: 'van-tai-to-khai-hai-quan-edit',
           component: QuanLyToKhaiHaiQuanForm
+        },
+        {
+          path: '/van-tai/luu-bai/add',
+          name: 'van-tai-luu-bai-add',
+          component: QuanLyLuuBaiForm
+        },
+        {
+          path: '/van-tai/luu-bai/edit/:id',
+          name: 'van-tai-luu-bai-edit',
+          component: QuanLyLuuBaiForm
         },
         
         {

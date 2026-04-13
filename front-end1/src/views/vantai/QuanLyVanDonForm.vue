@@ -8,138 +8,215 @@
       <div v-if="isLoadingData" style="text-align: center; padding: 20px; color: #3498db;">
         Đang tải thông tin...
       </div>
-      <form v-else @submit.prevent="saveVanDon">
-        <div style="display: flex; gap: 15px;">
-          <div class="form-group" style="flex: 1;">
+      <form v-else @submit.prevent="saveVanDon" style="display: flex; gap: 25px; align-items: flex-start;">
+        <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="form-group">
             <label>Số Vận Đơn *</label>
-            <input v-model="formData.so_van_don" required placeholder="VD: HPH2024001">
+            <input v-model="formData.so_van_don" required placeholder="VD: HPH2024001" style="height: 44px; box-sizing: border-box;">
           </div>
-          <div class="form-group" style="flex: 1;">
+          <div class="form-group">
             <label>Loại Vận Đơn</label>
-            <select v-model="formData.loai_van_don">
+            <select v-model="formData.loai_van_don" style="height: 44px; box-sizing: border-box;">
               <option v-for="type in listLoaiVanDon" :key="type" :value="type">{{ type }}</option>
             </select>
           </div>
-        </div>
 
-        <div style="display: flex; gap: 15px;">
-          <div class="form-group" style="flex: 1;">
+          <div class="form-group">
             <label>Số Vận Đơn Gốc</label>
-            <input v-model="formData.so_van_don_goc" placeholder="Nếu có">
+            <input v-model="formData.so_van_don_goc" placeholder="Nếu có" style="height: 44px; box-sizing: border-box;">
           </div>
-          <div class="form-group" style="flex: 1;">
-            <label>Ngày Phát Hành</label>
-            <input type="datetime-local" v-model="formData.ngay_phat_hanh">
+          <div class="form-group">
+            <label>Lô Hàng Liên Kết *</label>
+            <div style="display: flex; gap: 8px; align-items: stretch;">
+              <div style="flex: 1; position: relative; min-height: 44px;">
+                <input 
+                  type="text" 
+                  :value="selectedLoHang ? selectedLoHang.ten_lo_hang : 'Chưa chọn lô hàng'" 
+                  readonly 
+                  style="background: #f9f9f9; cursor: default; width: 100%; height: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"
+                >
+                <button 
+                  v-if="formData.ma_lo_hang" 
+                  type="button" 
+                  @click="formData.ma_lo_hang = null; showLoHangPanel = false" 
+                  style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #e74c3c; font-weight: bold;"
+                >✖</button>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px; width: 85px;">
+                <button v-if="formData.ma_lo_hang" type="button" @click="showLoHangPanel = !showLoHangPanel" class="view-btn" style="padding: 2px 10px; font-size: 11px; flex: 1; min-height: 20px; width: 100%;">
+                  {{ showLoHangPanel ? '✖ Đóng' : '👁️ Xem' }}
+                </button>
+                <button type="button" class="btn-picker" @click="isLoHangPickerOpen = true" style="padding: 2px 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 11px; flex: 1; min-height: 20px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                  🔍 Chọn
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div style="display: flex; gap: 15px;">
-          <div class="form-group" style="flex: 1;">
+          <div class="form-group">
+            <label>Ngày Phát Hành</label>
+            <input type="datetime-local" v-model="formData.ngay_phat_hanh" style="height: 44px; box-sizing: border-box;">
+          </div>
+          <div class="form-group">
+            <label>Điều Kiện Cước</label>
+            <select v-model="formData.dieu_kien_cuoc" style="height: 44px; box-sizing: border-box;">
+              <option value="Freight Prepaid">Freight Prepaid (Cước trả trước)</option>
+              <option value="Freight Collect">Freight Collect (Cước trả sau)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cảng Đi (POL)</label>
+            <select v-model="formData.ma_cang_di" style="height: 44px; box-sizing: border-box;">
+              <option :value="null">-- Chọn cảng --</option>
+              <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">
+                {{ c.ten_cang }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cảng Đến (POD)</label>
+            <select v-model="formData.ma_cang_den" style="height: 44px; box-sizing: border-box;">
+              <option :value="null">-- Chọn cảng --</option>
+              <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">
+                {{ c.ten_cang }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label>Người Gửi Hàng</label>
-            <select v-model="formData.ma_nguoi_gui_hang">
+            <select v-model="formData.ma_nguoi_gui_hang" style="height: 44px; box-sizing: border-box;">
               <option :value="null">-- Chọn người gửi --</option>
               <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
                 {{ kh.ten_khach_hang }}
               </option>
             </select>
           </div>
-          <div class="form-group" style="flex: 1;">
+          <div class="form-group">
             <label>Người Nhận Hàng</label>
-            <select v-model="formData.ma_nguoi_nhan_hang">
+            <select v-model="formData.ma_nguoi_nhan_hang" style="height: 44px; box-sizing: border-box;">
               <option :value="null">-- Chọn người nhận --</option>
               <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
                 {{ kh.ten_khach_hang }}
               </option>
             </select>
           </div>
-        </div>
-
-        <div class="form-group">
-          <label>Bên được thông báo (Notify Party)</label>
-          <select v-model="formData.ma_ben_duoc_thong_bao">
-            <option :value="null">-- Chọn bên được thông báo --</option>
-            <option value="SAME_AS_CONSIGNEE">SAME AS CONSIGNEE (Như người nhận)</option>
-            <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
-              {{ kh.ten_khach_hang }}
-            </option>
-          </select>
-        </div>
-
-        <div style="display: flex; gap: 15px;">
-          <div class="form-group" style="flex: 1;">
-            <label>Cảng Đi (POL)</label>
-            <select v-model="formData.ma_cang_di">
-              <option :value="null">-- Chọn cảng --</option>
-              <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">
-                {{ c.ten_cang }}
+          
+          <div class="form-group">
+            <label>Bên được thông báo (Notify Party)</label>
+            <select v-model="formData.ma_ben_duoc_thong_bao" style="height: 44px; box-sizing: border-box;">
+              <option :value="null">-- Chọn bên được thông báo --</option>
+              <option value="SAME_AS_CONSIGNEE">SAME AS CONSIGNEE (Như người nhận)</option>
+              <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
+                {{ kh.ten_khach_hang }}
               </option>
             </select>
           </div>
-          <div class="form-group" style="flex: 1;">
-            <label>Cảng Đến (POD)</label>
-            <select v-model="formData.ma_cang_den">
-              <option :value="null">-- Chọn cảng --</option>
-              <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">
-                {{ c.ten_cang }}
-              </option>
-            </select>
+          <div class="form-group">
+            <label>Số Container</label>
+            <input v-model="formData.so_cont" placeholder="VD: TCNU1234567" style="height: 44px; box-sizing: border-box;">
           </div>
-        </div>
 
-        <div style="display: flex; gap: 15px;">
-          <div class="form-group" style="flex: 1;">
-            <label>Lô Hàng Liên Kết *</label>
-            <select v-model="formData.ma_lo_hang" required>
-              <option :value="null">-- Chọn lô hàng --</option>
-              <option v-for="lh in listLoHang" :key="lh.ma_lo_hang" :value="lh.ma_lo_hang">
-                {{ lh.ten_lo_hang }}
-              </option>
-            </select>
+          <div class="form-group">
+            <label>Số Chì (Seal)</label>
+            <input v-model="formData.so_chi" placeholder="VD: S123456" style="height: 44px; box-sizing: border-box;">
           </div>
-          <div class="form-group" style="flex: 1;">
+          <div class="form-group">
             <label>Phương Thức Đóng Cont</label>
-            <select v-model="formData.phuong_thuc_dong_cont">
+            <select v-model="formData.phuong_thuc_dong_cont" style="height: 44px; box-sizing: border-box;">
               <option value="FCL">FCL (Nguyên cont)</option>
               <option value="LCL">LCL (Hàng lẻ)</option>
             </select>
           </div>
-        </div>
 
-        <div style="display: flex; gap: 15px;">
-          <div class="form-group" style="flex: 1;">
-            <label>Số Container</label>
-            <input v-model="formData.so_cont" placeholder="VD: TCNU1234567">
+          <div style="grid-column: span 2; margin-top: 10px; display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn-cancel" @click="router.back()" style="padding: 10px 25px;">Hủy</button>
+            <button type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
+               {{ isSaving ? 'Đang lưu...' : 'Lưu Vận Đơn' }}
+            </button>
+            <button v-if="formData.ma_van_don" type="button" @click="handleExportPdf(formData.ma_van_don, formData.so_van_don)" class="btn-cancel" style="background: #17a2b8; color: white; border: none; padding: 10px 25px;">
+              Xuất PDF 🖨️
+            </button>
           </div>
-          <div class="form-group" style="flex: 1;">
-            <label>Số Chì (Seal)</label>
-            <input v-model="formData.so_chi" placeholder="VD: S123456">
-          </div>
         </div>
 
-        <div class="form-group">
-          <label>Điều Kiện Cước</label>
-          <select v-model="formData.dieu_kien_cuoc">
-            <option value="Freight Prepaid">Freight Prepaid (Cước trả trước)</option>
-            <option value="Freight Collect">Freight Collect (Cước trả sau)</option>
-          </select>
-        </div>
-
-        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-          <button type="button" class="btn-cancel" @click="router.back()" style="padding: 10px 25px;">Hủy</button>
-          <button type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
-             {{ isSaving ? 'Đang lưu...' : 'Lưu Vận Đơn' }}
-          </button>
-          <button v-if="formData.ma_van_don" type="button" @click="handleExportPdf(formData.ma_van_don, formData.so_van_don)" class="btn-cancel" style="background: #17a2b8; color: white; border: none; padding: 10px 25px;">
-            Xuất PDF 🖨️
-          </button>
+        <!-- Side Panel hiển thị thông tin lô hàng đã chọn -->
+        <div v-if="showLoHangPanel && selectedLoHang" class="side-panel-shipment">
+          <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📦 Thông tin Lô hàng</h4>
+          <div class="info-row"><span>Mã lô hàng:</span> <strong>#{{ selectedLoHang.ma_lo_hang }}</strong></div>
+          <div class="info-row"><span>Tên lô hàng:</span> <strong>{{ selectedLoHang.ten_lo_hang }}</strong></div>
+          <div class="info-row"><span>Khách hàng:</span> <strong>{{ selectedLoHang.ten_khach_hang || 'N/A' }}</strong></div>
+          <div class="info-row"><span>Incoterms:</span> <strong>{{ selectedLoHang.dieu_kien_thuong_mai || 'N/A' }}</strong></div>
+          <div class="info-row"><span>Trạng thái:</span> <strong style="color: #27ae60;">{{ selectedLoHang.trang_thai_lo_hang }}</strong></div>
+          <div class="info-row"><span>Booking:</span> <strong>{{ selectedLoHang.so_booking || 'N/A' }}</strong></div>
+          <hr>
+          <div style="font-size: 13px; color: #7f8c8d; margin-bottom: 5px;">Nguồn gốc / Ghi chú:</div>
+          <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 13px;">{{ selectedLoHang.nguon_goc || '(Trống)' }}</div>
         </div>
       </form>
+    </div>
+
+    <!-- MODAL CHỌN LÔ HÀNG -->
+    <div v-if="isLoHangPickerOpen" class="modal-overlay">
+      <div class="modal-content" style="max-width: 1000px; width: 95%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+          <h3 style="margin: 0; color: #2980b9;">📦 Danh sách Lô hàng</h3>
+          <button @click="isLoHangPickerOpen = false" class="close-panel-btn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+        </div>
+
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+          <!-- Bảng danh sách bên trái -->
+          <div style="flex: 1; max-height: 500px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+            <table class="picker-table" style="width: 100%; border-collapse: collapse;">
+              <thead style="position: sticky; top: 0; background: #f8f9fa; z-index: 1;">
+                <tr>
+                  <th style="padding: 12px; text-align: left;">Tên Lô Hàng</th>
+                  <th style="text-align: left;">Khách Hàng</th>
+                  <th style="text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="lh in listLoHang" :key="lh.ma_lo_hang" :style="previewLoHang?.ma_lo_hang === lh.ma_lo_hang ? 'background: #eef7ff' : ''">
+                  <td style="padding: 12px; font-weight: bold; color: #2c3e50;">{{ lh.ten_lo_hang }}</td>
+                  <td>{{ lh.ten_khach_hang || 'N/A' }}</td>
+                  <td style="width: 150px; padding: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; width: 120px; margin: 0 auto;">
+                      <button type="button" @click="previewLoHang = lh" class="view-btn" style="width: 100%; font-size: 12px; padding: 6px 0;">👁️ Xem trước</button>
+                      <button type="button" @click="selectLoHang(lh)" class="btn-save" style="width: 100%; font-size: 12px; height: auto; padding: 6px 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">✅ Chọn</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="listLoHang.length === 0">
+                  <td colspan="3" style="text-align: center; padding: 20px; color: #7f8c8d;">Không có lô hàng khả dụng</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Panel xem chi tiết bên phải -->
+          <div v-if="previewLoHang" class="side-panel-shipment" style="position: static; width: 350px; border: 1px solid #3498db;">
+            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📋 Chi tiết: {{ previewLoHang.ten_lo_hang }}</h4>
+            <div class="info-row"><span>Mã lô hàng:</span> <strong>#{{ previewLoHang.ma_lo_hang }}</strong></div>
+            <div class="info-row"><span>Khách hàng:</span> <strong>{{ previewLoHang.ten_khach_hang || 'N/A' }}</strong></div>
+            <div class="info-row"><span>Booking:</span> <strong>{{ previewLoHang.so_booking || 'N/A' }}</strong></div>
+            <div class="info-row"><span>Incoterms:</span> <strong>{{ previewLoHang.dieu_kien_thuong_mai || 'N/A' }}</strong></div>
+            <div class="info-row"><span>Trạng thái:</span> <strong style="color: #27ae60;">{{ previewLoHang.trang_thai_lo_hang }}</strong></div>
+            <hr>
+            <div style="font-size: 13px; color: #7f8c8d; margin-bottom: 5px;">Nguồn gốc:</div>
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 13px;">{{ previewLoHang.nguon_goc || '(Trống)' }}</div>
+          </div>
+          <div v-else style="width: 350px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 1px dashed #ccc; border-radius: 8px; color: #7f8c8d; font-style: italic;">
+             Nhấn "Xem trước" để kiểm tra thông tin
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
@@ -152,6 +229,11 @@ const listCangBien = ref([]);
 const listLoHang = ref([]);
 const listLoaiVanDon = ['Original B/L', 'Surrendered B/L', 'Seaway Bill'];
 
+// State cho chức năng Picker và Preview
+const isLoHangPickerOpen = ref(false);
+const previewLoHang = ref(null);
+const showLoHangPanel = ref(false);
+
 const formData = ref({
   ma_van_don: null, loai_van_don: 'Original B/L', ngay_phat_hanh: '',
   so_van_don_goc: '', so_van_don: '', so_cont: '', so_chi: '',
@@ -160,14 +242,34 @@ const formData = ref({
   ma_cang_di: null, ma_cang_den: null, ma_lo_hang: null, nguoi_sua_cuoi: null
 });
 
+const selectedLoHang = computed(() => {
+  return listLoHang.value.find(lh => lh.ma_lo_hang === formData.value.ma_lo_hang);
+});
+
+const selectLoHang = (lh) => {
+  formData.value.ma_lo_hang = lh.ma_lo_hang;
+  isLoHangPickerOpen.value = false;
+  previewLoHang.value = null;
+  showLoHangPanel.value = true;
+};
+
 const fetchReferences = async () => {
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/van-don/references');
-    const data = await res.json();
-    if (data.success) {
-      listKhachHang.value = data.khach_hang;
-      listCangBien.value = data.cang_bien;
-      listLoHang.value = data.lo_hang;
+    // Gọi đồng thời API references (để lấy danh mục) và API lo-hang (để lấy chi tiết đầy đủ)
+    const [resRef, allRes] = await Promise.all([
+      fetch('http://127.0.0.1:8000/api/van-don/references'),
+      fetch('http://127.0.0.1:8000/api/lo-hang')
+    ]);
+    const dataRef = await resRef.json();
+    const allData = await allRes.json();
+
+    if (dataRef.success && allData.success) {
+      listKhachHang.value = dataRef.khach_hang;
+      listCangBien.value = dataRef.cang_bien;
+      
+      const validIds = dataRef.lo_hang.map(lh => lh.ma_lo_hang);
+      // Lọc danh sách lô hàng đầy đủ thông tin dựa trên các ID hợp lệ từ references
+      listLoHang.value = allData.data.filter(lh => validIds.includes(lh.ma_lo_hang));
     }
   } catch (error) { console.error("Lỗi lấy dữ liệu tham chiếu"); }
 };
@@ -191,6 +293,7 @@ const fetchDetail = async (id) => {
           ma_ben_duoc_thong_bao: benThongBao,
           ngay_phat_hanh: found.ngay_phat_hanh ? new Date(found.ngay_phat_hanh).toISOString().slice(0, 16) : ''
         };
+        showLoHangPanel.value = true;
       }
     }
   } catch (e) { console.error(e); }
@@ -226,7 +329,7 @@ const handleExportPdf = async (id, soVanDon) => {
   try {
     const response = await fetch(`http://127.0.0.1:8000/api/van-don/export-pdf/${id}`);
     if (!response.ok) {
-      const errorData = await response.json(); // Attempt to read error message from JSON
+      const errorData = await response.json(); // Cố gắng lấy thông báo lỗi từ response
       throw new Error(errorData.message || 'Lỗi khi tạo PDF');
     }
     const blob = await response.blob();
@@ -252,3 +355,48 @@ onMounted(async () => {
 </script>
 
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
+<style scoped>
+.view-btn {
+  background: #ebf5fb; border: 1px solid #3498db; color: #3498db;
+  border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+}
+.view-btn:hover { background: #3498db; color: white; }
+
+.side-panel-shipment {
+  width: 350px; background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); height: fit-content;
+  position: sticky; top: 0; animation: slideIn 0.3s ease;
+}
+
+.info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+.info-row span { color: #7f8c8d; }
+.info-row strong { color: #2c3e50; text-align: right; }
+
+@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+
+.modal-content {
+  background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.picker-table th, .picker-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.picker-table tr:hover {
+  background-color: #fcfcfc;
+}
+
+.btn-picker {
+  transition: background 0.2s;
+}
+.btn-picker:hover {
+  background: #27ae60 !important;
+}
+</style>
