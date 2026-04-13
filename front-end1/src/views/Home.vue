@@ -56,16 +56,16 @@
           <thead>
             <tr>
               <th>Mã Lô</th>
+              <th>Tên lô hàng</th>
               <th>Khách Hàng</th>
-              <th>ETD/ETA</th>
               <th>Trạng Thái</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="lh in recentShipments" :key="lh.ma_lo_hang">
               <td class="fw-bold">#{{ lh.ma_lo_hang }}</td>
+              <td>{{ lh.ten_lo_hang }}</td>
               <td>{{ lh.ten_khach_hang || 'Chưa xác định' }}</td>
-              <td>{{ lh.etd_eta || '---' }}</td>
               <td><span class="status-tag" :class="getStatusClass(lh.trang_thai_lo_hang)">{{ lh.trang_thai_lo_hang }}</span></td>
             </tr>
             <tr v-if="recentShipments.length === 0">
@@ -143,7 +143,7 @@ const fetchData = async () => {
       stats.value.urgent = urgentBookings.length;
 
       // Tạo danh sách nhắc nhở
-      alerts.value = urgentBookings.map(b => ({
+      alerts.value = Bookings.map(b => ({
         time: `Hạn: ${new Date(b.gio_cat_mang).toLocaleString('vi-VN')}`,
         msg: `Booking <strong>${b.so_booking}</strong> (${b.ten_con_tau}) sắp đến giờ cắt máng.`,
         type: 'warning'
