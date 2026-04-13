@@ -110,30 +110,36 @@
         <button @click="detailPanel.show = false" class="close-btn">✖</button>
       </div>
       
-      <div class="panel-body">
+     <div class="panel-body">
         <table v-if="detailPanel.type === 'booking'" class="detail-table">
-          <tr><td>Số Booking:</td><strong>{{ detailPanel.data.so_booking }}</strong></tr>
-          <tr><td>Tên tàu:</td><strong>{{ detailPanel.data.ten_con_tau || '---' }}</strong></tr>
-          <tr><td>Số chuyến:</td><strong>{{ detailPanel.data.so_chuyen || '---' }}</strong></tr>
-          <tr><td>Ngày đi (ETD):</td><strong>{{ formatDateTime(detailPanel.data.etd) }}</strong></tr>
-          <tr><td>Ngày đến (ETA):</td><strong>{{ formatDateTime(detailPanel.data.eta) }}</strong></tr>
-          <tr><td>Giờ cắt máng:</td><strong style="color: red;">{{ formatDateTime(detailPanel.data.gio_cat_mang) }}</strong></tr>
+          <tbody>
+            <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking }}</strong></td></tr>
+            <tr><td>Tên tàu:</td><td><strong>{{ detailPanel.data.ten_con_tau || '---' }}</strong></td></tr>
+            <tr><td>Số chuyến:</td><td><strong>{{ detailPanel.data.so_chuyen || '---' }}</strong></td></tr>
+            <tr><td>Ngày đi (ETD):</td><td><strong>{{ formatDateTime(detailPanel.data.etd) }}</strong></td></tr>
+            <tr><td>Ngày đến (ETA):</td><td><strong>{{ formatDateTime(detailPanel.data.eta) }}</strong></td></tr>
+            <tr><td>Giờ cắt máng:</td><td><strong style="color: red;">{{ formatDateTime(detailPanel.data.gio_cat_mang) }}</strong></td></tr>
+          </tbody>
         </table>
 
         <table v-if="detailPanel.type === 'lo_hang'" class="detail-table">
-          <tr><td>Tên Lô hàng:</td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></tr>
-          <tr><td>Điều kiện TM:</td><strong>{{ detailPanel.data.dieu_kien_thuong_mai || '---' }}</strong></tr>
-          <tr><td>Trạng thái:</td><strong style="color: #f39c12;">{{ detailPanel.data.trang_thai_lo_hang || '---' }}</strong></tr>
-          <tr><td>Khách hàng:</td><strong>{{ detailPanel.data.ten_khach_hang || '---' }}</strong></tr>
+          <tbody>
+            <tr><td>Tên Lô hàng:</td><td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></td></tr>
+            <tr><td>Điều kiện TM:</td><td><strong>{{ detailPanel.data.dieu_kien_thuong_mai || '---' }}</strong></td></tr>
+            <tr><td>Trạng thái:</td><td><strong style="color: #f39c12;">{{ detailPanel.data.trang_thai_lo_hang || '---' }}</strong></td></tr>
+            <tr><td>Khách hàng:</td><td><strong>{{ detailPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
+          </tbody>
         </table>
 
         <table v-if="detailPanel.type === 'van_don' || detailPanel.type === 'container'" class="detail-table">
-          <tr><td>Loại B/L:</td><strong>{{ detailPanel.data.loai_van_don || '---' }}</strong></tr>
-          <tr><td>Số MBL gốc:</td><strong>{{ detailPanel.data.so_van_don_goc || '---' }}</strong></tr>
-          <tr><td>Số HBL:</td><strong>{{ detailPanel.data.so_van_don || '---' }}</strong></tr>
-          <tr><td>Số Container:</td><strong>{{ detailPanel.data.so_cont || '---' }}</strong></tr>
-          <tr><td>Số Chì (Seal):</td><strong>{{ detailPanel.data.so_chi || '---' }}</strong></tr>
-          <tr><td>Phương thức:</td><strong>{{ detailPanel.data.phuong_thuc_dong_cont || '---' }}</strong></tr>
+          <tbody>
+            <tr><td>Loại B/L:</td><td><strong>{{ detailPanel.data.loai_van_don || '---' }}</strong></td></tr>
+            <tr><td>Số MBL gốc:</td><td><strong>{{ detailPanel.data.so_van_don_goc || '---' }}</strong></td></tr>
+            <tr><td>Số HBL:</td><td><strong>{{ detailPanel.data.so_van_don || '---' }}</strong></td></tr>
+            <tr><td>Số Container:</td><td><strong>{{ detailPanel.data.so_cont || '---' }}</strong></td></tr>
+            <tr><td>Số Chì (Seal):</td><td><strong>{{ detailPanel.data.so_chi || '---' }}</strong></td></tr>
+            <tr><td>Phương thức:</td><td><strong>{{ detailPanel.data.phuong_thuc_dong_cont || '---' }}</strong></td></tr>
+          </tbody>
         </table>
       </div>
     </div>

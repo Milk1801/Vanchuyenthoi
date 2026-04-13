@@ -34,6 +34,12 @@ import QuanLyLenhGiaoHang from '@/views/vantai/QuanLyLenhGiaoHang.vue'
 import QuanLyVanDonForm from '../views/vantai/QuanLyVanDonForm.vue'
 import QuanLyToKhaiHaiQuan from '@/views/vantai/QuanLyToKhaiHaiQuan.vue'
 import QuanLyToKhaiHaiQuanForm from '@/views/vantai/QuanLyToKhaiHaiQuanForm.vue'
+import BaoCaoThongKeVanChuyen from '../views/baocaothongke/BaoCaoThongKeVanChuyen.vue'
+import BaoCaoThongKeSanLuong from '../views/baocaothongke/BaoCaoSanLuong.vue'
+import BaoCaoThongKeBooking from '../views/baocaothongke/BaoCaoThongKeBooking.vue'
+import BaoCaoThongKeChiPhiTonDong from '../views/baocaothongke/BaoCaoThongKeChiPhiTonDong.vue'
+import BaoCaoThongKeCuocVo from '../views/baocaothongke/BaoCaoThongKeCuocVo.vue'
+import BaoCaoThongKeCanhBaoLuuBai from '../views/baocaothongke/BaoCaoThongKeCanhBaoLuuBai.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -226,7 +232,17 @@ const router = createRouter({
         {
           path: 'bao-cao-thong-ke',
           name: 'bao-cao-thong-ke',
-          component: BaoCaoThongKe
+          component: BaoCaoThongKe,
+          redirect: '/bao-cao-thong-ke/van-chuyen', // Tự động load trang Vận Chuyển khi bấm menu
+          children: [
+            { path: 'van-chuyen', name: 'bao-cao-van-chuyen', component: BaoCaoThongKeVanChuyen },
+            { path: 'san-luong', name: 'bao-cao-san-luong', component: BaoCaoThongKeSanLuong },
+            { path: 'booking', name: 'bao-cao-booking', component: BaoCaoThongKeBooking },
+            { path: 'chi-phi-ton-dong', name: 'bao-cao-chi-phi-ton-dong', component: BaoCaoThongKeChiPhiTonDong },
+            { path: 'cuoc-vo', name: 'bao-cao-cuoc-vo', component: BaoCaoThongKeCuocVo },
+            { path: 'canh-bao-luu-bai', name: 'bao-cao-canh-bao-luu-bai', component: BaoCaoThongKeCanhBaoLuuBai }
+          ]
+          
         }
       ]
     }

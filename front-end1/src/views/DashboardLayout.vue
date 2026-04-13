@@ -31,7 +31,7 @@
         
         <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">💰 Quản lý Chi phí và Thanh Toán</router-link>
         <div v-show="isChiPhiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
-          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí phát sinh khi giao nhận</router-link> 
+          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">💰 Quản lý Chi phí phát sinh</router-link> 
         </div>
 
         <router-link to="/van-tai" active-class="active-menu"> 🚚 Quản lý Vận tải</router-link>
@@ -43,7 +43,12 @@
         
         <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Quản lý Báo cáo và Thống kê</router-link>
         <div v-show="isBaoCaoRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
-          
+          <router-link to="/bao-cao-thong-ke/van-chuyen" active-class="active-submenu">📊 Báo cáo vận chuyển</router-link>
+          <router-link to="/bao-cao-thong-ke/san-luong" active-class="active-submenu">📈 Báo cáo sản lượng</router-link>
+          <router-link to="/bao-cao-thong-ke/booking" active-class="active-submenu">📑 Thống kê Booking</router-link>
+          <router-link to="/bao-cao-thong-ke/chi-phi-ton-dong" active-class="active-submenu">💸 Thống kê chi phí tồn đọng</router-link>
+          <router-link to="/bao-cao-thong-ke/cuoc-vo" active-class="active-submenu">📦 Thống kê cước vỏ</router-link>
+          <router-link to="/bao-cao-thong-ke/canh-bao-luu-bai" active-class="active-submenu">⚠️ Cảnh báo lưu bãi</router-link>
         </div>
 
       </nav>
@@ -125,7 +130,7 @@ const handleLogout = () => {
 
 /* Sub Menu */
 .sub-menu-left { display: flex; flex-direction: column; gap: 5px; padding-left: 20px; margin-top: 0; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; }
-.sub-menu-left-open { max-height: 420px; opacity: 1; }
+.sub-menu-left-open { max-height: 450px; opacity: 1; }
 .sub-menu-left a { color: #fff; background: #2c3e50; border: 1px solid #2c3e50; border-left: 4px solid transparent; border-radius: 5px; padding: 8px 15px; font-size: 13px; text-decoration: none; transition: 0.2s; display: flex; align-items: center; }
 .sub-menu-left a:hover { background: #34495e; color: #fff; border-left-color: transparent; }
 .active-submenu { background: #34495e !important; color: #f1c40f !important; font-weight: 700; border-left-color: #f1c40f !important; }

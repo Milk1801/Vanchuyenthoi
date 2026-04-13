@@ -20,6 +20,7 @@ use App\Http\Controllers\QuanLyVanDon;
 use App\Http\Controllers\QuanLyChungTu;
 use App\Http\Controllers\QuanLyToKhaiHaiQuan;
 use App\Http\Controllers\QuanLyLenhGiaoHang;
+use App\Http\Controllers\BaoCaoThongKe;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,11 +103,13 @@ Route::post('/don-vi-tinh/delete', [QuanLyDonViTinh::class, 'delete']);
 
 /*
 |--------------------------------------------------------------------------
-| QUẢN LÝ CHI PHÍ (Thanh toán AR/AP)
+| QUẢN LÝ CHI PHÍ 
 |--------------------------------------------------------------------------
 */
-Route::get('/costs', [QuanLyChiPhi::class, 'index']);
-Route::post('/costs/save', [QuanLyChiPhi::class, 'save']);
+Route::get('/chi-phi', [QuanLyChiPhi::class, 'index']);
+Route::post('/chi-phi/save', [QuanLyChiPhi::class, 'store']);
+Route::post('/chi-phi/delete', [QuanLyChiPhi::class, 'destroy']);
+Route::post('/chi-phi/update-status', [QuanLyChiPhi::class, 'updateStatus']);
 
 
 
@@ -182,3 +185,15 @@ Route::get('/to-khai-hai-quan', [QuanLyToKhaiHaiQuan::class, 'index']);
 Route::get('/to-khai-hai-quan/references', [QuanLyToKhaiHaiQuan::class, 'getReferences']);
 Route::post('/to-khai-hai-quan/save', [QuanLyToKhaiHaiQuan::class, 'save']);
 Route::post('/to-khai-hai-quan/delete', [QuanLyToKhaiHaiQuan::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 18. API QUẢN LÝ BÁO CÁO THỐNG KÊ
+|--------------------------------------------------------------------------
+*/
+Route::get('/bao-cao/van-chuyen', [BaoCaoThongKe::class, 'baoCaoVanChuyen']);
+Route::get('/bao-cao/san-luong', [BaoCaoThongKe::class, 'baoCaoSanLuong']);
+Route::get('/bao-cao/booking', [BaoCaoThongKe::class, 'baoCaoBooking']);
+Route::get('/bao-cao/chi-phi-ton-dong', [BaoCaoThongKe::class, 'baoCaoChiPhiTonDong']);
+Route::get('/bao-cao/cuoc-vo', [BaoCaoThongKe::class, 'baoCaoCuocVo']);
+Route::get('/bao-cao/canh-bao-luu-bai', [BaoCaoThongKe::class, 'baoCaoCanhBaoLuuBai']);
