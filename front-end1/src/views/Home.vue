@@ -38,7 +38,7 @@
       <div class="stat-card red">
         <div class="stat-icon">⚠️</div>
         <div class="stat-info">
-          <span class="stat-label">Gần Closing</span>
+          <span class="stat-label">Cần xử lý gấp</span>
           <span class="stat-value">{{ stats.urgent }}</span>
         </div>
       </div>
@@ -102,6 +102,8 @@ const stats = ref({ total: 0, shipping: 0, cleared: 0, urgent: 0 });
 const recentShipments = ref([]);
 const alerts = ref([]);
 
+const noItemsCount = ref(0);
+
 const getStatusClass = (status) => {
   if (status === 'Đang vận chuyển') return 'shipping';
   if (['Đã thông quan', 'Hoàn tất'].includes(status)) return 'done';
@@ -110,6 +112,8 @@ const getStatusClass = (status) => {
 
 const fetchData = async () => {
   try {
+    alerts.value = []; // Reset danh sách nhắc nhở trước khi tải
+
     // 1. Lấy dữ liệu Lô Hàng
     const resLH = await fetch('http://127.0.0.1:8000/api/lo-hang');
     const dataLH = await resLH.json();
@@ -122,6 +126,17 @@ const fetchData = async () => {
       
       // Lấy 5 lô hàng mới nhất
       recentShipments.value = [...list].sort((a, b) => b.ma_lo_hang - a.ma_lo_hang).slice(0, 5);
+
+      // Thêm nhắc nhở lô hàng chưa có chi tiết hàng hóa
+      const noItems = list.filter(lh => lh.has_items == 0);
+      noItemsCount.value = noItems.length;
+      noItems.forEach(lh => {
+        alerts.value.push({
+          time: 'Dữ liệu trống',
+          msg: `Lô hàng <strong>#${lh.ma_lo_hang}</strong> (${lh.ten_lo_hang}) chưa có chi tiết hàng hóa.`,
+          type: 'warning'
+        });
+      });
     }
 
     // 2. Lấy dữ liệu Booking để tính toán lịch Closing
@@ -140,14 +155,17 @@ const fetchData = async () => {
         return diffHours > 0 && diffHours < 48;
       });
 
-      stats.value.urgent = urgentBookings.length;
+      // Cập nhật tổng số việc gấp (Booking sắp đóng + Lô hàng thiếu dữ liệu)
+      stats.value.urgent = urgentBookings.length + noItemsCount.value;
 
-      // Tạo danh sách nhắc nhở
-      alerts.value = Bookings.map(b => ({
-        time: `Hạn: ${new Date(b.gio_cat_mang).toLocaleString('vi-VN')}`,
-        msg: `Booking <strong>${b.so_booking}</strong> (${b.ten_con_tau}) sắp đến giờ cắt máng.`,
-        type: 'warning'
-      }));
+      // Thêm nhắc nhở booking sắp cắt máng vào danh sách
+      urgentBookings.forEach(b => {
+        alerts.value.push({
+          time: `Hạn: ${new Date(b.gio_cat_mang).toLocaleString('vi-VN')}`,
+          msg: `Booking <strong>${b.so_booking}</strong> (${b.ten_con_tau}) sắp đến giờ cắt máng.`,
+          type: 'warning'
+        });
+      });
 
       // Thêm thông tin tàu cập cảng (ETA hôm nay/ngày mai)
       const etaSoon = bookings.filter(b => b.eta && new Date(b.eta).toDateString() === now.toDateString());
