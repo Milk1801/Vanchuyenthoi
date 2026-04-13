@@ -46,7 +46,7 @@
             <th v-if="currentTab === 'AN'" style="padding: 12px 15px;">Khách Hàng</th>
             <th v-if="currentTab === 'AN'" style="padding: 12px 15px;">Tên Tàu</th>
 
-            <th v-if="currentTab === 'DO' || currentTab === 'BBGN'" style="padding: 12px 15px;">Số Vận Đơn</th>
+            <th style="padding: 12px 15px;">Số Vận Đơn</th>
             <th v-if="currentTab === 'DO' || currentTab === 'BBGN'" style="padding: 12px 15px;">Số Container</th>
             
             <th v-if="currentTab === 'BBGN'" style="padding: 12px 15px;">Đơn Vị Vận Tải</th>
@@ -80,8 +80,8 @@
             <td v-if="currentTab === 'AN'" style="padding: 12px 15px;">{{ item.ten_khach_hang || 'N/A' }}</td>
             <td v-if="currentTab === 'AN'" style="padding: 12px 15px;">{{ item.ten_con_tau || 'N/A' }}</td>
 
-            <td v-if="currentTab === 'DO' || currentTab === 'BBGN'" style="padding: 12px 15px; font-weight: bold;">
-              {{ item.so_van_don || 'N/A' }}
+            <td style="padding: 12px 15px; font-weight: bold;">
+              {{ item.so_van_don || '---' }}
               <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem chi tiết Vận đơn">👁️</button>
             </td>
             <td v-if="currentTab === 'DO' || currentTab === 'BBGN'" style="padding: 12px 15px;">

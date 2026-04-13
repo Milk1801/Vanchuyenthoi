@@ -86,7 +86,9 @@
             <td>Từ (From):</td>
             <td><strong>{{ $data->pol_name ?? 'N/A' }}</strong></td>
             <td>Tới (To):</td>
-            <td><strong>KHO CFS GLC - MA KHO: 03TGC06</strong></td>
+            <td style="font-weight: bold; text-transform: uppercase;">
+                {{ $data->pod_name ?? 'CHƯA CẬP NHẬT KHO/CẢNG' }}
+            </td>
         </tr>
         <tr>
             <td>Dự kiến đến ngày (ETA):</td>
@@ -96,7 +98,9 @@
         </tr>
         <tr>
             <td>Địa chỉ giao hàng:</td>
-            <td><strong>KHO CFS GLC - MA KHO: 03TGC06</strong></td>
+            <td style="font-weight: bold;">
+                {{ $data->pod_address ?? $data->pod_name ?? 'CHƯA CẬP NHẬT ĐỊA CHỈ' }}
+            </td>
             <td>MBL:</td>
             <td><strong>{{ $data->so_van_don_goc ?? 'N/A' }}</strong></td>
         </tr>

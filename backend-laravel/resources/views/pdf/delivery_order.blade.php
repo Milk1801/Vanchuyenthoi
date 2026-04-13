@@ -46,8 +46,7 @@
         <tr>
             <td width="30%">Kính gửi (To):</td>
             <td width="70%">
-                - KHO CFS GLC - MA KHO: 03TGC06<br>
-                - CƠ QUAN HẢI QUAN
+                <strong>{{ $data->pod_name ?? '...' }}</strong>
             </td>
         </tr>
         <tr>

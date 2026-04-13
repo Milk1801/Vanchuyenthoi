@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Chi Phí & Thanh Toán</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Chi Phí phát sinh</h3>
 
     <div class="dashboard-cards">
       <div class="card card-thu">
@@ -51,10 +51,10 @@
             <th style="padding: 12px 15px;">Mã CP</th>
             <th style="padding: 12px 15px;">Tên Chi Phí</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
-            <th style="padding: 12px 15px;">Khách Hàng</th>
             <th style="padding: 12px 15px; text-align: right;">Tổng Tiền</th>
             <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th>
-            <th style="padding: 12px 15px;">Ngày T.Toán</th>
+            <th style="padding: 12px 15px;">Ngày TT</th>
+            <th style="padding: 12px 15px;">Người cập nhật</th>
             <th style="padding: 12px 15px; text-align: center;">Hành động</th>
           </tr>
         </thead>
@@ -74,7 +74,6 @@
               <button v-if="item.ten_lo_hang" @click="viewDetail(item)" class="btn-eye" title="Xem chi tiết Lô hàng">👁️</button>
             </td>
             
-            <td style="padding: 12px 15px;">{{ item.ten_khach_hang || 'N/A' }}</td>
             <td style="padding: 12px 15px; text-align: right; font-weight: bold; color: #2c3e50;">
               {{ formatCurrency(item.tong_tien) }}
             </td>
@@ -85,11 +84,16 @@
               </span>
             </td>
             
-            <td style="padding: 12px 15px;">{{ formatDate(item.ngay_thanh_toan) }}</td>
+            <td style="padding: 12px 15px; font-weight: bold;">
+                {{ item.ngay_thanh_toan ? formatDate(item.ngay_thanh_toan) : '---' }}
+            </td>
+
+            <td style="padding: 12px 15px; color: #7f8c8d; font-size: 13px;">
+            👤 {{ item.nguoi_cap_nhat || '---' }}
+            </td>
             
             <td style="padding: 12px 15px; text-align: center;">
               <button v-if="item.trang_thai_thanh_toan !== 'Đã thanh toán'" @click="markAsPaid(item.ma_chi_phi)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xác nhận Đã thanh toán">💵</button>
-              
               <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
               <button @click="handleDelete(item.ma_chi_phi)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
             </td>
@@ -310,14 +314,21 @@ const openModal = (item = null) => {
 };
 
 // Lưu Dữ Liệu
+// Hàm lưu dữ liệu
 const saveData = async () => {
   if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng!"); return; }
   if (formData.value.trang_thai_thanh_toan === 'Chưa thanh toán') formData.value.ngay_thanh_toan = null;
 
+  // Lấy ID người dùng đang đăng nhập
+  const currentUser = JSON.parse(localStorage.getItem('sincere_user'));
+  const userId = currentUser ? currentUser.ma_tai_khoan : null;
+
   isSaving.value = true;
   try {
+    const payload = { ...formData.value, nguoi_sua_cuoi: userId }; // Ném thêm user ID vào
+    
     const res = await fetch('http://127.0.0.1:8000/api/chi-phi/save', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData.value)
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (data.success) { isModalOpen.value = false; fetchData(); } else { alert(data.message); }
@@ -336,14 +347,23 @@ const handleDelete = async (id) => {
   } catch (e) { alert("Lỗi!"); }
 };
 
-// Nút thao tác nhanh Đã thanh toán (Nút 💵)
+// Nút thao tác nhanh Đã thanh toán
 const markAsPaid = async (id) => {
   if (!confirm("Xác nhận khoản tiền này ĐÃ ĐƯỢC THANH TOÁN?")) return;
+  
+  const currentUser = JSON.parse(localStorage.getItem('sincere_user'));
+  const userId = currentUser ? currentUser.ma_tai_khoan : null;
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const res = await fetch('http://127.0.0.1:8000/api/chi-phi/update-status', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ ma_chi_phi: id, trang_thai_thanh_toan: 'Đã thanh toán', ngay_thanh_toan: today })
+      body: JSON.stringify({ 
+        ma_chi_phi: id, 
+        trang_thai_thanh_toan: 'Đã thanh toán', 
+        ngay_thanh_toan: today,
+        nguoi_sua_cuoi: userId // Gắn tên kế toán vừa ấn nút thu tiền
+      })
     });
     if ((await res.json()).success) fetchData();
   } catch (e) { alert("Lỗi!"); }

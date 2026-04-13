@@ -16,6 +16,7 @@ class QuanLyLenhGiaoHang extends Controller
                 ->leftJoin('lo_hang', 'thong_bao_hang_den.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
                 ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
                 ->leftJoin('khach_hang', 'lo_hang.ma_khach_hang', '=', 'khach_hang.ma_khach_hang')
+                ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
                 ->select(
                     'thong_bao_hang_den.ma_thong_bao_hang_den as ma_phieu', 
                     'thong_bao_hang_den.ngay_phat_hanh', 
@@ -30,7 +31,13 @@ class QuanLyLenhGiaoHang extends Controller
                     'booking.eta', 
                     'booking.etd', 
                     'booking.gio_cat_mang',
-                    'khach_hang.ten_khach_hang'
+                    'khach_hang.ten_khach_hang',
+                    'van_don.so_van_don',
+                    'van_don.so_cont',
+                    'van_don.loai_van_don',
+                    'van_don.so_van_don_goc',
+                    'van_don.so_chi',
+                    'van_don.phuong_thuc_dong_cont'
                 )
                 ->orderBy('thong_bao_hang_den.ma_thong_bao_hang_den', 'desc')
                 ->get();
@@ -218,6 +225,7 @@ class QuanLyLenhGiaoHang extends Controller
                         'consignee.ten_khach_hang as consignee_name', 'consignee.dia_chi as consignee_address', 'consignee.so_dien_thoai as consignee_tel', 'consignee.so_fax as consignee_fax',
                         'pol.ten_cang as pol_name',
                         'pod.ten_cang as pod_name',
+                        'pod.dia_chi as pod_address',
                         'ctlh.tong_kien', 'ctlh.tong_trong_luong', 'ctlh.tong_the_tich'
                     )
                     ->first();
@@ -245,6 +253,7 @@ class QuanLyLenhGiaoHang extends Controller
                         'consignee.ten_khach_hang as consignee_name', 'consignee.dia_chi as consignee_address',
                         'pol.ten_cang as pol_name',
                         'pod.ten_cang as pod_name',
+                        'pod.dia_chi as pod_address',
                         'ctlh.tong_kien', 'ctlh.tong_trong_luong', 'ctlh.tong_the_tich'
                     )
                     ->first();
