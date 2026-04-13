@@ -240,7 +240,7 @@ class BaoCaoThongKe extends Controller
     }
 
     // ==========================================
-    // 4. BÁO CÁO THỐNG KÊ CHI PHÍ
+    // 4. BÁO CÁO THỐNG KÊ CHI PHÍ TỒN ĐỌNG
     // ==========================================
     public function baoCaoChiPhiTonDong(Request $request)
     {
@@ -289,18 +289,20 @@ class BaoCaoThongKe extends Controller
 
             $danhSach = $query->orderBy('chi_phi.ma_chi_phi', 'desc')->get();
 
-            // --- TÍNH TỔNG TIỀN CHO 2 THẺ THỐNG KÊ ---
+            // --- TÍNH TỔNG TIỀN TỒN ĐỌNG CHO 2 THẺ THỐNG KÊ ---
             $phaiThu = 0;
             $phaiTra = 0;
 
             foreach ($danhSach as $cp) {
-                if ($cp->loai_giao_dich === 'THU') {
-                    $phaiThu += $cp->tong_tien;
-                } else if ($cp->loai_giao_dich === 'CHI') {
-                    $phaiTra += $cp->tong_tien;
+                // CHỈ CỘNG TIỀN VÀO TỔNG NẾU CHƯA THANH TOÁN XONG
+                if ($cp->trang_thai_thanh_toan !== 'Đã thanh toán') {
+                    if ($cp->loai_giao_dich === 'THU') {
+                        $phaiThu += $cp->tong_tien;
+                    } else if ($cp->loai_giao_dich === 'CHI') {
+                        $phaiTra += $cp->tong_tien;
+                    }
                 }
             }
-
             return response()->json([
                 'success' => true,
                 'data' => $danhSach,

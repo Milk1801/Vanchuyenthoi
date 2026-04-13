@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 20px;">
-    <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">THỐNG KÊ BÁO CÁO CHI PHÍ (CÔNG NỢ)</h2>
+    <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">THỐNG KÊ BÁO CÁO CHI PHÍ TỒN ĐỌNG</h2>
 
     <div class="filter-section" style="display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-end; flex-wrap: wrap;">
       <div>
