@@ -39,6 +39,7 @@
           <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu">📑 Quản lý Vận đơn</router-link>
           <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Quản lý Lệnh Giao Hàng (D/O)</router-link>
           <router-link to="/van-tai/to-khai-hai-quan" active-class="active-submenu">🚢 Quản lý Tờ khai hải quan</router-link>
+          <router-link to="/van-tai/luu-bai" active-class="active-submenu">🏢 Quản lý Lưu bãi</router-link>
         </div>
         
         <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Quản lý Báo cáo và Thống kê</router-link>

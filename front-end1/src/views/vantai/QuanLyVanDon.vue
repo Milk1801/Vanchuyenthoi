@@ -96,7 +96,7 @@
             <tbody>
               <tr v-for="(vd, index) in paginatedVanDon" :key="vd.ma_van_don" :class="{ 'row-selected': (selectedItem?.ma_van_don === vd.ma_van_don) }">
                 <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td class="fw-bold">#{{ vd.ma_van_don }}</td>
+                <td class="fw-bold">{{ vd.ma_van_don }}</td>
                 <td class="fw-bold" style="color: #2980b9;">{{ vd.so_van_don }}</td>
                 <td>{{ vd.so_van_don_goc || '---' }}</td>
                 <td><span class="badge badge-active" style="white-space: nowrap;">{{ vd.loai_van_don }}</span></td>

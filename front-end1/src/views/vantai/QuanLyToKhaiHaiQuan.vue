@@ -74,7 +74,7 @@
             <tbody>
               <tr v-for="(tk, index) in paginatedData" :key="tk.ma_to_khai_hai_quan" :class="{ 'row-selected': (selectedItem?.ma_to_khai_hai_quan === tk.ma_to_khai_hai_quan) }">
                 <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td class="fw-bold">#{{ tk.ma_to_khai_hai_quan }}</td>
+                <td class="fw-bold">{{ tk.ma_to_khai_hai_quan }}</td>
                 <td class="fw-bold" style="color: #2980b9;">{{ tk.ten_lo_hang || '---' }}</td>
                 <td>{{ formatDateTime(tk.ngay_thong_quan) }}</td>
                 <td><span class="badge" :style="getPhanLuongStyle(tk.phan_luong)">{{ tk.phan_luong || 'N/A' }}</span></td>

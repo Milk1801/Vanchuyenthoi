@@ -19,6 +19,7 @@ use App\Http\Controllers\QuanLyChiTietLoHang;
 use App\Http\Controllers\QuanLyVanDon;
 use App\Http\Controllers\QuanLyChungTu;
 use App\Http\Controllers\QuanLyToKhaiHaiQuan;
+use App\Http\Controllers\QuanLyLuuBai;
 use App\Http\Controllers\QuanLyLenhGiaoHang;
 use App\Http\Controllers\BaoCaoThongKe;
 
@@ -188,7 +189,17 @@ Route::post('/to-khai-hai-quan/delete', [QuanLyToKhaiHaiQuan::class, 'delete']);
 
 /*
 |--------------------------------------------------------------------------
-| 18. API QUẢN LÝ BÁO CÁO THỐNG KÊ
+| 18. API QUẢN LÝ THÔNG TIN LƯU BÃI
+|--------------------------------------------------------------------------
+*/
+Route::get('/luu-bai', [QuanLyLuuBai::class, 'index']);
+Route::get('/luu-bai/references', [QuanLyLuuBai::class, 'getReferences']);
+Route::post('/luu-bai/save', [QuanLyLuuBai::class, 'save']);
+Route::post('/luu-bai/delete', [QuanLyLuuBai::class, 'delete']);
+
+/*
+|--------------------------------------------------------------------------
+| 19. API QUẢN LÝ BÁO CÁO THỐNG KÊ
 |--------------------------------------------------------------------------
 */
 Route::get('/bao-cao/van-chuyen', [BaoCaoThongKe::class, 'baoCaoVanChuyen']);
