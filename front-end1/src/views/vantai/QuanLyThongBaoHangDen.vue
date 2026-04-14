@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Lệnh Giao Hàng (D/O)</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Thông Báo Hàng Đến (Arrival Notice)</h3>
 
     <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
@@ -8,7 +8,7 @@
       </div>
       <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
       <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
-        ➕ THÊM MỚI LỆNH D/O
+        ➕ THÊM MỚI THÔNG BÁO
       </button>
     </div>
 
@@ -16,20 +16,21 @@
       <table style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
-            <th style="padding: 12px 15px; width: 100px;">Mã Lệnh</th>
+            <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
             <th style="padding: 12px 15px;">Số Booking</th>
+            <th style="padding: 12px 15px;">Khách Hàng</th>
+            <th style="padding: 12px 15px;">Tên Tàu</th>
             <th style="padding: 12px 15px;">Số Vận Đơn</th>
-            <th style="padding: 12px 15px;">Số Container</th>
             <th style="padding: 12px 15px;">Ngày Phát Hành</th>
             <th style="padding: 12px 15px; text-align: center; width: 150px;">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="isLoading"><td colspan="7" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
-          <tr v-else-if="filteredList.length === 0"><td colspan="7" style="text-align: center; padding: 20px;">Không có dữ liệu!</td></tr>
+          <tr v-if="isLoading"><td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          <tr v-else-if="filteredList.length === 0"><td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu!</td></tr>
           <tr v-for="item in filteredList" :key="item.ma_phieu" style="border-bottom: 1px solid #eee;">
-            <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">DO-{{ item.ma_phieu }}</td>
+            <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">TB-{{ item.ma_phieu }}</td>
             <td style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
               <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem Lô hàng">👁️</button>
@@ -38,13 +39,11 @@
               {{ item.so_booking || 'N/A' }}
               <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem Booking">👁️</button>
             </td>
+            <td style="padding: 12px 15px;">{{ item.ten_khach_hang || 'N/A' }}</td>
+            <td style="padding: 12px 15px;">{{ item.ten_con_tau || 'N/A' }}</td>
             <td style="padding: 12px 15px; font-weight: bold;">
               {{ item.so_van_don || '---' }}
               <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem Vận đơn">👁️</button>
-            </td>
-            <td style="padding: 12px 15px;">
-              {{ item.so_cont || 'N/A' }}
-              <button v-if="item.so_cont" @click="viewDetail('container', item)" class="btn-eye" title="Xem Container">👁️</button>
             </td>
             <td style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             <td style="padding: 12px 15px; text-align: center;">
@@ -62,25 +61,25 @@
         <h4>{{ detailPanel.title }}</h4>
         <button @click="detailPanel.show = false" class="close-btn">✖</button>
       </div>
-      <div class="panel-body">
+     <div class="panel-body">
         <table v-if="detailPanel.type === 'booking'" class="detail-table">
           <tbody>
             <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking }}</strong></td></tr>
             <tr><td>Tên tàu:</td><td><strong>{{ detailPanel.data.ten_con_tau || '---' }}</strong></td></tr>
-            <tr><td>Số chuyến:</td><td><strong>{{ detailPanel.data.so_chuyen || '---' }}</strong></td></tr>
+            <tr><td>Ngày đi (ETD):</td><td><strong>{{ formatDateTime(detailPanel.data.etd) }}</strong></td></tr>
             <tr><td>Ngày đến (ETA):</td><td><strong>{{ formatDateTime(detailPanel.data.eta) }}</strong></td></tr>
           </tbody>
         </table>
         <table v-if="detailPanel.type === 'lo_hang'" class="detail-table">
           <tbody>
             <tr><td>Tên Lô hàng:</td><td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></td></tr>
+            <tr><td>Khách hàng:</td><td><strong>{{ detailPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
           </tbody>
         </table>
-        <table v-if="detailPanel.type === 'van_don' || detailPanel.type === 'container'" class="detail-table">
+        <table v-if="detailPanel.type === 'van_don'" class="detail-table">
           <tbody>
             <tr><td>Số HBL:</td><td><strong>{{ detailPanel.data.so_van_don || '---' }}</strong></td></tr>
             <tr><td>Số Container:</td><td><strong>{{ detailPanel.data.so_cont || '---' }}</strong></td></tr>
-            <tr><td>Số Chì (Seal):</td><td><strong>{{ detailPanel.data.so_chi || '---' }}</strong></td></tr>
           </tbody>
         </table>
       </div>
@@ -88,7 +87,7 @@
 
     <div v-if="isModalOpen" class="modal-overlay">
       <div class="modal-content" style="max-width: 500px; padding: 20px; background: white; border-radius: 8px; width: 100%;">
-        <h3 style="margin-top: 0;">{{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} Lệnh Giao Hàng D/O</h3>
+        <h3 style="margin-top: 0;">{{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} Thông Báo Hàng Đến</h3>
         <form @submit.prevent="saveData">
           <div style="margin-bottom: 15px; position: relative;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">Thuộc Lô hàng *</label>
@@ -121,7 +120,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
-const listDO = ref([]);
+const listAN = ref([]);
 const listLoHang = ref([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
@@ -140,7 +139,7 @@ const formatDateTime = (dateStr) => {
 };
 
 const filteredList = computed(() => {
-  return listDO.value.filter(item => {
+  return listAN.value.filter(item => {
     const search = searchQuery.value.toLowerCase();
     return !search || (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || (item.so_booking && item.so_booking.toLowerCase().includes(search));
   });
@@ -165,7 +164,6 @@ const viewDetail = (type, item) => {
   if (type === 'booking') detailPanel.value.title = '🚢 Thông tin Booking';
   if (type === 'lo_hang') detailPanel.value.title = '📦 Thông tin Lô hàng';
   if (type === 'van_don') detailPanel.value.title = '📑 Thông tin Vận đơn';
-  if (type === 'container') detailPanel.value.title = '🗃️ Thông tin Container';
 };
 
 const fetchData = async () => {
@@ -174,7 +172,7 @@ const fetchData = async () => {
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang');
     const data = await res.json();
     if (data.success) {
-      listDO.value = data.data_do; // Chỉ hứng D/O
+      listAN.value = data.data_an; // Chỉ hứng cục data_an
       listLoHang.value = data.lo_hang;
     }
   } catch (error) { console.error("Lỗi!"); } finally { isLoading.value = false; }
@@ -195,7 +193,7 @@ const saveData = async () => {
   if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng hợp lệ!"); return; }
   isSaving.value = true;
   try {
-    const payload = { ...formData.value, loai: 'DO' }; // Gắn cứng DO
+    const payload = { ...formData.value, loai: 'AN' }; // Gắn chết cứng loại là AN
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang/save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
@@ -207,7 +205,7 @@ const handleDelete = async (id) => {
   if (!confirm(`Hủy vĩnh viễn phiếu này?`)) return;
   try {
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang/delete', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ma_phieu: id, loai: 'DO' })
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ma_phieu: id, loai: 'AN' })
     });
     if ((await res.json()).success) fetchData();
   } catch (e) { alert("Lỗi!"); }
@@ -215,13 +213,13 @@ const handleDelete = async (id) => {
 
 const downloadPDF = async (id) => {
   try {
-    const url = `http://127.0.0.1:8000/api/lenh-giao-hang/export-pdf?id=${id}&loai=DO`;
+    const url = `http://127.0.0.1:8000/api/lenh-giao-hang/export-pdf?id=${id}&loai=AN`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Network response was not ok');
     const blob = await response.blob();
     const downloadUrl = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = downloadUrl; a.download = `DO_${id}.pdf`;
+    a.href = downloadUrl; a.download = `AN_${id}.pdf`;
     document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(downloadUrl);
   } catch (error) { alert("Lỗi xuất PDF!"); }
 };
@@ -230,7 +228,7 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
-/* Copy y nguyên phần CSS chung vào đây */
+/* Copy y nguyên phần CSS cũ vào đây, bỏ qua đoạn này cho gọn nhé */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 3px 6px; font-size: 12px; margin-left: 8px; }
 .btn-eye:hover { background: #3498db; border-color: #3498db; }

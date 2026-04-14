@@ -93,7 +93,6 @@
             </td>
             
             <td style="padding: 12px 15px; text-align: center;">
-              <button v-if="item.trang_thai_thanh_toan !== 'Đã thanh toán'" @click="markAsPaid(item.ma_chi_phi)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xác nhận Đã thanh toán">💵</button>
               <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
               <button @click="handleDelete(item.ma_chi_phi)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
             </td>
@@ -122,7 +121,7 @@
 
     <div v-if="isModalOpen" class="modal-overlay">
       <div class="modal-content" style="max-width: 500px; padding: 20px; background: white; border-radius: 8px; width: 100%;">
-        <h3 style="margin-top: 0;">{{ formData.ma_chi_phi ? 'Cập Nhật' : 'Thêm Mới' }} Chi Phí</h3>
+        <h3 style="margin-top: 0;">{{ formData.ma_chi_phi ? 'Cập Nhật' : 'Ghi Nhận' }} Chi Phí Phát Sinh</h3>
         
         <form @submit.prevent="saveData">
           <div style="margin-bottom: 15px;">
@@ -148,7 +147,7 @@
             </div>
           </div>
 
-          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+          <div style="display: flex; gap: 15px; margin-bottom: 25px;">
             <div style="flex: 1;">
               <label style="display: block; margin-bottom: 5px; font-weight: bold;">Tên chi phí *</label>
               <input type="text" v-model="formData.ten_chi_phi" required placeholder="VD: Phí THC, Lưu bãi..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
@@ -156,21 +155,6 @@
             <div style="flex: 1;">
               <label style="display: block; margin-bottom: 5px; font-weight: bold;">Tổng tiền (VNĐ) *</label>
               <input type="number" v-model="formData.tong_tien" required min="0" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-            <div style="flex: 1;">
-              <label style="display: block; margin-bottom: 5px; font-weight: bold;">Trạng thái TT *</label>
-              <select v-model="formData.trang_thai_thanh_toan" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-                <option value="Chưa thanh toán">Chưa thanh toán</option>
-                <option value="Thanh toán một phần">Thanh toán một phần</option>
-                <option value="Đã thanh toán">Đã thanh toán</option>
-              </select>
-            </div>
-            <div style="flex: 1;" v-if="formData.trang_thai_thanh_toan !== 'Chưa thanh toán'">
-              <label style="display: block; margin-bottom: 5px; font-weight: bold;">Ngày thanh toán</label>
-              <input type="date" v-model="formData.ngay_thanh_toan" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
             </div>
           </div>
 
@@ -211,8 +195,8 @@ const formData = ref({
   ma_lo_hang: null,
   ten_chi_phi: '',
   tong_tien: 0,
-  trang_thai_thanh_toan: 'Chưa thanh toán',
-  ngay_thanh_toan: '',
+  trang_thai_thanh_toan: 'Chưa thanh toán', // Luôn gán cứng mặc định khi tạo mới
+  ngay_thanh_toan: null,
   loai_giao_dich: 'THU'
 });
 
@@ -306,7 +290,8 @@ const openModal = (item = null) => {
     const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
     searchLoHangInput.value = selectedLo ? `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}` : '';
   } else {
-    formData.value = { ma_chi_phi: null, ma_lo_hang: null, ten_chi_phi: '', tong_tien: 0, trang_thai_thanh_toan: 'Chưa thanh toán', ngay_thanh_toan: '', loai_giao_dich: currentTab.value };
+    // Khi thêm mới, mặc định là Chưa thanh toán
+    formData.value = { ma_chi_phi: null, ma_lo_hang: null, ten_chi_phi: '', tong_tien: 0, trang_thai_thanh_toan: 'Chưa thanh toán', ngay_thanh_toan: null, loai_giao_dich: currentTab.value };
     searchLoHangInput.value = '';
   }
   isDropdownOpen.value = false;
@@ -314,10 +299,13 @@ const openModal = (item = null) => {
 };
 
 // Lưu Dữ Liệu
-// Hàm lưu dữ liệu
 const saveData = async () => {
   if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng!"); return; }
-  if (formData.value.trang_thai_thanh_toan === 'Chưa thanh toán') formData.value.ngay_thanh_toan = null;
+  
+  // Đảm bảo nếu chưa thanh toán thì ngày = null
+  if (formData.value.trang_thai_thanh_toan === 'Chưa thanh toán') {
+      formData.value.ngay_thanh_toan = null;
+  }
 
   // Lấy ID người dùng đang đăng nhập
   const currentUser = JSON.parse(localStorage.getItem('sincere_user'));
@@ -325,7 +313,7 @@ const saveData = async () => {
 
   isSaving.value = true;
   try {
-    const payload = { ...formData.value, nguoi_sua_cuoi: userId }; // Ném thêm user ID vào
+    const payload = { ...formData.value, nguoi_sua_cuoi: userId }; 
     
     const res = await fetch('http://127.0.0.1:8000/api/chi-phi/save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
@@ -347,7 +335,7 @@ const handleDelete = async (id) => {
   } catch (e) { alert("Lỗi!"); }
 };
 
-// Nút thao tác nhanh Đã thanh toán
+// Nút thao tác nhanh Đã thanh toán (Nghiệp vụ 5.2)
 const markAsPaid = async (id) => {
   if (!confirm("Xác nhận khoản tiền này ĐÃ ĐƯỢC THANH TOÁN?")) return;
   

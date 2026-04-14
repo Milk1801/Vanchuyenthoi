@@ -16,6 +16,7 @@ import QuanLyThongTinLoHang from '../views/lohang/QuanLyThongTinLoHang.vue'
 import QuanlyBooking from '../views/lohang/QuanLyBooking.vue'
 import QuanLyChiPhivaThanhToan from '../views/QuanLyChiPhivaThanhToan.vue'
 import QuanLyChiPhi from '../views/chiphivathanhtoan/QuanLyChiPhi.vue'
+import QuanLyTrangThaiThanhToan from '../views/chiphivathanhtoan/QuanLyTrangThaiThanhToan.vue'
 import QuanLyHeThong from '../views/QuanLyHeThong.vue' 
 import QuanLyVanTai from '../views/QuanLyVanTai.vue' 
 import BaoCaoThongKe from '../views/BaoCaoThongKe.vue'
@@ -42,6 +43,9 @@ import BaoCaoThongKeBooking from '../views/baocaothongke/BaoCaoThongKeBooking.vu
 import BaoCaoThongKeChiPhiTonDong from '../views/baocaothongke/BaoCaoThongKeChiPhiTonDong.vue'
 import BaoCaoThongKeCuocVo from '../views/baocaothongke/BaoCaoThongKeCuocVo.vue'
 import BaoCaoThongKeCanhBaoLuuBai from '../views/baocaothongke/BaoCaoThongKeCanhBaoLuuBai.vue'
+import QuanLyThongBaoHangDen from '../views/vantai/QuanLyThongBaoHangDen.vue'
+import QuanLyBienBanGiaoNhan from '../views/vantai/QuanLyBienBanGiaoNhan.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -195,7 +199,11 @@ const router = createRouter({
           component: QuanLyChiPhivaThanhToan,
           redirect: '/chi-phi-va-thanh-toan/chi-phi',
           children: [
-            { path: 'chi-phi', name: 'chi-phi', component: QuanLyChiPhi }
+            { path: 'chi-phi', name: 'chi-phi', component: QuanLyChiPhi },
+            {
+              path: '/chi-phi-va-thanh-toan/trang-thai-thanh-toan',
+              name: 'TrangThaiThanhToan',
+              component: QuanLyTrangThaiThanhToan}
           ]
         },
         
@@ -208,7 +216,9 @@ const router = createRouter({
             { path: 'quan-ly-van-don', name: 'van-tai-quan-ly-van-don', component: QuanLyVanDon },
             { path: 'lenh-giao-hang', name: 'van-tai-lenh-giao-hang', component: QuanLyLenhGiaoHang },
             { path: 'to-khai-hai-quan', name: 'van-tai-to-khai-hai-quan', component: QuanLyToKhaiHaiQuan },
-            { path: 'luu-bai', name: 'van-tai-luu-bai', component: QuanLyLuuBai }
+            { path: 'luu-bai', name: 'van-tai-luu-bai', component: QuanLyLuuBai },
+            { path: 'thong-bao-hang-den', name: 'van-tai-thong-bao-hang-den', component: QuanLyThongBaoHangDen },
+            { path: 'bien-ban-giao-nhan', name: 'van-tai-bien-ban-giao-nhan', component: QuanLyBienBanGiaoNhan }
           ] 
         },
         {

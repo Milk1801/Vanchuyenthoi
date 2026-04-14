@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Lệnh Giao Hàng (D/O)</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Biên Bản Giao Nhận (BBGN)</h3>
 
     <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
@@ -8,7 +8,7 @@
       </div>
       <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
       <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
-        ➕ THÊM MỚI LỆNH D/O
+        ➕ THÊM MỚI BIÊN BẢN
       </button>
     </div>
 
@@ -16,12 +16,12 @@
       <table style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
-            <th style="padding: 12px 15px; width: 100px;">Mã Lệnh</th>
+            <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
-            <th style="padding: 12px 15px;">Số Booking</th>
             <th style="padding: 12px 15px;">Số Vận Đơn</th>
             <th style="padding: 12px 15px;">Số Container</th>
-            <th style="padding: 12px 15px;">Ngày Phát Hành</th>
+            <th style="padding: 12px 15px;">Đơn Vị Vận Tải</th>
+            <th style="padding: 12px 15px;">Ngày Lập</th>
             <th style="padding: 12px 15px; text-align: center; width: 150px;">Hành động</th>
           </tr>
         </thead>
@@ -29,23 +29,14 @@
           <tr v-if="isLoading"><td colspan="7" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
           <tr v-else-if="filteredList.length === 0"><td colspan="7" style="text-align: center; padding: 20px;">Không có dữ liệu!</td></tr>
           <tr v-for="item in filteredList" :key="item.ma_phieu" style="border-bottom: 1px solid #eee;">
-            <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">DO-{{ item.ma_phieu }}</td>
+            <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">BB-{{ item.ma_phieu }}</td>
             <td style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
               <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem Lô hàng">👁️</button>
             </td>
-            <td style="padding: 12px 15px;">
-              {{ item.so_booking || 'N/A' }}
-              <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem Booking">👁️</button>
-            </td>
-            <td style="padding: 12px 15px; font-weight: bold;">
-              {{ item.so_van_don || '---' }}
-              <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem Vận đơn">👁️</button>
-            </td>
-            <td style="padding: 12px 15px;">
-              {{ item.so_cont || 'N/A' }}
-              <button v-if="item.so_cont" @click="viewDetail('container', item)" class="btn-eye" title="Xem Container">👁️</button>
-            </td>
+            <td style="padding: 12px 15px; font-weight: bold;">{{ item.so_van_don || '---' }}</td>
+            <td style="padding: 12px 15px;">{{ item.so_cont || 'N/A' }}</td>
+            <td style="padding: 12px 15px; color: #e67e22; font-weight: bold;">{{ item.ten_hang_van_tai || 'Chưa điều xe' }}</td>
             <td style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             <td style="padding: 12px 15px; text-align: center;">
               <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">📄</button>
@@ -63,24 +54,10 @@
         <button @click="detailPanel.show = false" class="close-btn">✖</button>
       </div>
       <div class="panel-body">
-        <table v-if="detailPanel.type === 'booking'" class="detail-table">
-          <tbody>
-            <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking }}</strong></td></tr>
-            <tr><td>Tên tàu:</td><td><strong>{{ detailPanel.data.ten_con_tau || '---' }}</strong></td></tr>
-            <tr><td>Số chuyến:</td><td><strong>{{ detailPanel.data.so_chuyen || '---' }}</strong></td></tr>
-            <tr><td>Ngày đến (ETA):</td><td><strong>{{ formatDateTime(detailPanel.data.eta) }}</strong></td></tr>
-          </tbody>
-        </table>
         <table v-if="detailPanel.type === 'lo_hang'" class="detail-table">
           <tbody>
+            <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking }}</strong></td></tr>
             <tr><td>Tên Lô hàng:</td><td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></td></tr>
-          </tbody>
-        </table>
-        <table v-if="detailPanel.type === 'van_don' || detailPanel.type === 'container'" class="detail-table">
-          <tbody>
-            <tr><td>Số HBL:</td><td><strong>{{ detailPanel.data.so_van_don || '---' }}</strong></td></tr>
-            <tr><td>Số Container:</td><td><strong>{{ detailPanel.data.so_cont || '---' }}</strong></td></tr>
-            <tr><td>Số Chì (Seal):</td><td><strong>{{ detailPanel.data.so_chi || '---' }}</strong></td></tr>
           </tbody>
         </table>
       </div>
@@ -88,7 +65,7 @@
 
     <div v-if="isModalOpen" class="modal-overlay">
       <div class="modal-content" style="max-width: 500px; padding: 20px; background: white; border-radius: 8px; width: 100%;">
-        <h3 style="margin-top: 0;">{{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} Lệnh Giao Hàng D/O</h3>
+        <h3 style="margin-top: 0;">{{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} Biên Bản Giao Nhận</h3>
         <form @submit.prevent="saveData">
           <div style="margin-bottom: 15px; position: relative;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">Thuộc Lô hàng *</label>
@@ -103,8 +80,16 @@
             </div>
           </div>
 
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Hãng Vận Tải (Nhà Xe) *</label>
+            <select v-model="formData.ma_hang_van_tai" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: #fff;">
+              <option value="" disabled selected>-- Vui lòng chọn Hãng vận tải --</option>
+              <option v-for="hang in listHangVanTai" :key="hang.ma_hang_van_tai" :value="hang.ma_hang_van_tai">{{ hang.ten_hang_van_tai }}</option>
+            </select>
+          </div>
+
           <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Ngày phát hành *</label>
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Ngày lập *</label>
             <input type="datetime-local" v-model="formData.ngay_phat_hanh" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
           </div>
 
@@ -121,8 +106,9 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
-const listDO = ref([]);
+const listBBGN = ref([]); 
 const listLoHang = ref([]);
+const listHangVanTai = ref([]); 
 const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
@@ -132,7 +118,7 @@ const detailPanel = ref({ show: false, type: '', title: '', data: {} });
 const searchLoHangInput = ref('');
 const isDropdownOpen = ref(false);
 
-const formData = ref({ ma_phieu: null, ma_lo_hang: null, ngay_phat_hanh: '' });
+const formData = ref({ ma_phieu: null, ma_lo_hang: null, ma_hang_van_tai: '', ngay_phat_hanh: '' });
 
 const formatDateTime = (dateStr) => {
   if (!dateStr) return 'N/A';
@@ -140,7 +126,7 @@ const formatDateTime = (dateStr) => {
 };
 
 const filteredList = computed(() => {
-  return listDO.value.filter(item => {
+  return listBBGN.value.filter(item => {
     const search = searchQuery.value.toLowerCase();
     return !search || (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || (item.so_booking && item.so_booking.toLowerCase().includes(search));
   });
@@ -162,10 +148,7 @@ watch(searchLoHangInput, (newVal) => { if (newVal === '') formData.value.ma_lo_h
 
 const viewDetail = (type, item) => {
   detailPanel.value.type = type; detailPanel.value.data = item; detailPanel.value.show = true;
-  if (type === 'booking') detailPanel.value.title = '🚢 Thông tin Booking';
   if (type === 'lo_hang') detailPanel.value.title = '📦 Thông tin Lô hàng';
-  if (type === 'van_don') detailPanel.value.title = '📑 Thông tin Vận đơn';
-  if (type === 'container') detailPanel.value.title = '🗃️ Thông tin Container';
 };
 
 const fetchData = async () => {
@@ -174,28 +157,31 @@ const fetchData = async () => {
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang');
     const data = await res.json();
     if (data.success) {
-      listDO.value = data.data_do; // Chỉ hứng D/O
+      listBBGN.value = data.data_bbgn; // Chỉ hứng data BBGN
       listLoHang.value = data.lo_hang;
+      listHangVanTai.value = data.hang_van_tai;
     }
   } catch (error) { console.error("Lỗi!"); } finally { isLoading.value = false; }
 };
 
 const openModal = (item = null) => {
   if (item) {
-    formData.value = { ma_phieu: item.ma_phieu, ma_lo_hang: item.ma_lo_hang, ngay_phat_hanh: item.ngay_phat_hanh ? new Date(item.ngay_phat_hanh).toISOString().slice(0, 16) : '' };
+    formData.value = { ma_phieu: item.ma_phieu, ma_lo_hang: item.ma_lo_hang, ma_hang_van_tai: item.ma_hang_van_tai || '', ngay_phat_hanh: item.ngay_phat_hanh ? new Date(item.ngay_phat_hanh).toISOString().slice(0, 16) : '' };
     const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
     searchLoHangInput.value = selectedLo ? `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}` : '';
   } else {
-    formData.value = { ma_phieu: null, ma_lo_hang: null, ngay_phat_hanh: '' }; searchLoHangInput.value = '';
+    formData.value = { ma_phieu: null, ma_lo_hang: null, ma_hang_van_tai: '', ngay_phat_hanh: '' }; searchLoHangInput.value = '';
   }
   isDropdownOpen.value = false; isModalOpen.value = true;
 };
 
 const saveData = async () => {
-  if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng hợp lệ!"); return; }
+  if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng!"); return; }
+  if (!formData.value.ma_hang_van_tai) { alert("Vui lòng chọn Hãng vận tải!"); return; }
+  
   isSaving.value = true;
   try {
-    const payload = { ...formData.value, loai: 'DO' }; // Gắn cứng DO
+    const payload = { ...formData.value, loai: 'BBGN' }; // Gắn cứng loại BBGN
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang/save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
@@ -207,7 +193,7 @@ const handleDelete = async (id) => {
   if (!confirm(`Hủy vĩnh viễn phiếu này?`)) return;
   try {
     const res = await fetch('http://127.0.0.1:8000/api/lenh-giao-hang/delete', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ma_phieu: id, loai: 'DO' })
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ma_phieu: id, loai: 'BBGN' })
     });
     if ((await res.json()).success) fetchData();
   } catch (e) { alert("Lỗi!"); }
@@ -215,13 +201,13 @@ const handleDelete = async (id) => {
 
 const downloadPDF = async (id) => {
   try {
-    const url = `http://127.0.0.1:8000/api/lenh-giao-hang/export-pdf?id=${id}&loai=DO`;
+    const url = `http://127.0.0.1:8000/api/lenh-giao-hang/export-pdf?id=${id}&loai=BBGN`;
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) throw new Error('Network error');
     const blob = await response.blob();
     const downloadUrl = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = downloadUrl; a.download = `DO_${id}.pdf`;
+    a.href = downloadUrl; a.download = `BBGN_${id}.pdf`;
     document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(downloadUrl);
   } catch (error) { alert("Lỗi xuất PDF!"); }
 };
