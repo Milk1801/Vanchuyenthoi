@@ -13,10 +13,13 @@ class QuanLyLuuBai extends Controller
         try {
             $data = DB::table('thong_tin_luu_bai')
                 ->leftJoin('lo_hang', 'thong_tin_luu_bai.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
+                ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
                 ->leftJoin('tai_khoan', 'thong_tin_luu_bai.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
                 ->select(
                     'thong_tin_luu_bai.*',
                     'lo_hang.ten_lo_hang',
+                    'van_don.so_cont',
+                    'van_don.so_van_don',
                     'tai_khoan.ho_ten as ten_nguoi_sua'
                 )
                 ->orderBy('thong_tin_luu_bai.ma_luu_bai', 'desc')
