@@ -22,6 +22,7 @@ use App\Http\Controllers\QuanLyToKhaiHaiQuan;
 use App\Http\Controllers\QuanLyLuuBai;
 use App\Http\Controllers\QuanLyLenhGiaoHang;
 use App\Http\Controllers\BaoCaoThongKe;
+use App\Http\Controllers\QuanLyTrangThaiThanhToan;
 
 /*
 |--------------------------------------------------------------------------
@@ -208,3 +209,7 @@ Route::get('/bao-cao/booking', [BaoCaoThongKe::class, 'baoCaoBooking']);
 Route::get('/bao-cao/chi-phi-ton-dong', [BaoCaoThongKe::class, 'baoCaoChiPhiTonDong']);
 Route::get('/bao-cao/cuoc-vo', [BaoCaoThongKe::class, 'baoCaoCuocVo']);
 Route::get('/bao-cao/canh-bao-luu-bai', [BaoCaoThongKe::class, 'baoCaoCanhBaoLuuBai']);
+
+// 20.API DÀNH RIÊNG CHO QUẢN LÝ TRẠNG THÁI THANH TOÁN
+Route::get('/trang-thai-thanh-toan', [QuanLyTrangThaiThanhToan::class, 'index']);
+Route::post('/trang-thai-thanh-toan/update-status', [QuanLyTrangThaiThanhToan::class, 'updateStatus']);
