@@ -37,19 +37,19 @@ CREATE TABLE `bien_ban_giao_nhan` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `booking`
+-- Cấu trúc bảng cho bảng `booking_note`
 --
 
-CREATE TABLE `booking` (
-  `ma_booking` int(11) NOT NULL,
-  `so_booking` varchar(30) NOT NULL,
+CREATE TABLE `booking_note` (
+  `ma_booking_note` int(11) NOT NULL,
+  `so_booking_note` varchar(30) NOT NULL,
   `ten_con_tau` varchar(100) DEFAULT NULL,
   `so_chuyen` varchar(30) DEFAULT NULL,
   `etd` datetime DEFAULT NULL,
   `eta` datetime DEFAULT NULL,
   `gio_cat_mang` datetime DEFAULT NULL,
-  `ma_cang_di` int(11) DEFAULT NULL,
-  `ma_cang_den` int(11) DEFAULT NULL,
+  `ma_kho_cang_di` int(11) DEFAULT NULL,
+  `ma_kho_cang_den` int(11) DEFAULT NULL,
   `ma_hang_tau` int(11) DEFAULT NULL,
   `nguoi_sua_cuoi` int(11) DEFAULT NULL,
   `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
@@ -58,12 +58,12 @@ CREATE TABLE `booking` (
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `cang_bien`
+-- Cấu trúc bảng cho bảng `kho_cang`
 --
 
-CREATE TABLE `cang_bien` (
-  `ma_cang` int(11) NOT NULL,
-  `ten_cang` varchar(50) NOT NULL,
+CREATE TABLE `kho_cang` (
+  `ma_kho_cang` int(11) NOT NULL,
+  `ten_kho_cang` varchar(50) NOT NULL,
   `dia_chi` varchar(200) DEFAULT NULL,
   `ghi_chu` varchar(500) DEFAULT NULL,
   `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
@@ -233,7 +233,7 @@ CREATE TABLE `lo_hang` (
   `dieu_kien_thuong_mai` enum('FOB','CIF','EXW','DAP','DDP','CFR') DEFAULT NULL,
   `trang_thai_lo_hang` enum('Mới tạo','Đang chờ xử lý','Đang vận chuyển','Đã thông quan','Hoàn tất','Hủy') DEFAULT NULL,
   `nguon_goc` varchar(100) DEFAULT NULL,
-  `ma_booking` int(11) DEFAULT NULL,
+  `ma_booking_note` int(11) DEFAULT NULL,
   `ma_khach_hang` int(11) DEFAULT NULL,
   `nguoi_sua_cuoi` int(11) DEFAULT NULL,
   `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
@@ -356,8 +356,8 @@ CREATE TABLE `van_don` (
   `ma_nguoi_gui_hang` int(11) DEFAULT NULL,
   `ma_nguoi_nhan_hang` int(11) DEFAULT NULL,
   `ma_ben_duoc_thong_bao` int(11) DEFAULT NULL,
-  `ma_cang_di` int(11) DEFAULT NULL,
-  `ma_cang_den` int(11) DEFAULT NULL,
+  `ma_kho_cang_di` int(11) DEFAULT NULL,
+  `ma_kho_cang_den` int(11) DEFAULT NULL,
   `ma_lo_hang` int(11) DEFAULT NULL,
   `nguoi_sua_cuoi` int(11) DEFAULT NULL,
   `thoi_gian_xoa` TIMESTAMP DEFAULT '1970-01-01 00:00:01'
@@ -384,21 +384,21 @@ ALTER TABLE `chi_tiet_quyen`
   ADD KEY `ma_quyen` (`ma_quyen`);
 
 --
--- Chỉ mục cho bảng `booking`
+-- Chỉ mục cho bảng `booking_note`
 --
-ALTER TABLE `booking`
-  ADD PRIMARY KEY (`ma_booking`),
-  ADD KEY `ma_cang_di` (`ma_cang_di`),
-  ADD KEY `ma_cang_den` (`ma_cang_den`),
+ALTER TABLE `booking_note`
+  ADD PRIMARY KEY (`ma_booking_note`),
+  ADD KEY `ma_kho_cang_di` (`ma_kho_cang_di`),
+  ADD KEY `ma_kho_cang_den` (`ma_kho_cang_den`),
   ADD KEY `ma_hang_tau` (`ma_hang_tau`),
   ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
--- Chỉ mục cho bảng `cang_bien`
+-- Chỉ mục cho bảng `kho_cang`
 --
-ALTER TABLE `cang_bien`
-  ADD PRIMARY KEY (`ma_cang`),
+ALTER TABLE `kho_cang`
+  ADD PRIMARY KEY (`ma_kho_cang`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
 
 --
@@ -485,7 +485,7 @@ ALTER TABLE `lenh_giao_hang`
 ALTER TABLE `lo_hang`
   ADD PRIMARY KEY (`ma_lo_hang`),
   ADD KEY `ten_lo_hang` (`ten_lo_hang`),
-  ADD KEY `ma_booking` (`ma_booking`),
+  ADD KEY `ma_booking_note` (`ma_booking_note`),
   ADD KEY `ma_khach_hang` (`ma_khach_hang`),
   ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
@@ -538,8 +538,8 @@ ALTER TABLE `van_don`
   ADD KEY `ma_nguoi_gui_hang` (`ma_nguoi_gui_hang`),
   ADD KEY `ma_nguoi_nhan_hang` (`ma_nguoi_nhan_hang`),
   ADD KEY `ma_ben_duoc_thong_bao` (`ma_ben_duoc_thong_bao`),
-  ADD KEY `ma_cang_di` (`ma_cang_di`),
-  ADD KEY `ma_cang_den` (`ma_cang_den`),
+  ADD KEY `ma_kho_cang_di` (`ma_kho_cang_di`),
+  ADD KEY `ma_kho_cang_den` (`ma_kho_cang_den`),
   ADD KEY `ma_lo_hang` (`ma_lo_hang`),
   ADD KEY `nguoi_sua_cuoi` (`nguoi_sua_cuoi`),
   ADD KEY `thoi_gian_xoa` (`thoi_gian_xoa`);
@@ -555,16 +555,16 @@ ALTER TABLE `bien_ban_giao_nhan`
   MODIFY `ma_bien_ban_giao_nhan` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `booking`
+-- AUTO_INCREMENT cho bảng `booking_note`
 --
-ALTER TABLE `booking`
-  MODIFY `ma_booking` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `booking_note`
+  MODIFY `ma_booking_note` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT cho bảng `cang_bien`
+-- AUTO_INCREMENT cho bảng `kho_cang`
 --
-ALTER TABLE `cang_bien`
-  MODIFY `ma_cang` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `kho_cang`
+  MODIFY `ma_kho_cang` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT cho bảng `chi_phi`
@@ -687,13 +687,13 @@ ALTER TABLE `chi_tiet_quyen`
   ADD CONSTRAINT `chi_tiet_quyen_ibfk_2` FOREIGN KEY (`ma_quyen`) REFERENCES `quyen` (`ma_quyen`) ON DELETE CASCADE;
 
 --
--- Các ràng buộc cho bảng `booking`
+-- Các ràng buộc cho bảng `booking_note`
 --
-ALTER TABLE `booking`
-  ADD CONSTRAINT `booking_ibfk_1` FOREIGN KEY (`ma_cang_di`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
-  ADD CONSTRAINT `booking_ibfk_2` FOREIGN KEY (`ma_cang_den`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
-  ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`ma_hang_tau`) REFERENCES `hang_tau` (`ma_hang_tau`) ON DELETE SET NULL,
-  ADD CONSTRAINT `booking_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
+ALTER TABLE `booking_note`
+  ADD CONSTRAINT `booking_note_ibfk_1` FOREIGN KEY (`ma_kho_cang_di`) REFERENCES `kho_cang` (`ma_kho_cang`) ON DELETE SET NULL,
+  ADD CONSTRAINT `booking_note_ibfk_2` FOREIGN KEY (`ma_kho_cang_den`) REFERENCES `kho_cang` (`ma_kho_cang`) ON DELETE SET NULL,
+  ADD CONSTRAINT `booking_note_ibfk_3` FOREIGN KEY (`ma_hang_tau`) REFERENCES `hang_tau` (`ma_hang_tau`) ON DELETE SET NULL,
+  ADD CONSTRAINT `booking_note_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `chi_phi`
@@ -727,7 +727,7 @@ ALTER TABLE `lenh_giao_hang`
 -- Các ràng buộc cho bảng `lo_hang`
 --
 ALTER TABLE `lo_hang`
-  ADD CONSTRAINT `lo_hang_ibfk_2` FOREIGN KEY (`ma_booking`) REFERENCES `booking` (`ma_booking`) ON DELETE SET NULL,
+  ADD CONSTRAINT `lo_hang_ibfk_2` FOREIGN KEY (`ma_booking_note`) REFERENCES `booking_note` (`ma_booking_note`) ON DELETE SET NULL,
   ADD CONSTRAINT `lo_hang_ibfk_3` FOREIGN KEY (`ma_khach_hang`) REFERENCES `khach_hang` (`ma_khach_hang`),
   ADD CONSTRAINT `lo_hang_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 
@@ -758,8 +758,8 @@ ALTER TABLE `van_don`
   ADD CONSTRAINT `van_don_ibfk_1` FOREIGN KEY (`ma_nguoi_gui_hang`) REFERENCES `khach_hang` (`ma_khach_hang`) ON DELETE SET NULL,
   ADD CONSTRAINT `van_don_ibfk_2` FOREIGN KEY (`ma_nguoi_nhan_hang`) REFERENCES `khach_hang` (`ma_khach_hang`) ON DELETE SET NULL,
   ADD CONSTRAINT `van_don_ibfk_3` FOREIGN KEY (`ma_ben_duoc_thong_bao`) REFERENCES `khach_hang` (`ma_khach_hang`) ON DELETE SET NULL,
-  ADD CONSTRAINT `van_don_ibfk_4` FOREIGN KEY (`ma_cang_di`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
-  ADD CONSTRAINT `van_don_ibfk_5` FOREIGN KEY (`ma_cang_den`) REFERENCES `cang_bien` (`ma_cang`) ON DELETE SET NULL,
+  ADD CONSTRAINT `van_don_ibfk_4` FOREIGN KEY (`ma_kho_cang_di`) REFERENCES `kho_cang` (`ma_kho_cang`) ON DELETE SET NULL,
+  ADD CONSTRAINT `van_don_ibfk_5` FOREIGN KEY (`ma_kho_cang_den`) REFERENCES `kho_cang` (`ma_kho_cang`) ON DELETE SET NULL,
   ADD CONSTRAINT `van_don_ibfk_6` FOREIGN KEY (`ma_lo_hang`) REFERENCES `lo_hang` (`ma_lo_hang`) ON DELETE CASCADE,
   ADD CONSTRAINT `van_don_ibfk_nguoi_sua_cuoi` FOREIGN KEY (`nguoi_sua_cuoi`) REFERENCES `tai_khoan` (`ma_tai_khoan`) ON DELETE SET NULL;
 

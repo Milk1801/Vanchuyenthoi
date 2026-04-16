@@ -8,7 +8,7 @@
 
     <div class="profile-body">
       <div class="info-row">
-        <span class="info-label">Mã số nhân viên:</span>
+        <span class="info-label">Mã tài khoản:</span>
         <span class="info-value">#{{ userData.ma_tai_khoan }}</span>
       </div>
       <div class="info-row">

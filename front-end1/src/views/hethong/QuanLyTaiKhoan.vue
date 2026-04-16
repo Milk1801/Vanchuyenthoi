@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Danh sách Tài khoản (1.1)</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý người dùng</h3>
     
     <div class="toolbar">
       <div class="search-box">
