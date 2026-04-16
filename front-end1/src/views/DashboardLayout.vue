@@ -9,51 +9,51 @@
         
         <router-link to="/he-thong" active-class="active-menu">⚙️ Quản lý hệ thống</router-link>
         <div v-show="isHeThongRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
-          <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Quản lý người dùng</router-link>
+          <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Quản lý người dùng và phân quyền</router-link>
           <router-link to="/he-thong/ho-so" active-class="active-submenu">👤 Quản lý hồ sơ cá nhân</router-link>
         </div>
         
         <router-link to="/danh-muc" active-class="active-menu">📚 Quản lý Danh mục</router-link>
         <div v-show="isDanhMucRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isDanhMucRoute }]">
-          <router-link to="/danh-muc/khach-hang" active-class="active-submenu">👤 Quản lý khách hàng</router-link>
-          <router-link to="/danh-muc/hang-tau" active-class="active-submenu">🚢 Quản lý hãng tàu</router-link>
-          <router-link to="/danh-muc/kho-cang" active-class="active-submenu">🏭 Quản lý kho cảng</router-link>
-          <router-link to="/danh-muc/hang-hoa" active-class="active-submenu">📦 Quản lý hàng hóa</router-link>
-          <router-link to="/danh-muc/hang-van-tai" active-class="active-submenu">🚚 Quản lý hãng vận tải</router-link>
+          <router-link to="/danh-muc/khach-hang" active-class="active-submenu">👤 Quản lý danh mục khách hàng</router-link>
+          <router-link to="/danh-muc/hang-tau" active-class="active-submenu">🚢 Quản lý danh mục hãng tàu</router-link>
+          <router-link to="/danh-muc/kho-cang" active-class="active-submenu">🏭 Quản lý danh mục kho cảng</router-link>
+          <router-link to="/danh-muc/hang-hoa" active-class="active-submenu">📦 Quản lý danh mục hàng hóa</router-link>
+          <router-link to="/danh-muc/hang-van-tai" active-class="active-submenu">🚚 Quản lý danh mục hãng vận tải</router-link>
           <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu">📏 Quản lý đơn vị tính</router-link>
         </div>
 
         <router-link to="/lo-hang" :class="['menu-item', { 'active-menu': isLoHangRoute }]">📦 Quản lý lô hàng</router-link>
         <div v-show="isLoHangRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
-          <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking</router-link>    
-          <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý Lô hàng</router-link>
-          <router-link to="/lo-hang/chung-tu" active-class="active-submenu">📁 Chứng từ số hóa</router-link>        
+          <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking Note</router-link>    
+          <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý thông tin Lô hàng</router-link>
+          <router-link to="/lo-hang/chung-tu" active-class="active-submenu">📁 Số hoá và lưu trữ chứng từ</router-link>        
         </div>
         
         <router-link to="/van-tai" active-class="active-menu">🚚 Quản lý Vận tải</router-link>
         <div v-show="isVanTaiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
-          <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu">📑 Quản lý Vận đơn</router-link>
-          <router-link to="/van-tai/thong-bao-hang-den" active-class="active-submenu">📢 Thông báo hàng đến</router-link>
-          <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Lệnh Giao Hàng D/O</router-link>
-          <router-link to="/van-tai/bien-ban-giao-nhan" active-class="active-submenu">📑 Biên bản giao nhận</router-link>
-          <router-link to="/van-tai/to-khai-hai-quan" active-class="active-submenu">🚢 Quản lý Tờ khai</router-link>
+          <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu">📑 Quản lý vận đơn</router-link>
+          <router-link to="/van-tai/thong-bao-hang-den" active-class="active-submenu">📢 Quản lý thông báo hàng đến</router-link>
+          <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Quản lý lệnh giao hàng</router-link>
+          <router-link to="/van-tai/bien-ban-giao-nhan" active-class="active-submenu">📑 Quản lý biên bản giao nhận</router-link>
+          <router-link to="/van-tai/to-khai-hai-quan" active-class="active-submenu">🚢 Quản lý tờ khai hải quan</router-link>
           <router-link to="/van-tai/luu-bai" active-class="active-submenu">🏢 Quản lý Lưu bãi</router-link>
         </div>
         
-        <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">💰 Quản lý Chi phí & Thanh Toán</router-link>
+        <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">💰 Quản lý Chi phí</router-link>
         <div v-show="isChiPhiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
-          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">📝 Ghi nhận Chi phí</router-link> 
-          <router-link to="/chi-phi-va-thanh-toan/trang-thai-thanh-toan" active-class="active-submenu">✅ Quản lý Trạng thái Thanh toán</router-link>
+          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">📝 Quản lý chi phí phát sinh</router-link> 
+          <router-link to="/chi-phi-va-thanh-toan/trang-thai-thanh-toan" active-class="active-submenu">✅ Quản lý trạng thái thanh toán</router-link>
         </div>
 
-        <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Báo cáo và Thống kê</router-link>
+        <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Báo cáo Thống kê</router-link>
         <div v-show="isBaoCaoRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
           <router-link to="/bao-cao-thong-ke/van-chuyen" active-class="active-submenu">📊 Báo cáo vận chuyển</router-link>
-          <router-link to="/bao-cao-thong-ke/san-luong" active-class="active-submenu">📈 Báo cáo sản lượng</router-link>
-          <router-link to="/bao-cao-thong-ke/booking" active-class="active-submenu">📑 Thống kê Booking</router-link>
-          <router-link to="/bao-cao-thong-ke/chi-phi-ton-dong" active-class="active-submenu">💸 Chi phí tồn đọng</router-link>
-          <router-link to="/bao-cao-thong-ke/cuoc-vo" active-class="active-submenu">📦 Thống kê cước vỏ</router-link>
-          <router-link to="/bao-cao-thong-ke/canh-bao-luu-bai" active-class="active-submenu">⚠️ Cảnh báo lưu bãi</router-link>
+          <router-link to="/bao-cao-thong-ke/san-luong" active-class="active-submenu">📈 Báo cáo sản lượng vận chuyển</router-link>
+          <router-link to="/bao-cao-thong-ke/booking" active-class="active-submenu">📑 Báo cáo booking</router-link>
+          <router-link to="/bao-cao-thong-ke/chi-phi-ton-dong" active-class="active-submenu">💸 Báo cáo chi phí tồn đọng</router-link>
+          <router-link to="/bao-cao-thong-ke/cuoc-vo" active-class="active-submenu">📦 Thống kê tình trạng cược vỏ</router-link>
+          <router-link to="/bao-cao-thong-ke/canh-bao-luu-bai" active-class="active-submenu">⚠️ Thống kê cảnh báo lưu bãi</router-link>
         </div>
       </nav>
       

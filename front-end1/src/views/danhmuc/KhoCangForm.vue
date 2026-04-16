@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">
-      {{ formData.ma_cang ? 'Cập Nhật Cảng Biển' : 'Thêm Cảng Biển Mới' }}
+      {{ formData.ma_cang ? 'Cập Nhật Kho Cảng' : 'Thêm Kho Cảng Mới' }}
     </h3>
 
     <div class="table-card" style="padding: 20px;">
@@ -10,8 +10,8 @@
       </div>
       <form v-else @submit.prevent="saveData">
         <div class="form-group">
-          <label>Tên Cảng</label>
-          <input v-model="formData.ten_cang" required placeholder="Nhập tên cảng...">
+          <label>Tên Kho Cảng</label>
+          <input v-model="formData.ten_cang" required placeholder="Nhập tên kho cảng...">
         </div>
         <div class="form-group">
           <label>Địa chỉ</label>
@@ -58,7 +58,7 @@ const fetchDetail = async (id) => {
       if (found) {
         formData.value = { ...found };
       } else {
-        alert("Không tìm thấy thông tin cảng!");
+        alert("Không tìm thấy thông tin kho cảng!");
         router.push('/danh-muc/kho-cang');
       }
     }

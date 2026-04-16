@@ -2,7 +2,7 @@
   <div class="booking-form-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3 style="margin: 0; color: #2c3e50;">
-        {{ formData.ma_booking ? '🚢 Cập nhật Booking #' + formData.so_booking : '🚢 Tạo Booking mới' }}
+        {{ formData.ma_booking ? '🚢 Cập nhật Booking Note #' + formData.so_booking : '🚢 Tạo Booking Note mới' }}
       </h3>
     </div>
 
@@ -10,8 +10,8 @@
       <form @submit.prevent="handleSave">
         <div style="display: flex; gap: 15px;">
           <div class="form-group" style="flex: 1;">
-            <label>Số Booking *</label>
-            <input v-model="formData.so_booking" required placeholder="Nhập mã Booking từ hãng tàu...">
+            <label>Số Booking*</label>
+            <input v-model="formData.so_booking" required placeholder="Nhập mã Booking Note từ hãng tàu...">
           </div>
           <div class="form-group" style="flex: 1;">
             <label>Hãng Tàu *</label>
@@ -74,7 +74,7 @@
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button type="button" class="btn-cancel" @click="handleCancel">Hủy bỏ</button>
           <button type="submit" class="btn-save" :disabled="isSaving">
-            {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu Booking 💾' }}
+            {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu Booking Note 💾' }}
           </button>
         </div>
       </form>
@@ -145,7 +145,7 @@ const fetchBookingData = async (id) => {
       }
     }
   } catch (error) {
-    console.error("Lỗi lấy dữ liệu Booking!");
+    console.error("Lỗi lấy dữ liệu Booking Note!");
   }
 };
 

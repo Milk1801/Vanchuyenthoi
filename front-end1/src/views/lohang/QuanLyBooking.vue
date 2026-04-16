@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Booking Cước Tàu</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Booking Note</h3>
     
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
@@ -41,7 +41,7 @@
         🧹 Xóa lọc
       </button>
 
-      <button class="btn btn-success" @click="router.push('/lo-hang/booking/add')" style="padding: 10px 20px;">+ TẠO BOOKING MỚI</button>
+      <button class="btn btn-success" @click="router.push('/lo-hang/booking/add')" style="padding: 10px 20px;">+ TẠO BOOKING NOTE MỚI</button>
     </div>
 
     <!-- Bộ lọc thời gian nâng cao -->
@@ -70,7 +70,7 @@
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
-      Đang tải dữ liệu Booking...
+      Đang tải dữ liệu Booking Note...
     </div>
 
     <div v-else>

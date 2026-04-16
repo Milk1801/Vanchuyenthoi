@@ -31,7 +31,7 @@
             <th>Mã Hãng</th>
             <th>Tên Hãng Vận Tải</th>
             <th>Tuyến thường xuyên</th>
-            <th>các loại xe</th>
+            <th>Các loại xe</th>
             <th>Ghi chú</th>
             <th style="text-align: center;">Thao tác</th>
           </tr>

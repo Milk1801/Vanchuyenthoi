@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Thông Tin Lưu Bãi</h3>
+    <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Lưu Bãi</h3>
     
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: center;">
       <div class="search-box" style="flex: 2; min-width: 250px;">
