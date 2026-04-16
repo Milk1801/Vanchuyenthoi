@@ -41,7 +41,7 @@
     <div v-else style="display: flex; gap: 20px; align-items: flex-start;">
       <!-- BÊN TRÁI: DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
-        <!-- Pagination Controls -->
+        <!-- Kiểm soát phân trang -->
         <div v-if="listToKhai.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span>Hiển thị</span>
