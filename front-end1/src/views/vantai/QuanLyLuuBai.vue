@@ -48,6 +48,7 @@
     <div v-else style="display: flex; gap: 20px; align-items: flex-start;">
       <!-- BÊN TRÁI: DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
+        <!-- Kiểm soát phân trang -->
         <div class="table-card">
           <table>
             <thead>

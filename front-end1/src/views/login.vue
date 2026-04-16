@@ -3,7 +3,7 @@
     <div class="login-card">
       <div class="logo-box">
         <h2>SINCERE LOGISTICS</h2>
-        <p>Hệ thống Quản lý Giao nhận & ERP</p>
+        <p>Hệ thống Quản lý Giao nhận</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
