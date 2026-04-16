@@ -5,7 +5,7 @@
     <div class="toolbar" style="display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; justify-content:space-between;">
       <div class="search-group" style="display:flex; flex-wrap:wrap; gap:12px; flex:1; min-width:0;">
         <div class="search-box" style="flex:1 1 220px; min-width:200px;">
-          <input type="text" v-model="searchFilters.ten_cang" placeholder="Tìm theo tên cảng...">
+          <input type="text" v-model="searchFilters.ten_cang" placeholder="Tìm theo tên kho cảng...">
         </div>
         <div class="search-box" style="flex:1 1 220px; min-width:200px;">
           <input type="text" v-model="searchFilters.dia_chi" placeholder="Tìm theo địa chỉ...">
@@ -14,7 +14,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="router.push('/danh-muc/kho-cang/add')">+ TẠO CẢNG MỚI</button>
+      <button class="btn btn-success" @click="router.push('/danh-muc/kho-cang/add')">+ TẠO KHO CẢNG MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -25,8 +25,8 @@
       <table>
         <thead>
           <tr>
-            <th>Mã Cảng</th>
-            <th>Tên Cảng</th>
+            <th>Mã Kho Cảng</th>
+            <th>Tên Kho Cảng</th>
             <th>Địa chỉ</th>
             <th>Ghi chú</th>
             <th style="text-align: center;">Thao tác</th>
@@ -92,7 +92,7 @@ const clearFilters = () => {
 };
 
 const handleDelete = async (ma_cang) => {
-  if (confirm('Bạn có chắc chắn muốn xóa cảng này không?')) {
+  if (confirm('Bạn có chắc chắn muốn xóa kho cảng này không?')) {
     try {
       const response = await fetch('http://127.0.0.1:8000/api/cang-bien/delete', {
         method: 'POST',
