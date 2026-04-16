@@ -94,6 +94,16 @@
           <button @click="isLoHangPickerOpen = false" class="close-panel-btn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
 
+        <!-- Ô tìm kiếm lô hàng trong Picker -->
+        <div style="margin-bottom: 15px;">
+          <input 
+            type="text" 
+            v-model="shipmentSearchQuery" 
+            placeholder="🔍 Tìm nhanh theo tên lô hàng, số booking hoặc tên khách hàng..." 
+            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); border-color: #3498db;"
+          >
+        </div>
+
         <div style="display: flex; gap: 20px; align-items: flex-start;">
           <!-- Bảng danh sách bên trái -->
           <div style="flex: 1; max-height: 500px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
@@ -106,18 +116,18 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="lh in listLoHang" :key="lh.ma_lo_hang" :style="previewLoHang?.ma_lo_hang === lh.ma_lo_hang ? 'background: #eef7ff' : ''">
+                <tr v-for="lh in filteredPickerLoHang" :key="lh.ma_lo_hang" :style="previewLoHang?.ma_lo_hang === lh.ma_lo_hang ? 'background: #eef7ff' : ''">
                   <td style="padding: 12px; font-weight: bold; color: #2c3e50;">{{ lh.ten_lo_hang }}</td>
                   <td>{{ lh.ten_khach_hang || 'N/A' }}</td>
                   <td style="width: 150px; padding: 10px;">
                     <div style="display: flex; flex-direction: column; gap: 5px; width: 120px; margin: 0 auto;">
                       <button type="button" @click="previewLoHang = lh" class="view-btn" style="width: 100%; font-size: 12px; padding: 6px 0;">👁️ Xem trước</button>
-                      <button type="button" @click="selectLoHang(lh)" class="btn-save" style="width: 100%; font-size: 12px; height: auto; padding: 6px 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">✅ Chọn</button>
+                      <button type="button" @click="selectLoHang(lh)" class="btn-save" style="width: 100%; font-size: 12px; height: auto; padding: 6px 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;">✅ Chọn</button>
                     </div>
                   </td>
                 </tr>
-                <tr v-if="listLoHang.length === 0">
-                  <td colspan="3" style="text-align: center; padding: 20px; color: #7f8c8d;">Không có lô hàng khả dụng</td>
+                <tr v-if="filteredPickerLoHang.length === 0">
+                  <td colspan="3" style="text-align: center; padding: 30px; color: #95a5a6;">Không tìm thấy lô hàng nào phù hợp...</td>
                 </tr>
               </tbody>
             </table>
@@ -161,6 +171,7 @@ const listKetQua = ['Chờ xử lý', 'Đã thông quan', 'Từ chối'];
 const isLoHangPickerOpen = ref(false);
 const previewLoHang = ref(null);
 const showLoHangPanel = ref(false);
+const shipmentSearchQuery = ref('');
 
 const formData = ref({
   ma_to_khai_hai_quan: null,
@@ -176,11 +187,22 @@ const selectedLoHang = computed(() => {
   return listLoHang.value.find(lh => lh.ma_lo_hang === formData.value.ma_lo_hang);
 });
 
+const filteredPickerLoHang = computed(() => {
+  const q = shipmentSearchQuery.value.toLowerCase().trim();
+  if (!q) return listLoHang.value;
+  return listLoHang.value.filter(lh => 
+    (lh.ten_lo_hang && lh.ten_lo_hang.toLowerCase().includes(q)) ||
+    (lh.so_booking && lh.so_booking.toLowerCase().includes(q)) ||
+    (lh.ten_khach_hang && lh.ten_khach_hang.toLowerCase().includes(q))
+  );
+});
+
 const selectLoHang = (lh) => {
   formData.value.ma_lo_hang = lh.ma_lo_hang;
   isLoHangPickerOpen.value = false;
   previewLoHang.value = null;
   showLoHangPanel.value = true;
+  shipmentSearchQuery.value = '';
 };
 
 const fetchReferences = async (ma_to_khai = null) => {
@@ -202,7 +224,10 @@ const fetchReferences = async (ma_to_khai = null) => {
     if (refData.success && allData.success) {
       const validIds = refData.lo_hang.map(lh => lh.ma_lo_hang);
       // Lọc danh sách lô hàng đầy đủ thông tin dựa trên các ID hợp lệ từ references
-      listLoHang.value = allData.data.filter(lh => validIds.includes(lh.ma_lo_hang));
+      listLoHang.value = allData.data.filter(lh => 
+        validIds.includes(lh.ma_lo_hang) &&
+        lh.trang_thai_lo_hang !== 'Hoàn tất' && lh.trang_thai_lo_hang !== 'Hủy'
+      );
     }
   } catch (error) {
     console.error('Fetch refs error:', error);
