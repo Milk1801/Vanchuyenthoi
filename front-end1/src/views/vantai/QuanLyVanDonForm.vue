@@ -67,51 +67,98 @@
 
           <div class="form-group">
             <label>Cảng Đi (POL)</label>
-            <select v-model="formData.ma_cang_di" style="height: 44px; box-sizing: border-box;">
-              <option :value="null">-- Chọn cảng --</option>
-              <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">
-                {{ c.ten_cang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="polSearchText" 
+                placeholder="Nhập tên cảng đi..." 
+                @focus="showPolDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showPolDropdown" class="combobox-list">
+                <li v-for="c in filteredPol" :key="c.ma_cang" @click="selectCang(c, 'pol')">
+                  {{ c.ten_cang }}
+                </li>
+                <li v-if="filteredPol.length === 0" class="no-result">Không tìm thấy cảng</li>
+              </ul>
+            </div>
           </div>
           <div class="form-group">
             <label>Cảng Đến (POD)</label>
-            <select v-model="formData.ma_cang_den" style="height: 44px; box-sizing: border-box;">
-              <option :value="null">-- Chọn cảng --</option>
-              <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">
-                {{ c.ten_cang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="podSearchText" 
+                placeholder="Nhập tên cảng đến..." 
+                @focus="showPodDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showPodDropdown" class="combobox-list">
+                <li v-for="c in filteredPod" :key="c.ma_cang" @click="selectCang(c, 'pod')">
+                  {{ c.ten_cang }}
+                </li>
+                <li v-if="filteredPod.length === 0" class="no-result">Không tìm thấy cảng</li>
+              </ul>
+            </div>
           </div>
 
           <div class="form-group">
             <label>Người Gửi Hàng</label>
-            <select v-model="formData.ma_nguoi_gui_hang" style="height: 44px; box-sizing: border-box;">
-              <option :value="null">-- Chọn người gửi --</option>
-              <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
-                {{ kh.ten_khach_hang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="shipperSearchText" 
+                placeholder="Tìm tên người gửi..." 
+                @focus="showShipperDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showShipperDropdown" class="combobox-list">
+                <li v-for="kh in filteredShippers" :key="kh.ma_khach_hang" @click="selectKhachHang(kh, 'shipper')">
+                  {{ kh.ten_khach_hang }}
+                </li>
+                <li v-if="filteredShippers.length === 0" class="no-result">Không tìm thấy khách hàng</li>
+              </ul>
+            </div>
           </div>
           <div class="form-group">
             <label>Người Nhận Hàng</label>
-            <select v-model="formData.ma_nguoi_nhan_hang" style="height: 44px; box-sizing: border-box;">
-              <option :value="null">-- Chọn người nhận --</option>
-              <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
-                {{ kh.ten_khach_hang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="consigneeSearchText" 
+                placeholder="Tìm tên người nhận..." 
+                @focus="showConsigneeDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showConsigneeDropdown" class="combobox-list">
+                <li v-for="kh in filteredConsignees" :key="kh.ma_khach_hang" @click="selectKhachHang(kh, 'consignee')">
+                  {{ kh.ten_khach_hang }}
+                </li>
+                <li v-if="filteredConsignees.length === 0" class="no-result">Không tìm thấy khách hàng</li>
+              </ul>
+            </div>
           </div>
           
           <div class="form-group">
             <label>Bên được thông báo (Notify Party)</label>
-            <select v-model="formData.ma_ben_duoc_thong_bao" style="height: 44px; box-sizing: border-box;">
-              <option :value="null">-- Chọn bên được thông báo --</option>
-              <option value="SAME_AS_CONSIGNEE">SAME AS CONSIGNEE (Như người nhận)</option>
-              <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">
-                {{ kh.ten_khach_hang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper" style="display: flex; gap: 5px;">
+              <div style="flex: 1; position: relative;">
+                <input 
+                  type="text" 
+                  v-model="notifySearchText" 
+                  placeholder="Tìm hoặc chọn SAME AS..." 
+                  @focus="showNotifyDropdown = true"
+                  class="combobox-input"
+                >
+                <ul v-if="showNotifyDropdown" class="combobox-list">
+                  <li @click="setNotifySameAs()" style="color: #2980b9; font-weight: bold;">SAME AS CONSIGNEE</li>
+                  <li v-for="kh in filteredNotify" :key="kh.ma_khach_hang" @click="selectKhachHang(kh, 'notify')">
+                    {{ kh.ten_khach_hang }}
+                  </li>
+                </ul>
+              </div>
+              <button type="button" @click="setNotifySameAs()" class="btn-cancel" style="padding: 0 10px; height: 44px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer;">SAME AS...</button>
+            </div>
           </div>
           <div class="form-group">
             <label>Số Container</label>
@@ -245,6 +292,18 @@ const previewLoHang = ref(null);
 const showLoHangPanel = ref(false);
 const shipmentSearchQuery = ref('');
 
+// State cho Combobox Tìm kiếm
+const polSearchText = ref('');
+const showPolDropdown = ref(false);
+const podSearchText = ref('');
+const showPodDropdown = ref(false);
+const shipperSearchText = ref('');
+const showShipperDropdown = ref(false);
+const consigneeSearchText = ref('');
+const showConsigneeDropdown = ref(false);
+const notifySearchText = ref('');
+const showNotifyDropdown = ref(false);
+
 const formData = ref({
   ma_van_don: null, loai_van_don: 'Original B/L', ngay_phat_hanh: '',
   so_van_don_goc: '', so_van_don: '', so_cont: '', so_chi: '',
@@ -267,12 +326,53 @@ const filteredPickerLoHang = computed(() => {
   );
 });
 
+// Computed filters cho Combobox
+const filteredPol = computed(() => listCangBien.value.filter(c => c.ten_cang.toLowerCase().includes(polSearchText.value.toLowerCase())));
+const filteredPod = computed(() => listCangBien.value.filter(c => c.ten_cang.toLowerCase().includes(podSearchText.value.toLowerCase())));
+const filteredShippers = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(shipperSearchText.value.toLowerCase())));
+const filteredConsignees = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(consigneeSearchText.value.toLowerCase())));
+const filteredNotify = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(notifySearchText.value.toLowerCase())));
+
 const selectLoHang = (lh) => {
   formData.value.ma_lo_hang = lh.ma_lo_hang;
   isLoHangPickerOpen.value = false;
   previewLoHang.value = null;
   showLoHangPanel.value = true;
   shipmentSearchQuery.value = '';
+};
+
+const selectCang = (cang, target) => {
+  if (target === 'pol') {
+    formData.value.ma_cang_di = cang.ma_cang;
+    polSearchText.value = cang.ten_cang;
+    showPolDropdown.value = false;
+  } else {
+    formData.value.ma_cang_den = cang.ma_cang;
+    podSearchText.value = cang.ten_cang;
+    showPodDropdown.value = false;
+  }
+};
+
+const selectKhachHang = (kh, target) => {
+  if (target === 'shipper') {
+    formData.value.ma_nguoi_gui_hang = kh.ma_khach_hang;
+    shipperSearchText.value = kh.ten_khach_hang;
+    showShipperDropdown.value = false;
+  } else if (target === 'consignee') {
+    formData.value.ma_nguoi_nhan_hang = kh.ma_khach_hang;
+    consigneeSearchText.value = kh.ten_khach_hang;
+    showConsigneeDropdown.value = false;
+  } else {
+    formData.value.ma_ben_duoc_thong_bao = kh.ma_khach_hang;
+    notifySearchText.value = kh.ten_khach_hang;
+    showNotifyDropdown.value = false;
+  }
+};
+
+const setNotifySameAs = () => {
+  formData.value.ma_ben_duoc_thong_bao = 'SAME_AS_CONSIGNEE';
+  notifySearchText.value = 'SAME AS CONSIGNEE';
+  showNotifyDropdown.value = false;
 };
 
 const fetchReferences = async () => {
@@ -289,6 +389,13 @@ const fetchReferences = async () => {
       listKhachHang.value = dataRef.khach_hang;
       listCangBien.value = dataRef.cang_bien;
       
+      // Đóng các dropdown khi click ra ngoài
+      window.addEventListener('click', (e) => {
+        if (!e.target.closest('.combobox-wrapper')) {
+          showPolDropdown.value = showPodDropdown.value = showShipperDropdown.value = showConsigneeDropdown.value = showNotifyDropdown.value = false;
+        }
+      });
+
       const validIds = dataRef.lo_hang.map(lh => lh.ma_lo_hang);
       // Lọc danh sách lô hàng đầy đủ thông tin dựa trên các ID hợp lệ từ references
       listLoHang.value = allData.data.filter(lh => 
@@ -318,6 +425,13 @@ const fetchDetail = async (id) => {
           ma_ben_duoc_thong_bao: benThongBao,
           ngay_phat_hanh: found.ngay_phat_hanh ? new Date(found.ngay_phat_hanh).toISOString().slice(0, 16) : ''
         };
+        // Cập nhật text hiển thị cho combobox
+        polSearchText.value = found.ten_cang_di || '';
+        podSearchText.value = found.ten_cang_den || '';
+        shipperSearchText.value = listKhachHang.value.find(kh => kh.ma_khach_hang === found.ma_nguoi_gui_hang)?.ten_khach_hang || '';
+        consigneeSearchText.value = listKhachHang.value.find(kh => kh.ma_khach_hang === found.ma_nguoi_nhan_hang)?.ten_khach_hang || '';
+        notifySearchText.value = benThongBao === 'SAME_AS_CONSIGNEE' ? 'SAME AS CONSIGNEE' : (listKhachHang.value.find(kh => kh.ma_khach_hang === found.ma_ben_duoc_thong_bao)?.ten_khach_hang || '');
+        
         showLoHangPanel.value = true;
       }
     }
@@ -381,6 +495,27 @@ onMounted(async () => {
 
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
 <style scoped>
+/* CSS cho Combobox Tìm kiếm */
+.combobox-wrapper { position: relative; width: 100%; }
+.combobox-input {
+  width: 100%; height: 44px; padding: 10px; border: 1px solid #ddd;
+  border-radius: 6px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s;
+}
+.combobox-input:focus { border-color: #3498db; outline: none; }
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 6px; margin: 2px 0 0 0; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 10px; cursor: pointer; transition: background 0.2s;
+  font-size: 14px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
+.combobox-list li.no-result { color: #95a5a6; cursor: default; font-style: italic; }
+
 .view-btn {
   background: #ebf5fb; border: 1px solid #3498db; color: #3498db;
   border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: bold;
@@ -409,18 +544,6 @@ onMounted(async () => {
   background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-.picker-table th, .picker-table td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-}
-
-.picker-table tr:hover {
-  background-color: #fcfcfc;
-}
-
-.btn-picker {
-  transition: background 0.2s;
-}
 .btn-picker:hover {
   background: #27ae60 !important;
 }

@@ -18,7 +18,7 @@ class QuanLyToKhaiHaiQuan extends Controller
                     'lo_hang.ten_lo_hang',
                     'tai_khoan.ho_ten as ten_nguoi_sua'
                 )
-                ->orderBy('to_khai_hai_quan.ma_to_khai_hai_quan', 'asc')
+                ->orderBy('to_khai_hai_quan.ma_to_khai_hai_quan', 'desc')
                 ->get();
 
             return response()->json([
