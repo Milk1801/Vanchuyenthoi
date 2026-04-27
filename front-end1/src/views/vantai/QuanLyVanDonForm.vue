@@ -157,7 +157,6 @@
                   </li>
                 </ul>
               </div>
-              <button type="button" @click="setNotifySameAs()" class="btn-cancel" style="padding: 0 10px; height: 44px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer;">SAME AS...</button>
             </div>
           </div>
           <div class="form-group">
