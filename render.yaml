@@ -2,6 +2,7 @@ services:
   - type: web
     name: sincere-backend
     env: docker
+    rootDir: backend-laravel 
     plan: free
     envVars:
       - key: APP_ENV
