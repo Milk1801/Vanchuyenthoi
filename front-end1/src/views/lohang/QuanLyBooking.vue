@@ -110,14 +110,14 @@
         <tbody>
           <tr v-for="(bk, index) in paginatedBookings" :key="bk.ma_booking">
             <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-            <td class="fw-bold" style="color: #2980b9;">{{ bk.so_booking }}</td>
+            <td style="color: #2980b9;">{{ bk.so_booking }}</td>
             <td>
               <strong>{{ bk.ten_con_tau || 'N/A' }}</strong><br>
               <span style="font-size: 12px; color: #7f8c8d;">{{ bk.so_chuyen || 'N/A' }}</span>
             </td>
             <td>{{ bk.ten_hang_tau || 'Chưa rõ' }}</td>
-            <td class="fw-bold">{{ bk.ten_cang_di || '---' }}</td>
-            <td class="fw-bold">{{ bk.ten_cang_den || '---' }}</td>
+            <td>{{ bk.ten_cang_di || '---' }}</td>
+            <td>{{ bk.ten_cang_den || '---' }}</td>
             <td>
               <span class="badge badge-warning" style="white-space: nowrap;">{{ formatDateTime(bk.gio_cat_mang) }}</span>
             </td>

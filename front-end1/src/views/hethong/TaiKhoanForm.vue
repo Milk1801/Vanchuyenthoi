@@ -6,7 +6,7 @@
       </h3>
     </div>
 
-    <div class="table-card" style="padding: 30px; max-width: 600px; margin: 0 auto;">
+    <div class="table-card" style="padding: 30px; margin: 0 auto;">
       <form @submit.prevent="saveAccount">
         <div class="form-group">
           <label>Họ và Tên *</label>
