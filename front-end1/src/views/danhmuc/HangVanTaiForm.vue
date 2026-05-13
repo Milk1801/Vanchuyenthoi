@@ -23,7 +23,7 @@
         </div>
         <div class="form-group">
           <label>Ghi chú</label>
-          <textarea v-model="formData.ghi_chu" placeholder="Nhập ghi chú..." rows="4"></textarea>
+          <textarea v-model="formData.ghi_chu" placeholder="Nhập ghi chú..." rows="4" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"></textarea>
         </div>
         <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
           <button type="button" class="btn-cancel" @click="router.back()" style="padding: 10px 25px;">Hủy</button>

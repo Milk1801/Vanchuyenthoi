@@ -51,8 +51,8 @@
         </thead>
         <tbody>
           <tr v-for="ht in filteredData" :key="ht.ma_hang_tau">
-            <td class="fw-bold">{{ ht.ma_hang_tau }}</td>
-            <td class="fw-bold">{{ ht.ten_hang_tau }}</td>
+            <td>{{ ht.ma_hang_tau }}</td>
+            <td>{{ ht.ten_hang_tau }}</td>
             <td>{{ ht.dia_chi || 'Chưa cập nhật' }}</td>
             <td>{{ ht.so_dien_thoai || 'Chưa cập nhật' }}</td>
             <td>{{ ht.so_fax || 'Chưa cập nhật' }}</td>

@@ -38,10 +38,10 @@
         </thead>
         <tbody>
           <tr v-for="h in filteredData" :key="h.ma_hang_van_tai">
-            <td class="fw-bold">{{ h.ma_hang_van_tai }}</td>
-            <td class="fw-bold">{{ h.ten_hang_van_tai }}</td>
-            <td class="fw-bold">{{ h.tuyen_thuong_xuyen || 'Chưa cập nhật' }}</td>
-            <td class="fw-bold">{{ h.cac_loai_xe || 'Chưa cập nhật' }}</td>
+            <td>{{ h.ma_hang_van_tai }}</td>
+            <td>{{ h.ten_hang_van_tai }}</td>
+            <td>{{ h.tuyen_thuong_xuyen || 'Chưa cập nhật' }}</td>
+            <td>{{ h.cac_loai_xe || 'Chưa cập nhật' }}</td>
             <td>{{ h.ghi_chu || 'Không có' }}</td>
             <td style="text-align: center;">
               <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-van-tai/edit/' + h.ma_hang_van_tai)" title="Sửa">✏️</button>

@@ -29,8 +29,8 @@
         </thead>
         <tbody>
           <tr v-for="d in filteredData" :key="d.ma_don_vi_tinh">
-            <td class="fw-bold">{{ d.ma_don_vi_tinh }}</td>
-            <td class="fw-bold">{{ d.ten_don_vi_tinh }}</td>
+            <td>{{ d.ma_don_vi_tinh }}</td>
+            <td>{{ d.ten_don_vi_tinh }}</td>
             <td style="text-align: center;">
               <button class="action-btn text-primary" @click="router.push('/danh-muc/don-vi-tinh/edit/' + d.ma_don_vi_tinh)" title="Sửa">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(d.ma_don_vi_tinh)" title="Xóa">🗑️</button>
