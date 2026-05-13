@@ -100,7 +100,7 @@
               <tbody>
                 <tr v-for="(lh, index) in paginatedLoHang" :key="lh.ma_lo_hang" :class="{ 'row-selected': (selectedItem?.ma_lo_hang === lh.ma_lo_hang) }">
                   <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                  <td class="fw-bold">#{{ lh.ma_lo_hang }}</td>
+                  <td class="fw-bold">{{ lh.ma_lo_hang }}</td>
                   <td class="fw-bold" style="color: #2980b9;">{{ lh.ten_lo_hang }}</td>
                   <td>{{ lh.ten_khach_hang || '---' }}</td>
                   <td><span class="badge" style="background-color: #9b59b6; color: white;">{{ lh.dieu_kien_thuong_mai }}</span></td>

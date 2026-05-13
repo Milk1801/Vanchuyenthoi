@@ -28,8 +28,8 @@
         </thead>
         <tbody>
           <tr v-for="acc in filteredAccounts" :key="acc.ma_tai_khoan">
-            <td class="fw-bold">{{ acc.ma_tai_khoan }}</td>
-            <td class="fw-bold">{{ acc.ho_ten }}</td>
+            <td>{{ acc.ma_tai_khoan }}</td>
+            <td>{{ acc.ho_ten }}</td>
             <td>{{ acc.email }}</td>
             <td>{{ acc.ten_quyen || 'Chưa phân quyền' }}</td>
             <td>{{ formatDate(acc.ngay_sinh) }}</td>
