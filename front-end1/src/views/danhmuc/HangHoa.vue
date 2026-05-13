@@ -33,8 +33,8 @@
         </thead>
         <tbody>
           <tr v-for="h in filteredData" :key="h.ma_hang_hoa">
-            <td class="fw-bold">{{ h.ma_hang_hoa }}</td>
-            <td class="fw-bold">{{ h.ten_hang_hoa }}</td>
+            <td>{{ h.ma_hang_hoa }}</td>
+            <td>{{ h.ten_hang_hoa }}</td>
             <td>{{ h.hs_code || '-' }}</td>
             <td style="text-align: center;">
               <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-hoa/edit/' + h.ma_hang_hoa)" title="Sửa">✏️</button>

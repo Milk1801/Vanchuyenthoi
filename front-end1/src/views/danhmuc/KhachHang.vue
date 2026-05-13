@@ -51,8 +51,8 @@
         </thead>
         <tbody>
           <tr v-for="kh in filteredCustomers" :key="kh.ma_khach_hang">
-            <td class="fw-bold">{{ kh.ma_khach_hang }}</td>
-            <td class="fw-bold">{{ kh.ten_khach_hang }}</td>
+            <td>{{ kh.ma_khach_hang }}</td>
+            <td>{{ kh.ten_khach_hang }}</td>
             <td>{{ kh.dia_chi || 'Chưa cập nhật' }}</td>
             <td>{{ kh.so_dien_thoai || 'Chưa cập nhật' }}</td>
             <td>{{ kh.so_fax || 'Chưa cập nhật' }}</td>

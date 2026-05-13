@@ -34,9 +34,9 @@
         </thead>
         <tbody>
           <tr v-for="c in filteredData" :key="c.ma_cang">
-            <td class="fw-bold">{{ c.ma_cang }}</td>
-            <td class="fw-bold">{{ c.ten_cang }}</td>
-            <td class="fw-bold">{{ c.dia_chi  || 'Chưa cập nhật' }}</td>
+            <td>{{ c.ma_cang }}</td>
+            <td>{{ c.ten_cang }}</td>
+            <td>{{ c.dia_chi  || 'Chưa cập nhật' }}</td>
             <td>{{ c.ghi_chu || 'Không có' }}</td>
             <td style="text-align: center;">
               <button class="action-btn text-primary" @click="router.push('/danh-muc/kho-cang/edit/' + c.ma_cang)" title="Sửa">✏️</button>
