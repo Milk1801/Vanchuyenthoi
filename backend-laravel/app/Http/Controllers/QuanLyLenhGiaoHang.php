@@ -111,7 +111,13 @@ class QuanLyLenhGiaoHang extends Controller
             $loHang = DB::table('lo_hang')
                 ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
                 ->where('lo_hang.thoi_gian_xoa', '<=', '2000-01-01 00:00:00')
-                ->select('lo_hang.ma_lo_hang', 'lo_hang.ma_booking', 'lo_hang.ten_lo_hang', 'booking.so_booking as so_booking')
+                ->select(
+                    'lo_hang.ma_lo_hang', 
+                    'lo_hang.ma_booking', 
+                    'lo_hang.ten_lo_hang', 
+                    'lo_hang.trang_thai_lo_hang', 
+                    'booking.so_booking as so_booking'
+                )
                 ->get();
 
             // Lấy danh sách Hãng vận tải cho Combobox Tab BBGN

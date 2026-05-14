@@ -6,19 +6,46 @@
       <div class="search-box" style="flex: 1; min-width: 250px;">
         <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Số Booking, Tên lô hàng..." style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
       </div>
-      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
+
+      <div class="filter-box" style="min-width: 180px;">
+        <select v-model="filterStatus" style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff;">
+          <option value="">📋 Tất cả trạng thái</option>
+          <option value="hoantat">✅ Đã hoàn tất</option>
+          <option value="chuahoantat">⏳ Chưa hoàn tất</option>
+        </select>
+      </div>
+
+      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff;">🔄 Làm mới</button>
       <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
         ➕ THÊM MỚI THÔNG BÁO
       </button>
     </div>
 
+    <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-radius: 8px; margin-top: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #dee2e6;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <label style="color: #495057;">Hiển thị</label>
+        <select v-model="itemsPerPage" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;">
+          <option :value="5">5</option>
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+        </select>
+        <label style="color: #495057;">mục</label>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button @click="prevPage" :disabled="currentPage === 1" class="btn-page">◀ Trước</button>
+        <span style="font-weight: bold; color: #2c3e50;">Trang {{ currentPage }} / {{ totalPages || 1 }}</span>
+        <button @click="nextPage" :disabled="currentPage === totalPages || totalPages === 0" class="btn-page">Sau ▶</button>
+      </div>
+    </div>
+    
     <div class="table-container" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;">
-      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <table class="zebra-table" style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
             <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
-            <th style="padding: 12px 15px;">Số Booking</th>
+            <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th> <th style="padding: 12px 15px;">Số Booking</th>
             <th style="padding: 12px 15px;">Khách Hàng</th>
             <th style="padding: 12px 15px;">Tên Tàu</th>
             <th style="padding: 12px 15px;">Số Vận Đơn</th>
@@ -27,14 +54,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="isLoading"><td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
-          <tr v-else-if="filteredList.length === 0"><td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu!</td></tr>
-          <tr v-for="item in filteredList" :key="item.ma_phieu" style="border-bottom: 1px solid #eee;">
+          <tr v-if="isLoading"><td colspan="9" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          <tr v-else-if="paginatedList.length === 0"><td colspan="9" style="text-align: center; padding: 20px;">Không có dữ liệu phù hợp!</td></tr>
+          
+          <tr v-for="item in paginatedList" :key="item.ma_phieu" class="table-row">
             <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">TB-{{ item.ma_phieu }}</td>
             <td style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
               <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem Lô hàng">👁️</button>
             </td>
+
+            <td style="padding: 12px 15px; text-align: center;">
+              <span class="badge" :class="checkIsHoanTat(item) ? 'badge-success' : 'badge-warning'">
+                {{ checkIsHoanTat(item) ? '✅ Hoàn tất' : '⏳ Chưa xong' }}
+              </span>
+            </td>
+
             <td style="padding: 12px 15px;">
               {{ item.so_booking || 'N/A' }}
               <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem Booking">👁️</button>
@@ -125,7 +160,14 @@ const listLoHang = ref([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
+
+// BIẾN TÌM KIẾM VÀ LỌC
 const searchQuery = ref(''); 
+const filterStatus = ref(''); 
+
+// BIẾN PHÂN TRANG
+const itemsPerPage = ref(10);
+const currentPage = ref(1);
 
 const detailPanel = ref({ show: false, type: '', title: '', data: {} });
 const searchLoHangInput = ref('');
@@ -138,17 +180,76 @@ const formatDateTime = (dateStr) => {
   return new Date(dateStr).toLocaleString('vi-VN');
 };
 
+// --- HÀM KIỂM TRA TRẠNG THÁI ---
+const checkIsHoanTat = (item) => {
+  let status = item.trang_thai_lo_hang; 
+  if (status === undefined) {
+    const lo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
+    status = lo ? lo.trang_thai_lo_hang : null; 
+  }
+  const strStatus = String(status).trim().toLowerCase();
+  if (strStatus.includes('hoàn tất') || strStatus === '1' || strStatus === 'true') {
+    return true;
+  }
+  return false;
+};
+
+// --- LOGIC LỌC TỔNG HỢP ---
 const filteredList = computed(() => {
   return listAN.value.filter(item => {
+    // 1. Lọc theo chữ (Ô tìm kiếm)
     const search = searchQuery.value.toLowerCase();
-    return !search || (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || (item.so_booking && item.so_booking.toLowerCase().includes(search));
+    const matchSearch = !search || 
+                       (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || 
+                       (item.so_booking && item.so_booking.toLowerCase().includes(search));
+
+    // 2. Lọc theo trạng thái
+    let matchStatus = true;
+    const isHoanTat = checkIsHoanTat(item);
+    
+    if (filterStatus.value === 'hoantat') {
+      matchStatus = isHoanTat === true;
+    } else if (filterStatus.value === 'chuahoantat') {
+      matchStatus = isHoanTat === false;
+    }
+
+    return matchSearch && matchStatus;
   });
 });
 
+// --- LOGIC PHÂN TRANG ---
+const totalPages = computed(() => Math.ceil(filteredList.value.length / itemsPerPage.value));
+
+const paginatedList = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredList.value.slice(start, end);
+});
+
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+
+// Tự động Reset về trang 1
+watch([searchQuery, itemsPerPage, filterStatus], () => { currentPage.value = 1; });
+
+// --- LỌC LÔ HÀNG BỎ QUA "HOÀN TẤT" & "HỦY" ---
 const filteredLoHangOptions = computed(() => {
-  if (!searchLoHangInput.value) return listLoHang.value;
+  const loHangHopLe = listLoHang.value.filter(lo => {
+    let status = lo.trang_thai_lo_hang || ''; 
+    let strStatus = String(status).trim().toLowerCase(); 
+    if (strStatus === 'hoàn tất' || strStatus === 'hủy') {
+      return false; 
+    }
+    return true; 
+  });
+
+  if (!searchLoHangInput.value) return loHangHopLe;
+
   const term = searchLoHangInput.value.toLowerCase();
-  return listLoHang.value.filter(lo => (lo.ten_lo_hang && lo.ten_lo_hang.toLowerCase().includes(term)) || (lo.so_booking && lo.so_booking.toLowerCase().includes(term)));
+  return loHangHopLe.filter(lo => 
+    (lo.ten_lo_hang && lo.ten_lo_hang.toLowerCase().includes(term)) || 
+    (lo.so_booking && lo.so_booking.toLowerCase().includes(term))
+  );
 });
 
 const selectLoHang = (lo) => {
@@ -172,7 +273,7 @@ const fetchData = async () => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/lenh-giao-hang`);
     const data = await res.json();
     if (data.success) {
-      listAN.value = data.data_an; // Chỉ hứng cục data_an
+      listAN.value = data.data_an; // Bốc đúng data_an
       listLoHang.value = data.lo_hang;
     }
   } catch (error) { console.error("Lỗi!"); } finally { isLoading.value = false; }
@@ -193,7 +294,7 @@ const saveData = async () => {
   if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng hợp lệ!"); return; }
   isSaving.value = true;
   try {
-    const payload = { ...formData.value, loai: 'AN' }; // Gắn chết cứng loại là AN
+    const payload = { ...formData.value, loai: 'AN' }; 
     const res = await fetch(`${import.meta.env.VITE_API_URL}/lenh-giao-hang/save`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
@@ -228,7 +329,7 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
-/* Copy y nguyên phần CSS cũ vào đây, bỏ qua đoạn này cho gọn nhé */
+/* CSS CHUNG */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 3px 6px; font-size: 12px; margin-left: 8px; }
 .btn-eye:hover { background: #3498db; border-color: #3498db; }
@@ -242,4 +343,17 @@ onMounted(fetchData);
 .detail-table td { padding: 10px 0; color: #7f8c8d; font-size: 13px; width: 40%;}
 .detail-table strong { font-size: 13px; color: #2c3e50; display: table-cell; padding-left: 10px;}
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* CSS SO LE MÀU VÀ NÚT PHÂN TRANG */
+.zebra-table .table-row { border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+.zebra-table .table-row:nth-child(even) { background-color: #f8f9fa; }
+.zebra-table .table-row:hover { background-color: #e9ecef; }
+.btn-page { background: white; border: 1px solid #ced4da; padding: 6px 12px; border-radius: 4px; cursor: pointer; color: #495057; font-size: 14px; transition: all 0.2s; }
+.btn-page:hover:not(:disabled) { background: #f1f3f5; border-color: #adb5bd; }
+.btn-page:disabled { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
+
+/* CSS BADGE (THẺ MÀU TRẠNG THÁI) */
+.badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; white-space: nowrap; }
+.badge-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+.badge-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
 </style>
