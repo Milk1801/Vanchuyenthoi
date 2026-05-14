@@ -12,26 +12,35 @@
         >
       </div>
 
-      <select 
-        v-model="filterHangTau" 
-        @mouseenter="loadReferences()" 
-        style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 180px;"
-      >
-        <option value="ALL">🚢 Tất cả Hãng tàu</option>
-        <option v-for="ht in listHangTau" :key="ht.ma_hang_tau" :value="ht.ma_hang_tau">
-          {{ ht.ten_hang_tau }}
-        </option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="htSearchText" placeholder="🚢 Chọn Hãng tàu..." @focus="showHtDropdown = true" class="combobox-input">
+        <ul v-if="showHtDropdown" class="combobox-list">
+          <li @click="selectHangTau('ALL', 'Tất cả Hãng tàu')">Tất cả Hãng tàu</li>
+          <li v-for="ht in filteredHtList" :key="ht.ma_hang_tau" @click="selectHangTau(ht.ma_hang_tau, ht.ten_hang_tau)">
+            {{ ht.ten_hang_tau }}
+          </li>
+        </ul>
+      </div>
 
-      <select v-model="filterCangDi" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
-        <option :value="null">🛳️ Cảng Đi (Tất cả)</option>
-        <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">{{ c.ten_cang }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="polSearchText" placeholder="🛳️ Cảng Đi..." @focus="showPolDropdown = true" class="combobox-input">
+        <ul v-if="showPolDropdown" class="combobox-list">
+          <li @click="selectCang(null, 'Tất cả', 'pol')">Tất cả Cảng đi</li>
+          <li v-for="c in filteredPolList" :key="c.ma_cang" @click="selectCang(c.ma_cang, c.ten_cang, 'pol')">
+            {{ c.ten_cang }}
+          </li>
+        </ul>
+      </div>
 
-      <select v-model="filterCangDen" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
-        <option :value="null">⛴️ Cảng Đến (Tất cả)</option>
-        <option v-for="c in listCangBien" :key="c.ma_cang" :value="c.ma_cang">{{ c.ten_cang }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="podSearchText" placeholder="⛴️ Cảng Đến..." @focus="showPodDropdown = true" class="combobox-input">
+        <ul v-if="showPodDropdown" class="combobox-list">
+          <li @click="selectCang(null, 'Tất cả', 'pod')">Tất cả Cảng đến</li>
+          <li v-for="c in filteredPodList" :key="c.ma_cang" @click="selectCang(c.ma_cang, c.ten_cang, 'pod')">
+            {{ c.ten_cang }}
+          </li>
+        </ul>
+      </div>
 
       <button 
         @click="resetFilters" 
@@ -161,6 +170,25 @@ const filterHangTau = ref('ALL');
 const filterCangDi = ref(null);
 const filterCangDen = ref(null);
 
+// State cho Combobox tìm kiếm
+const htSearchText = ref('');
+const showHtDropdown = ref(false);
+const polSearchText = ref('');
+const showPolDropdown = ref(false);
+const podSearchText = ref('');
+const showPodDropdown = ref(false);
+
+// Computed lọc danh sách cho dropdown
+const filteredHtList = computed(() => 
+  listHangTau.value.filter(ht => ht.ten_hang_tau.toLowerCase().includes(htSearchText.value.toLowerCase()))
+);
+const filteredPolList = computed(() => 
+  listCangBien.value.filter(c => c.ten_cang.toLowerCase().includes(polSearchText.value.toLowerCase()))
+);
+const filteredPodList = computed(() => 
+  listCangBien.value.filter(c => c.ten_cang.toLowerCase().includes(podSearchText.value.toLowerCase()))
+);
+
 const dateFilters = ref({
   etdStart: '', etdEnd: '',
   etaStart: '', etaEnd: '',
@@ -218,11 +246,32 @@ const totalPages = computed(() => {
   return Math.ceil(filteredBookings.value.length / pageSize.value) || 1;
 });
 
+const selectHangTau = (id, name) => {
+  filterHangTau.value = id;
+  htSearchText.value = name;
+  showHtDropdown.value = false;
+};
+
+const selectCang = (id, name, target) => {
+  if (target === 'pol') {
+    filterCangDi.value = id;
+    polSearchText.value = id ? name : '';
+    showPolDropdown.value = false;
+  } else {
+    filterCangDen.value = id;
+    podSearchText.value = id ? name : '';
+    showPodDropdown.value = false;
+  }
+};
+
 const resetFilters = () => {
   searchQuery.value = '';
   filterHangTau.value = 'ALL';
   filterCangDi.value = null;
   filterCangDen.value = null;
+  htSearchText.value = 'Tất cả Hãng tàu';
+  polSearchText.value = '';
+  podSearchText.value = '';
   dateFilters.value = {
     etdStart: '', etdEnd: '',
     etaStart: '', etaEnd: '',
@@ -281,9 +330,14 @@ const handleDelete = async (id) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   loadReferences(); // Gọi 1 lần lấy data Cảng và Hãng Tàu
   fetchBookings();
+  window.addEventListener('click', (e) => {
+    if (!e.target.closest('.combobox-wrapper')) {
+      showHtDropdown.value = showPolDropdown.value = showPodDropdown.value = false;
+    }
+  });
 });
 </script>
 
@@ -294,4 +348,32 @@ onMounted(() => {
   padding: 5px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;
 }
 .btn-pagination:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Style cho Combobox tìm kiếm */
+.combobox-wrapper { position: relative; }
+.combobox-input {
+  width: 100%; height: 40px; padding: 10px; border: 1px solid #ccc;
+  border-radius: 4px; box-sizing: border-box; background: #fff;
+}
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 4px; margin-top: 2px; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 10px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f9f9f9;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
+
+/* Zebra Striping cho bảng */
+.table-card table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+.table-card table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.table-card table tbody tr:hover {
+  background-color: #eef7ff;
+}
 </style>
