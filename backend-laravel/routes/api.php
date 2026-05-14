@@ -152,8 +152,9 @@ Route::get('/chi-tiet-lo-hang/references', [QuanLyChiTietLoHang::class, 'getRefe
 |--------------------------------------------------------------------------
 */
 Route::get('/chung-tu', [QuanLyChungTu::class, 'index']);
-Route::post('/chung-tu/save', [QuanLyChungTu::class, 'store']);
-Route::post('/chung-tu/delete', [QuanLyChungTu::class, 'destroy']);
+Route::post('/chung-tu/save', [QuanLyChungTu::class, 'save']);
+Route::post('/chung-tu/delete', [QuanLyChungTu::class, 'delete']);
+Route::get('/chung-tu/download/{id}', [QuanLyChungTu::class, 'download']);
 
 /*
 |--------------------------------------------------------------------------
