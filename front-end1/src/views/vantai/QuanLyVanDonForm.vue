@@ -439,6 +439,30 @@ const fetchDetail = async (id) => {
 };
 
 const saveVanDon = async () => {
+  // 1. Kiểm tra Cảng đi và Cảng đến
+  if (formData.value.ma_cang_di && formData.value.ma_cang_den && formData.value.ma_cang_di === formData.value.ma_cang_den) {
+    alert("⚠️ Lỗi: Cảng đi (POL) và Cảng đến (POD) không được giống nhau!");
+    return;
+  }
+
+  // 2. Kiểm tra Người gửi và Người nhận
+  if (formData.value.ma_nguoi_gui_hang && formData.value.ma_nguoi_nhan_hang && formData.value.ma_nguoi_gui_hang === formData.value.ma_nguoi_nhan_hang) {
+    alert("⚠️ Lỗi: Người gửi hàng (Shipper) không được trùng với Người nhận hàng (Consignee)!");
+    return;
+  }
+
+  // 3. Kiểm tra Người gửi và Bên được thông báo
+  let notifyId = formData.value.ma_ben_duoc_thong_bao;
+  // Nếu chọn "SAME AS CONSIGNEE", lấy ID của người nhận để so sánh
+  if (notifyId === 'SAME_AS_CONSIGNEE') {
+    notifyId = formData.value.ma_nguoi_nhan_hang;
+  }
+
+  if (formData.value.ma_nguoi_gui_hang && notifyId && formData.value.ma_nguoi_gui_hang === notifyId) {
+    alert("⚠️ Lỗi: Người gửi hàng (Shipper) không được trùng với Bên được thông báo (Notify Party)!");
+    return;
+  }
+
   isSaving.value = true;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   
