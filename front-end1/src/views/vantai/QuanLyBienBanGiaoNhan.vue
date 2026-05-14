@@ -6,18 +6,46 @@
       <div class="search-box" style="flex: 1; min-width: 250px;">
         <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Số Booking, Tên lô hàng..." style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
       </div>
-      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
+
+      <div class="filter-box" style="min-width: 180px;">
+        <select v-model="filterStatus" style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff;">
+          <option value="">📋 Tất cả trạng thái</option>
+          <option value="hoantat">✅ Đã hoàn tất</option>
+          <option value="chuahoantat">⏳ Chưa hoàn tất</option>
+        </select>
+      </div>
+
+      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff;">🔄 Làm mới</button>
       <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
         ➕ THÊM MỚI BIÊN BẢN
       </button>
     </div>
 
+<div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-radius: 8px; margin-top: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #dee2e6;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <label style="color: #495057;">Hiển thị</label>
+        <select v-model="itemsPerPage" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;">
+          <option :value="5">5</option>
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+        </select>
+        <label style="color: #495057;">mục</label>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button @click="prevPage" :disabled="currentPage === 1" class="btn-page">◀ Trước</button>
+        <span style="font-weight: bold; color: #2c3e50;">Trang {{ currentPage }} / {{ totalPages || 1 }}</span>
+        <button @click="nextPage" :disabled="currentPage === totalPages || totalPages === 0" class="btn-page">Sau ▶</button>
+      </div>
+    </div>
+
     <div class="table-container" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;">
-      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <table class="zebra-table" style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
             <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
+            <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th>
             <th style="padding: 12px 15px;">Số Vận Đơn</th>
             <th style="padding: 12px 15px;">Số Container</th>
             <th style="padding: 12px 15px;">Đơn Vị Vận Tải</th>
@@ -26,14 +54,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="isLoading"><td colspan="7" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
-          <tr v-else-if="filteredList.length === 0"><td colspan="7" style="text-align: center; padding: 20px;">Không có dữ liệu!</td></tr>
-          <tr v-for="item in filteredList" :key="item.ma_phieu" style="border-bottom: 1px solid #eee;">
+          <tr v-if="isLoading"><td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          <tr v-else-if="paginatedList.length === 0"><td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu phù hợp!</td></tr>
+          
+          <tr v-for="item in paginatedList" :key="item.ma_phieu" class="table-row">
             <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">BB-{{ item.ma_phieu }}</td>
             <td style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
               <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem Lô hàng">👁️</button>
             </td>
+
+            <td style="padding: 12px 15px; text-align: center;">
+              <span class="badge" :class="checkIsHoanTat(item) ? 'badge-success' : 'badge-warning'">
+                {{ checkIsHoanTat(item) ? '✅ Hoàn tất' : '⏳ Chưa xong' }}
+              </span>
+            </td>
+
             <td style="padding: 12px 15px; font-weight: bold;">{{ item.so_van_don || '---' }}</td>
             <td style="padding: 12px 15px;">{{ item.so_cont || 'N/A' }}</td>
             <td style="padding: 12px 15px; color: #e67e22; font-weight: bold;">{{ item.ten_hang_van_tai || 'Chưa điều xe' }}</td>
@@ -67,6 +103,7 @@
       <div class="modal-content" style="max-width: 500px; padding: 20px; background: white; border-radius: 8px; width: 100%;">
         <h3 style="margin-top: 0;">{{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} Biên Bản Giao Nhận</h3>
         <form @submit.prevent="saveData">
+          
           <div style="margin-bottom: 15px; position: relative;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">Thuộc Lô hàng *</label>
             <div v-if="isDropdownOpen" @click="isDropdownOpen = false" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;"></div>
@@ -80,12 +117,20 @@
             </div>
           </div>
 
-          <div style="margin-bottom: 15px;">
+          <div style="margin-bottom: 15px; position: relative;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">Hãng Vận Tải (Nhà Xe) *</label>
-            <select v-model="formData.ma_hang_van_tai" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: #fff;">
-              <option value="" disabled selected>-- Vui lòng chọn Hãng vận tải --</option>
-              <option v-for="hang in listHangVanTai" :key="hang.ma_hang_van_tai" :value="hang.ma_hang_van_tai">{{ hang.ten_hang_van_tai }}</option>
-            </select>
+            <div v-if="isDropdownHangVanTaiOpen" @click="isDropdownHangVanTaiOpen = false" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;"></div>
+            <div style="position: relative; z-index: 10;">
+              <input type="text" v-model="searchHangVanTaiInput" @focus="isDropdownHangVanTaiOpen = true" @input="isDropdownHangVanTaiOpen = true" placeholder="🔍 Gõ tên nhà xe để tìm kiếm..." required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+              <div v-if="isDropdownHangVanTaiOpen" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-top: 2px;">
+                <div v-for="hang in filteredHangVanTaiOptions" :key="hang.ma_hang_van_tai" @click="selectHangVanTai(hang)" style="padding: 10px; border-bottom: 1px solid #eee; cursor: pointer;">
+                  🚗 {{ hang.ten_hang_van_tai }}
+                </div>
+                <div v-if="filteredHangVanTaiOptions.length === 0" style="padding: 10px; color: #7f8c8d; text-align: center; font-style: italic;">
+                  Không tìm thấy nhà xe nào!
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style="margin-bottom: 20px;">
@@ -112,30 +157,101 @@ const listHangVanTai = ref([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
+
+// BIẾN TÌM KIẾM VÀ LỌC
 const searchQuery = ref(''); 
+const filterStatus = ref(''); 
+
+// BIẾN PHÂN TRANG
+const itemsPerPage = ref(10);
+const currentPage = ref(1);
 
 const detailPanel = ref({ show: false, type: '', title: '', data: {} });
+const formData = ref({ ma_phieu: null, ma_lo_hang: null, ma_hang_van_tai: '', ngay_phat_hanh: '' });
+
+// BIẾN CHO COMBOBOX LÔ HÀNG
 const searchLoHangInput = ref('');
 const isDropdownOpen = ref(false);
 
-const formData = ref({ ma_phieu: null, ma_lo_hang: null, ma_hang_van_tai: '', ngay_phat_hanh: '' });
+// BIẾN CHO COMBOBOX HÃNG VẬN TẢI
+const searchHangVanTaiInput = ref('');
+const isDropdownHangVanTaiOpen = ref(false);
 
 const formatDateTime = (dateStr) => {
   if (!dateStr) return 'N/A';
   return new Date(dateStr).toLocaleString('vi-VN');
 };
 
+// --- HÀM KIỂM TRA TRẠNG THÁI ---
+const checkIsHoanTat = (item) => {
+  let status = item.trang_thai_lo_hang; 
+  if (status === undefined) {
+    const lo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
+    status = lo ? lo.trang_thai_lo_hang : null; 
+  }
+  const strStatus = String(status).trim().toLowerCase();
+  if (strStatus.includes('hoàn tất') || strStatus === '1' || strStatus === 'true') {
+    return true;
+  }
+  return false;
+};
+
+// --- LOGIC LỌC TỔNG HỢP (BẢNG CHÍNH) ---
 const filteredList = computed(() => {
   return listBBGN.value.filter(item => {
+    // 1. Lọc theo chữ (Ô tìm kiếm)
     const search = searchQuery.value.toLowerCase();
-    return !search || (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || (item.so_booking && item.so_booking.toLowerCase().includes(search));
+    const matchSearch = !search || 
+                       (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || 
+                       (item.so_booking && item.so_booking.toLowerCase().includes(search));
+
+    // 2. Lọc theo trạng thái
+    let matchStatus = true;
+    const isHoanTat = checkIsHoanTat(item);
+    
+    if (filterStatus.value === 'hoantat') {
+      matchStatus = isHoanTat === true;
+    } else if (filterStatus.value === 'chuahoantat') {
+      matchStatus = isHoanTat === false;
+    }
+
+    return matchSearch && matchStatus;
   });
 });
 
+// --- LOGIC PHÂN TRANG ---
+const totalPages = computed(() => Math.ceil(filteredList.value.length / itemsPerPage.value));
+
+const paginatedList = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredList.value.slice(start, end);
+});
+
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+
+// Tự động Reset về trang 1
+watch([searchQuery, itemsPerPage, filterStatus], () => { currentPage.value = 1; });
+
+// --- LỌC GỢI Ý COMBOBOX LÔ HÀNG ---
 const filteredLoHangOptions = computed(() => {
-  if (!searchLoHangInput.value) return listLoHang.value;
+  const loHangHopLe = listLoHang.value.filter(lo => {
+    let status = lo.trang_thai_lo_hang || ''; 
+    let strStatus = String(status).trim().toLowerCase(); 
+    if (strStatus === 'hoàn tất' || strStatus === 'hủy') {
+      return false; 
+    }
+    return true; 
+  });
+
+  if (!searchLoHangInput.value) return loHangHopLe;
+
   const term = searchLoHangInput.value.toLowerCase();
-  return listLoHang.value.filter(lo => (lo.ten_lo_hang && lo.ten_lo_hang.toLowerCase().includes(term)) || (lo.so_booking && lo.so_booking.toLowerCase().includes(term)));
+  return loHangHopLe.filter(lo => 
+    (lo.ten_lo_hang && lo.ten_lo_hang.toLowerCase().includes(term)) || 
+    (lo.so_booking && lo.so_booking.toLowerCase().includes(term))
+  );
 });
 
 const selectLoHang = (lo) => {
@@ -146,6 +262,26 @@ const selectLoHang = (lo) => {
 
 watch(searchLoHangInput, (newVal) => { if (newVal === '') formData.value.ma_lo_hang = null; });
 
+// --- LỌC GỢI Ý COMBOBOX HÃNG VẬN TẢI (MỚI) ---
+const filteredHangVanTaiOptions = computed(() => {
+  if (!searchHangVanTaiInput.value) return listHangVanTai.value;
+  const term = searchHangVanTaiInput.value.toLowerCase();
+  return listHangVanTai.value.filter(hang => 
+    hang.ten_hang_van_tai && hang.ten_hang_van_tai.toLowerCase().includes(term)
+  );
+});
+
+const selectHangVanTai = (hang) => {
+  formData.value.ma_hang_van_tai = hang.ma_hang_van_tai;
+  searchHangVanTaiInput.value = hang.ten_hang_van_tai;
+  isDropdownHangVanTaiOpen.value = false;
+};
+
+// Nếu người dùng xóa sạch chữ ở ô tìm kiếm nhà xe, tự động reset ID nhà xe
+watch(searchHangVanTaiInput, (newVal) => { if (newVal === '') formData.value.ma_hang_van_tai = ''; });
+
+
+// --- CÁC HÀM XỬ LÝ CHÍNH ---
 const viewDetail = (type, item) => {
   detailPanel.value.type = type; detailPanel.value.data = item; detailPanel.value.show = true;
   if (type === 'lo_hang') detailPanel.value.title = '📦 Thông tin Lô hàng';
@@ -157,7 +293,7 @@ const fetchData = async () => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/lenh-giao-hang`);
     const data = await res.json();
     if (data.success) {
-      listBBGN.value = data.data_bbgn; // Chỉ hứng data BBGN
+      listBBGN.value = data.data_bbgn; 
       listLoHang.value = data.lo_hang;
       listHangVanTai.value = data.hang_van_tai;
     }
@@ -167,12 +303,24 @@ const fetchData = async () => {
 const openModal = (item = null) => {
   if (item) {
     formData.value = { ma_phieu: item.ma_phieu, ma_lo_hang: item.ma_lo_hang, ma_hang_van_tai: item.ma_hang_van_tai || '', ngay_phat_hanh: item.ngay_phat_hanh ? new Date(item.ngay_phat_hanh).toISOString().slice(0, 16) : '' };
+    
+    // Đổ dữ liệu chữ vào ô input Lô hàng
     const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
     searchLoHangInput.value = selectedLo ? `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}` : '';
+    
+    // Đổ dữ liệu chữ vào ô input Hãng Vận Tải
+    const selectedHang = listHangVanTai.value.find(h => h.ma_hang_van_tai === item.ma_hang_van_tai);
+    searchHangVanTaiInput.value = selectedHang ? selectedHang.ten_hang_van_tai : '';
+
   } else {
-    formData.value = { ma_phieu: null, ma_lo_hang: null, ma_hang_van_tai: '', ngay_phat_hanh: '' }; searchLoHangInput.value = '';
+    formData.value = { ma_phieu: null, ma_lo_hang: null, ma_hang_van_tai: '', ngay_phat_hanh: '' }; 
+    searchLoHangInput.value = '';
+    searchHangVanTaiInput.value = ''; // Xóa trắng khi thêm mới
   }
-  isDropdownOpen.value = false; isModalOpen.value = true;
+  
+  isDropdownOpen.value = false; 
+  isDropdownHangVanTaiOpen.value = false; 
+  isModalOpen.value = true;
 };
 
 const saveData = async () => {
@@ -181,7 +329,7 @@ const saveData = async () => {
   
   isSaving.value = true;
   try {
-    const payload = { ...formData.value, loai: 'BBGN' }; // Gắn cứng loại BBGN
+    const payload = { ...formData.value, loai: 'BBGN' }; 
     const res = await fetch(`${import.meta.env.VITE_API_URL}/lenh-giao-hang/save`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
@@ -216,7 +364,7 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
-/* Copy y nguyên phần CSS chung vào đây */
+/* CSS CHUNG */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 3px 6px; font-size: 12px; margin-left: 8px; }
 .btn-eye:hover { background: #3498db; border-color: #3498db; }
@@ -230,4 +378,17 @@ onMounted(fetchData);
 .detail-table td { padding: 10px 0; color: #7f8c8d; font-size: 13px; width: 40%;}
 .detail-table strong { font-size: 13px; color: #2c3e50; display: table-cell; padding-left: 10px;}
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* CSS SO LE MÀU VÀ NÚT PHÂN TRANG */
+.zebra-table .table-row { border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+.zebra-table .table-row:nth-child(even) { background-color: #f8f9fa; }
+.zebra-table .table-row:hover { background-color: #e9ecef; }
+.btn-page { background: white; border: 1px solid #ced4da; padding: 6px 12px; border-radius: 4px; cursor: pointer; color: #495057; font-size: 14px; transition: all 0.2s; }
+.btn-page:hover:not(:disabled) { background: #f1f3f5; border-color: #adb5bd; }
+.btn-page:disabled { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
+
+/* CSS BADGE (THẺ MÀU TRẠNG THÁI) */
+.badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; white-space: nowrap; }
+.badge-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+.badge-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
 </style>
