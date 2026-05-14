@@ -33,7 +33,7 @@ class QuanLyChungTu extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function save(Request $request)
     {
         try {
             $request->validate([
@@ -82,7 +82,7 @@ class QuanLyChungTu extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function delete(Request $request)
     {
         try {
             $ma_chung_tu = $request->input('ma_chung_tu');
@@ -98,4 +98,47 @@ class QuanLyChungTu extends Controller
             return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]);
         }
     }
+    public function download($id)
+{
+    try {
+
+        // Tìm chứng từ
+        $doc = DB::table('chung_tu_so_hoa')
+            ->where('ma_chung_tu', $id)
+            ->first();
+
+        // Không tồn tại
+        if (!$doc) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy chứng từ'
+            ], 404);
+        }
+
+        // Đường dẫn file thật
+        $filePath = public_path($doc->hinh_anh);
+
+        // Kiểm tra file tồn tại
+        if (!file_exists($filePath)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File không tồn tại'
+            ], 404);
+        }
+
+        // Tên file tải về
+        $fileName = basename($filePath);
+
+        // Ép download
+        return response()->download($filePath, $fileName);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Lỗi tải file: ' . $e->getMessage()
+        ], 500);
+
+    }
+}
 }
