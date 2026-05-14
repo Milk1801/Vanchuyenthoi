@@ -126,6 +126,7 @@
                         {{ lh.has_items ? '📋' : '⚠️' }}</button>
                       <button class="action-btn text-primary" @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + lh.ma_lo_hang)" title="Sửa">✏️</button>
                       <button class="action-btn text-danger" @click="handleDelete(lh.ma_lo_hang)" title="Xóa">🗑️</button>
+                      <button class="action-btn" @click="router.push(`/lo-hang/chung-tu/chi-tiet/${lh.ma_lo_hang}`)" title="Quản lý chứng từ cho lô hàng này">📂</button>
                     </div>
                   </td>
                 </tr>

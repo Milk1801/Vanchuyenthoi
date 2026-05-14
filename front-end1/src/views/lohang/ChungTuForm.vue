@@ -11,7 +11,7 @@
         <button class="btn-success" @click="openModal()">
         TẢI LÊN CHỨNG TỪ
       </button>
-      <button @click="router.push('/lo-hang/chung-tu')" class=" btn-cancel">Quay lại</button>
+      <button @click="router.back" class=" btn-cancel">Quay lại</button>
       </div>
     </div>
 
