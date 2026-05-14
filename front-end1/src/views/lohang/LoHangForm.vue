@@ -26,10 +26,21 @@
             <div style="display: flex; gap: 20px;">
               <div class="form-group" style="flex: 1;">
                 <label>Khách Hàng *</label>
-                <select v-model="formData.ma_khach_hang" required>
-                  <option :value="null">-- Chọn khách hàng --</option>
-                  <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">{{ kh.ten_khach_hang }}</option>
-                </select>
+                <div class="combobox-wrapper">
+                  <input 
+                    type="text" 
+                    v-model="khachHangSearchText" 
+                    placeholder="Tìm tên khách hàng..." 
+                    @focus="showKhachHangDropdown = true"
+                    class="combobox-input"
+                  >
+                  <ul v-if="showKhachHangDropdown" class="combobox-list">
+                    <li v-for="kh in filteredKhachHang" :key="kh.ma_khach_hang" @click="selectKhachHang(kh)">
+                      {{ kh.ten_khach_hang }}
+                    </li>
+                    <li v-if="filteredKhachHang.length === 0" class="no-result">Không tìm thấy khách hàng</li>
+                  </ul>
+                </div>
               </div>
               <div class="form-group" style="flex: 1;">
                 <label>Điều kiện thương mại (Incoterms)</label>
@@ -103,7 +114,7 @@
       <div v-show="activeTab === 'details'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h4 style="margin: 0; color: #34495e;">📋 Danh sách hàng hóa trong lô</h4>
-          <button v-if="!isDetailFormVisible" type="button" class="btn-success" @click="addDetail">➕ Thêm chi tiết hàng</button>
+          <button v-if="!isDetailFormVisible" type="button" class="btn-success" @click="addDetail">Thêm chi tiết hàng</button>
         </div>
         
         <!-- Inline Form: Hiển thị trên đầu danh sách-->
@@ -121,17 +132,39 @@
             <div style="display: flex; gap: 15px; flex-wrap: wrap;">
               <div class="form-group" style="flex: 2; min-width: 200px;">
                 <label>Loại hàng hóa (Danh mục) *</label>
-                <select v-model="detailFormData.ma_hang_hoa">
-                  <option :value="null">-- Chọn loại hàng --</option>
-                  <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
-                </select>
+                <div class="combobox-wrapper">
+                  <input 
+                    type="text" 
+                    v-model="hangHoaSearchText" 
+                    placeholder="Tìm tên loại hàng..." 
+                    @focus="showHangHoaDropdown = true"
+                    class="combobox-input"
+                  >
+                  <ul v-if="showHangHoaDropdown" class="combobox-list">
+                    <li v-for="h in filteredHangHoaList" :key="h.ma_hang_hoa" @click="selectHangHoa(h)">
+                      {{ h.ten_hang_hoa }}
+                    </li>
+                    <li v-if="filteredHangHoaList.length === 0" class="no-result">Không tìm thấy loại hàng</li>
+                  </ul>
+                </div>
               </div>
               <div class="form-group" style="flex: 1; min-width: 150px;">
                 <label>Đơn vị tính *</label>
-                <select v-model="detailFormData.ma_don_vi_tinh" required>
-                  <option :value="null">-- Chọn ĐVT --</option>
-                  <option v-for="dvt in listDonViTinh" :key="dvt.ma_don_vi_tinh" :value="dvt.ma_don_vi_tinh">{{ dvt.ten_don_vi_tinh }}</option>
-                </select>
+                <div class="combobox-wrapper">
+                  <input 
+                    type="text" 
+                    v-model="dvtSearchText" 
+                    placeholder="Tìm ĐVT..." 
+                    @focus="showDvtDropdown = true"
+                    class="combobox-input"
+                  >
+                  <ul v-if="showDvtDropdown" class="combobox-list">
+                    <li v-for="dvt in filteredDvtList" :key="dvt.ma_don_vi_tinh" @click="selectDvt(dvt)">
+                      {{ dvt.ten_don_vi_tinh }}
+                    </li>
+                    <li v-if="filteredDvtList.length === 0" class="no-result">Không tìm thấy ĐVT</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -173,20 +206,29 @@
             <input v-model="searchTenHang" placeholder="🔍 Tìm tên hàng / mô tả..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
           </div>
           
-          <select v-model="filterHangHoa" style="flex: 1; min-width: 150px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
-            <option :value="null">📂 Loại hàng (Tất cả)</option>
-            <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
-          </select>
+          <div class="combobox-wrapper" style="flex: 1; min-width: 150px;">
+            <input type="text" v-model="hangHoaFilterSearchText" placeholder="📂 Loại hàng..." @focus="showHangHoaFilterDropdown = true" class="combobox-input-sm">
+            <ul v-if="showHangHoaFilterDropdown" class="combobox-list">
+              <li @click="selectHangHoaFilter(null)">-- Tất cả loại hàng --</li>
+              <li v-for="h in filteredHangHoaFilterList" :key="h.ma_hang_hoa" @click="selectHangHoaFilter(h)">{{ h.ten_hang_hoa }}</li>
+            </ul>
+          </div>
 
-          <select v-model="filterDVT" style="flex: 1; min-width: 120px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
-            <option :value="null">📏 ĐVT (Tất cả)</option>
-            <option v-for="dvt in listDonViTinh" :key="dvt.ma_don_vi_tinh" :value="dvt.ma_don_vi_tinh">{{ dvt.ten_don_vi_tinh }}</option>
-          </select>
+          <div class="combobox-wrapper" style="flex: 1; min-width: 120px;">
+            <input type="text" v-model="dvtFilterSearchText" placeholder="📏 ĐVT..." @focus="showDvtFilterDropdown = true" class="combobox-input-sm">
+            <ul v-if="showDvtFilterDropdown" class="combobox-list">
+              <li @click="selectDvtFilter(null)">-- Tất cả ĐVT --</li>
+              <li v-for="dvt in filteredDvtFilterList" :key="dvt.ma_don_vi_tinh" @click="selectDvtFilter(dvt)">{{ dvt.ten_don_vi_tinh }}</li>
+            </ul>
+          </div>
 
-          <select v-model="filterUser" style="flex: 1; min-width: 150px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
-            <option :value="null">👤 Người sửa (Tất cả)</option>
-            <option v-for="user in uniqueUsers" :key="user" :value="user">{{ user }}</option>
-          </select>
+          <div class="combobox-wrapper" style="flex: 1; min-width: 150px;">
+            <input type="text" v-model="userFilterSearchText" placeholder="👤 Người sửa..." @focus="showUserFilterDropdown = true" class="combobox-input-sm">
+            <ul v-if="showUserFilterDropdown" class="combobox-list">
+              <li @click="selectUserFilter(null)">-- Tất cả người sửa --</li>
+              <li v-for="user in filteredUserFilterList" :key="user" @click="selectUserFilter(user)">{{ user }}</li>
+            </ul>
+          </div>
           
           <button @click="resetFilters" class="btn-cancel" style="padding: 0 15px; height: 36px; background: #95a5a6; color: white; border: none; font-size: 13px;">🧹 Xóa lọc</button>
         </div>
@@ -333,6 +375,26 @@ const listDeletedDetails = ref([]); // Lưu ID của các chi tiết bị xóa �
 const listHangHoa = ref([]);
 const listDonViTinh = ref([]);
 
+// State cho Combobox Tìm kiếm
+const khachHangSearchText = ref('');
+const showKhachHangDropdown = ref(false);
+const filteredKhachHang = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(khachHangSearchText.value.toLowerCase())));
+
+const hangHoaSearchText = ref('');
+const showHangHoaDropdown = ref(false);
+const filteredHangHoaList = computed(() => listHangHoa.value.filter(h => h.ten_hang_hoa.toLowerCase().includes(hangHoaSearchText.value.toLowerCase())));
+
+const dvtSearchText = ref('');
+const showDvtDropdown = ref(false);
+const filteredDvtList = computed(() => listDonViTinh.value.filter(dvt => dvt.ten_don_vi_tinh.toLowerCase().includes(dvtSearchText.value.toLowerCase())));
+
+const hangHoaFilterSearchText = ref('');
+const showHangHoaFilterDropdown = ref(false);
+const dvtFilterSearchText = ref('');
+const showDvtFilterDropdown = ref(false);
+const userFilterSearchText = ref('');
+const showUserFilterDropdown = ref(false);
+
 const isBookingPickerOpen = ref(false);
 const previewBooking = ref(null);
 const showBookingPanel = ref(false);
@@ -417,6 +479,10 @@ const filteredAndSortedDetails = computed(() => {
   return result;
 });
 
+const filteredHangHoaFilterList = computed(() => listHangHoa.value.filter(h => h.ten_hang_hoa.toLowerCase().includes(hangHoaFilterSearchText.value.toLowerCase())));
+const filteredDvtFilterList = computed(() => listDonViTinh.value.filter(dvt => dvt.ten_don_vi_tinh.toLowerCase().includes(dvtFilterSearchText.value.toLowerCase())));
+const filteredUserFilterList = computed(() => uniqueUsers.value.filter(u => u.toLowerCase().includes(userFilterSearchText.value.toLowerCase())));
+
 // Computed property for paginated details
 const filteredDetailsPaginated = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
@@ -442,6 +508,9 @@ const resetFilters = () => {
   filterHangHoa.value = null;
   filterDVT.value = null;
   filterUser.value = null;
+  hangHoaFilterSearchText.value = '';
+  dvtFilterSearchText.value = '';
+  userFilterSearchText.value = '';
   currentPage.value = 1;
 };
 
@@ -453,6 +522,8 @@ const addDetail = () => {
     ma_lo_hang: formData.value.ma_lo_hang, ma_don_vi_tinh: null
   };
   currentPage.value = 1; 
+  hangHoaSearchText.value = '';
+  dvtSearchText.value = '';
   isDetailFormVisible.value = true;
 };
 
@@ -460,9 +531,47 @@ const handleEdit = (item) => {
   const index = listDetails.value.findIndex(x => x === item);
   editingIndex.value = index;
   detailFormData.value = { ...listDetails.value[index] };
+  hangHoaSearchText.value = getHangHoaName(item.ma_hang_hoa);
+  dvtSearchText.value = getDonViTinhName(item.ma_don_vi_tinh);
   isDetailFormVisible.value = true;
   currentPage.value = Math.ceil((index + 1) / pageSize.value); 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const selectKhachHang = (kh) => {
+  formData.value.ma_khach_hang = kh.ma_khach_hang;
+  khachHangSearchText.value = kh.ten_khach_hang;
+  showKhachHangDropdown.value = false;
+};
+
+const selectHangHoa = (h) => {
+  detailFormData.value.ma_hang_hoa = h.ma_hang_hoa;
+  hangHoaSearchText.value = h.ten_hang_hoa;
+  showHangHoaDropdown.value = false;
+};
+
+const selectDvt = (dvt) => {
+  detailFormData.value.ma_don_vi_tinh = dvt.ma_don_vi_tinh;
+  dvtSearchText.value = dvt.ten_don_vi_tinh;
+  showDvtDropdown.value = false;
+};
+
+const selectHangHoaFilter = (h) => {
+  filterHangHoa.value = h ? h.ma_hang_hoa : null;
+  hangHoaFilterSearchText.value = h ? h.ten_hang_hoa : '';
+  showHangHoaFilterDropdown.value = false;
+};
+
+const selectDvtFilter = (dvt) => {
+  filterDVT.value = dvt ? dvt.ma_don_vi_tinh : null;
+  dvtFilterSearchText.value = dvt ? dvt.ten_don_vi_tinh : '';
+  showDvtFilterDropdown.value = false;
+};
+
+const selectUserFilter = (u) => {
+  filterUser.value = u;
+  userFilterSearchText.value = u || '';
+  showUserFilterDropdown.value = false;
 };
 
 const selectBooking = (bk) => {
@@ -582,6 +691,14 @@ const fetchReferences = async () => {
       // 3. Lọc lại danh sách chi tiết: chỉ giữ những booking ID được backend cho phép
       const validIds = dataRef.booking.map(b => b.ma_booking);
       listBooking.value = dataAllBk.data.filter(bk => validIds.includes(bk.ma_booking));
+
+      // Đóng các dropdown khi click ra ngoài
+      window.addEventListener('click', (e) => {
+        if (!e.target.closest('.combobox-wrapper')) {
+          showKhachHangDropdown.value = showHangHoaDropdown.value = showDvtDropdown.value = false;
+          showHangHoaFilterDropdown.value = showDvtFilterDropdown.value = showUserFilterDropdown.value = false;
+        }
+      });
     }
   } catch (error) {
     console.error("Lỗi đồng bộ dữ liệu Booking:", error);
@@ -605,6 +722,7 @@ const fetchData = async (id) => {
       const found = data.data.find(x => String(x.ma_lo_hang) === String(id));
       if (found) {
         formData.value = { ...found };
+        khachHangSearchText.value = listKhachHang.value.find(kh => kh.ma_khach_hang === found.ma_khach_hang)?.ten_khach_hang || '';
         fetchDetails(found.ma_lo_hang);
       }
     }
@@ -739,6 +857,7 @@ onMounted(async () => {
 .tabs button.active { background: white; color: #3498db; border-top: 3px solid #3498db; }
 
 .btn-cancel, .btn-save, .btn-success {
+  color: white;;
   height: 40px;
   display: inline-flex;
   align-items: center;
@@ -780,4 +899,44 @@ onMounted(async () => {
 .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
 .info-row span { color: #7f8c8d; }
 @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* CSS cho Combobox Tìm kiếm */
+.combobox-wrapper { position: relative; width: 100%; }
+.combobox-input {
+  width: 100%; height: 40px; padding: 10px; border: 1px solid #ddd;
+  border-radius: 6px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s;
+}
+.combobox-input:focus { border-color: #3498db; outline: none; }
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 6px; margin: 2px 0 0 0; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 10px; cursor: pointer; transition: background 0.2s;
+  font-size: 14px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
+  text-align: left;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
+.combobox-list li.no-result { color: #95a5a6; cursor: default; font-style: italic; padding: 10px; }
+
+.combobox-input-sm {
+  width: 100%; height: 36px; padding: 8px 12px; border: 1px solid #ccc;
+  border-radius: 6px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s; font-size: 13px;
+}
+.combobox-input-sm:focus { border-color: #3498db; outline: none; }
+
+/* Zebra Striping cho bảng */
+.table-card table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+.table-card table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.table-card table tbody tr:hover {
+  background-color: #eef7ff;
+}
 </style>

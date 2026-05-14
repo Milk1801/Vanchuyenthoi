@@ -15,12 +15,21 @@
           </div>
           <div class="form-group" style="flex: 1;">
             <label>Hãng Tàu *</label>
-            <select v-model="formData.ma_hang_tau" required>
-              <option :value="null">-- Chọn Hãng tàu --</option>
-              <option v-for="ht in listHangTau" :key="ht.ma_hang_tau" :value="ht.ma_hang_tau">
-                {{ ht.ten_hang_tau }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="hangTauSearchText" 
+                placeholder="Tìm tên hãng tàu..." 
+                @focus="showHangTauDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showHangTauDropdown" class="combobox-list">
+                <li v-for="ht in filteredHangTau" :key="ht.ma_hang_tau" @click="selectHangTau(ht)">
+                  {{ ht.ten_hang_tau }}
+                </li>
+                <li v-if="filteredHangTau.length === 0" class="no-result">Không tìm thấy hãng tàu</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -38,21 +47,39 @@
         <div style="display: flex; gap: 15px;">
           <div class="form-group" style="flex: 1;">
             <label>Cảng Đi (POL) *</label>
-            <select v-model="formData.ma_cang_di" required>
-              <option :value="null">-- Chọn Cảng Đi --</option>
-              <option v-for="cang in listCangBien" :key="cang.ma_cang" :value="cang.ma_cang">
-                {{ cang.ten_cang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="polSearchText" 
+                placeholder="Nhập tên cảng đi..." 
+                @focus="showPolDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showPolDropdown" class="combobox-list">
+                <li v-for="c in filteredPol" :key="c.ma_cang" @click="selectCang(c, 'pol')">
+                  {{ c.ten_cang }}
+                </li>
+                <li v-if="filteredPol.length === 0" class="no-result">Không tìm thấy cảng</li>
+              </ul>
+            </div>
           </div>
           <div class="form-group" style="flex: 1;">
             <label>Cảng Đến (POD) *</label>
-            <select v-model="formData.ma_cang_den" required>
-              <option :value="null">-- Chọn Cảng Đến --</option>
-              <option v-for="cang in listCangBien" :key="cang.ma_cang" :value="cang.ma_cang">
-                {{ cang.ten_cang }}
-              </option>
-            </select>
+            <div class="combobox-wrapper">
+              <input 
+                type="text" 
+                v-model="podSearchText" 
+                placeholder="Nhập tên cảng đến..." 
+                @focus="showPodDropdown = true"
+                class="combobox-input"
+              >
+              <ul v-if="showPodDropdown" class="combobox-list">
+                <li v-for="c in filteredPod" :key="c.ma_cang" @click="selectCang(c, 'pod')">
+                  {{ c.ten_cang }}
+                </li>
+                <li v-if="filteredPod.length === 0" class="no-result">Không tìm thấy cảng</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -83,7 +110,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
@@ -92,6 +119,18 @@ const route = useRoute();
 const listCangBien = ref([]);
 const listHangTau = ref([]);
 const isSaving = ref(false);
+
+// State cho Combobox Tìm kiếm
+const polSearchText = ref('');
+const showPolDropdown = ref(false);
+const podSearchText = ref('');
+const showPodDropdown = ref(false);
+const hangTauSearchText = ref('');
+const showHangTauDropdown = ref(false);
+
+const filteredPol = computed(() => listCangBien.value.filter(c => c.ten_cang.toLowerCase().includes(polSearchText.value.toLowerCase())));
+const filteredPod = computed(() => listCangBien.value.filter(c => c.ten_cang.toLowerCase().includes(podSearchText.value.toLowerCase())));
+const filteredHangTau = computed(() => listHangTau.value.filter(ht => ht.ten_hang_tau.toLowerCase().includes(hangTauSearchText.value.toLowerCase())));
 
 const formData = ref({
   ma_booking: null,
@@ -106,6 +145,24 @@ const formData = ref({
   ma_hang_tau: null,
   nguoi_sua_cuoi: null
 });
+
+const selectCang = (cang, target) => {
+  if (target === 'pol') {
+    formData.value.ma_cang_di = cang.ma_cang;
+    polSearchText.value = cang.ten_cang;
+    showPolDropdown.value = false;
+  } else {
+    formData.value.ma_cang_den = cang.ma_cang;
+    podSearchText.value = cang.ten_cang;
+    showPodDropdown.value = false;
+  }
+};
+
+const selectHangTau = (ht) => {
+  formData.value.ma_hang_tau = ht.ma_hang_tau;
+  hangTauSearchText.value = ht.ten_hang_tau;
+  showHangTauDropdown.value = false;
+};
 
 const formatForInput = (dateString) => {
   if (!dateString || dateString.startsWith('0000') || dateString.startsWith('1970')) return '';
@@ -123,6 +180,13 @@ const loadReferences = async () => {
     if (data.success) {
       listCangBien.value = data.cang_bien;
       listHangTau.value = data.hang_tau;
+
+      // Đóng các dropdown khi click ra ngoài
+      window.addEventListener('click', (e) => {
+        if (!e.target.closest('.combobox-wrapper')) {
+          showPolDropdown.value = showPodDropdown.value = showHangTauDropdown.value = false;
+        }
+      });
     }
   } catch (error) {
     console.error("Lỗi lấy dữ liệu tham chiếu");
@@ -142,6 +206,11 @@ const fetchBookingData = async (id) => {
           eta: formatForInput(found.eta),
           gio_cat_mang: formatForInput(found.gio_cat_mang)
         };
+
+        // Cập nhật text hiển thị cho combobox khi sửa
+        hangTauSearchText.value = listHangTau.value.find(ht => ht.ma_hang_tau === found.ma_hang_tau)?.ten_hang_tau || '';
+        polSearchText.value = listCangBien.value.find(c => c.ma_cang === found.ma_cang_di)?.ten_cang || '';
+        podSearchText.value = listCangBien.value.find(c => c.ma_cang === found.ma_cang_den)?.ten_cang || '';
       }
     }
   } catch (error) {
@@ -230,4 +299,25 @@ onMounted(async () => {
   /* max-width: 1000px; */
   margin: 0 auto;
 }
+
+/* CSS cho Combobox Tìm kiếm */
+.combobox-wrapper { position: relative; width: 100%; }
+.combobox-input {
+  width: 100%; height: 44px; padding: 10px; border: 1px solid #ddd;
+  border-radius: 6px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s;
+}
+.combobox-input:focus { border-color: #3498db; outline: none; }
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 6px; margin: 2px 0 0 0; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 10px; cursor: pointer; transition: background 0.2s;
+  font-size: 14px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
+.combobox-list li.no-result { color: #95a5a6; cursor: default; font-style: italic; }
 </style>

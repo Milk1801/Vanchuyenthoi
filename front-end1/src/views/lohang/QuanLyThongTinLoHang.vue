@@ -430,4 +430,14 @@ onMounted(() => { fetchData(); fetchReferences(); });
 
 .action-btn.text-success { color: #27ae60; }
 .action-btn.text-warning { color: #f39c12; }
+/* Zebra Striping cho bảng */
+.table-card table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+.table-card table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.table-card table tbody tr:hover {
+  background-color: #eef7ff;
+}
 </style>
