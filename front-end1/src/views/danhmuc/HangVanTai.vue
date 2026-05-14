@@ -25,6 +25,22 @@
     </div>
 
     <div v-else class="table-card">
+      <!-- Kiểm soát phân trang -->
+      <div v-if="listData.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span>Hiển thị</span>
+          <select v-model="pageSize" style="padding: 5px 8px; border-radius: 5px; border: 1px solid #ccc;">
+            <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
+          </select>
+          <span>mục</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button @click="prevPage" :disabled="currentPage === 1" class="btn-pagination">◀ Trước</button>
+          <span style="font-weight: bold;">Trang {{ currentPage }} / {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="btn-pagination">Sau ▶</button>
+        </div>
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -37,7 +53,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="h in filteredData" :key="h.ma_hang_van_tai">
+          <tr v-for="(h, index) in paginatedHangVanTai" :key="h.ma_hang_van_tai"
+              :class="{ 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
             <td>{{ h.ma_hang_van_tai }}</td>
             <td>{{ h.ten_hang_van_tai }}</td>
             <td>{{ h.tuyen_thuong_xuyen || 'Chưa cập nhật' }}</td>
@@ -55,12 +72,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const listData = ref([]);
 const isLoading = ref(true);
+
+// Phân trang
+const currentPage = ref(1);
+const pageSize = ref(10);
+const pageSizes = [10, 20, 50];
+
 const searchFilters = ref({
   ten_hang_van_tai: '',
   tuyen_thuong_xuyen: '',
@@ -76,6 +99,17 @@ const filteredData = computed(() => {
     return tenMatch && tuyenMatch && loaiXeMatch;
   });
 });
+
+const paginatedHangVanTai = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredData.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize.value) || 1);
+
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
 const fetchData = async () => {
   isLoading.value = true;
@@ -98,6 +132,7 @@ const clearFilters = () => {
     tuyen_thuong_xuyen: '',
     cac_loai_xe: ''
   };
+  currentPage.value = 1;
 };
 
 const handleDelete = async (ma_hang_van_tai) => {
@@ -124,6 +159,10 @@ const handleDelete = async (ma_hang_van_tai) => {
   }
 };
 
+watch([searchFilters, pageSize], () => {
+  currentPage.value = 1;
+}, { deep: true });
+
 onMounted(() => {
   fetchData();
 });
@@ -132,4 +171,12 @@ onMounted(() => {
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
 
 <style scoped>
+.btn-pagination {
+  padding: 5px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: 0.2s;
+}
+.btn-pagination:hover:not(:disabled) { background: #f0f0f0; border-color: #3498db; color: #3498db; }
+.btn-pagination:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.row-even { background-color: #f2f2f2 !important; }
+.row-odd { background-color: #ffffff !important; }
 </style>

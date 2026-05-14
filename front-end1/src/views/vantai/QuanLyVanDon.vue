@@ -135,12 +135,12 @@
                 <td class="fw-bold">{{ vd.ten_lo_hang || '---' }}</td>
                 <td><strong>{{ vd.ten_cang_di || '---' }}</strong></td>
                 <td><strong>{{ vd.ten_cang_den || '---' }}</strong></td>
-                <td style="font-size: 13px;">{{ vd.ten_nguoi_gui || '---' }}</td>
-                <td style="font-size: 13px;">{{ vd.ten_nguoi_nhan || '---' }}</td>
-                <td style="font-size: 13px;">{{ vd.ten_notify || '---' }}</td>
-                <td style="text-align: center; color: #7f8c8d;">{{ vd.dieu_kien_cuoc }}</td>
+                <td style="font-size: 13px;">{{ vd.ten_nguoi_gui_hang || '---' }}</td>
+                <td style="font-size: 13px;">{{ vd.ten_nguoi_nhan_hang || '---' }}</td>
+                <td style="font-size: 13px;">{{ vd.ten_ben_duoc_thong_bao || '---' }}</td>
+                <td style="text-align: center;">{{ vd.dieu_kien_cuoc }}</td>
                 <td style="text-align: center;"><strong>{{ vd.phuong_thuc_dong_cont }}</strong></td>
-                <td class="fw-bold">{{ vd.so_cont || '---' }}</td>
+                <td>{{ vd.so_cont || '---' }}</td>
                 <td>{{ vd.so_chi || '---' }}</td>
                 <td>{{ formatDate(vd.ngay_phat_hanh) }}</td>
                 <td>{{ vd.nguoi_sua_doi || 'N/A' }}</td>

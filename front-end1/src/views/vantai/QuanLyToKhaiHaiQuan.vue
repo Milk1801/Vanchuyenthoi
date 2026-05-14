@@ -12,25 +12,34 @@
         </div>
       </div>
 
-      <select v-model="searchFilters.phan_luong" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 180px;">
-        <option value="">🌈 Phân luồng (Tất cả)</option>
-        <option v-for="pl in listPhanLuong" :key="pl" :value="pl">{{ pl }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="phanLuongSearchText" placeholder="🌈 Phân luồng..." @focus="showPhanLuongDropdown = true" class="combobox-input-sm">
+        <ul v-if="showPhanLuongDropdown" class="combobox-list">
+          <li @click="selectSearchPhanLuong('')">🌈 Tất cả phân luồng</li>
+          <li v-for="pl in filteredPhanLuongList" :key="pl" @click="selectSearchPhanLuong(pl)">{{ pl }}</li>
+        </ul>
+      </div>
 
-      <select v-model="searchFilters.ket_qua_thong_quan" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 180px;">
-        <option value="">✅ Kết quả (Tất cả)</option>
-        <option v-for="kq in listKetQua" :key="kq" :value="kq">{{ kq }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="ketQuaSearchText" placeholder="✅ Kết quả..." @focus="showKetQuaDropdown = true" class="combobox-input-sm">
+        <ul v-if="showKetQuaDropdown" class="combobox-list">
+          <li @click="selectSearchKetQua('')">✅ Tất cả kết quả</li>
+          <li v-for="kq in filteredKetQuaList" :key="kq" @click="selectSearchKetQua(kq)">{{ kq }}</li>
+        </ul>
+      </div>
 
       <div style="display: flex; align-items: center; gap: 8px; background: #fff; padding: 0 10px; border: 1px solid #ccc; border-radius: 6px;">
         <label style="font-size: 13px; color: #666; white-space: nowrap;">Ngày thông quan:</label>
         <input type="date" v-model="searchFilters.ngay_thong_quan" style="padding: 7px; border: none; outline: none;">
       </div>
 
-      <select v-model="searchFilters.ten_nguoi_sua" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 180px;">
-        <option value="">👤 Người sửa (Tất cả)</option>
-        <option v-for="name in uniqueNguoiSua" :key="name" :value="name">{{ name }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="userSearchText" placeholder="👤 Người sửa..." @focus="showUserDropdown = true" class="combobox-input-sm">
+        <ul v-if="showUserDropdown" class="combobox-list">
+          <li @click="selectSearchUser('')">👤 Tất cả người sửa</li>
+          <li v-for="name in filteredUserList" :key="name" @click="selectSearchUser(name)">{{ name }}</li>
+        </ul>
+      </div>
 
       <button @click="clearFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s;" title="Xóa lọc">🧹 Xóa lọc</button>
       <button class="btn btn-success" @click="router.push('/van-tai/to-khai-hai-quan/add')" style="border-radius: 6px;">+ TẠO TỜ KHAI MỚI</button>
@@ -72,7 +81,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(tk, index) in paginatedData" :key="tk.ma_to_khai_hai_quan" :class="{ 'row-selected': (selectedItem?.ma_to_khai_hai_quan === tk.ma_to_khai_hai_quan) }">
+              <tr v-for="(tk, index) in paginatedData" :key="tk.ma_to_khai_hai_quan" 
+                  :class="{ 'row-selected': (selectedItem?.ma_to_khai_hai_quan === tk.ma_to_khai_hai_quan), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
                 <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="fw-bold">{{ tk.ma_to_khai_hai_quan }}</td>
                 <td class="fw-bold" style="color: #2980b9;">{{ tk.ten_lo_hang || '---' }}</td>
@@ -117,6 +127,9 @@
                 <strong>Nguồn gốc / Ghi chú:</strong>
                 <div style="padding: 10px; background: #f9f9f9; border-radius: 4px; width: 100%; font-size: 13px; color: #555;">{{ selectedShipment.nguon_goc || '(Trống)' }}</div>
               </div>
+              <button @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + selectedShipment.ma_lo_hang)" class="btn btn-success" style="width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; padding: 12px;">
+                📦 ĐI ĐẾN CHI TIẾT LÔ HÀNG
+              </button>
             </div>
           </div>
         </div>
@@ -148,6 +161,15 @@ const isPanelLoading = ref(false);
 const listPhanLuong = ['Luồng Xanh', 'Luồng Vàng', 'Luồng Đỏ'];
 const listKetQua = ['Chờ xử lý', 'Đã thông quan', 'Từ chối'];
 
+// State cho tìm kiếm combobox
+const phanLuongSearchText = ref('');
+const ketQuaSearchText = ref('');
+const userSearchText = ref('');
+
+const showPhanLuongDropdown = ref(false);
+const showKetQuaDropdown = ref(false);
+const showUserDropdown = ref(false);
+
 const searchFilters = ref({
   ma_to_khai: '',
   ten_lo_hang: '',
@@ -161,6 +183,10 @@ const uniqueNguoiSua = computed(() => {
   const names = listToKhai.value.map(item => item.ten_nguoi_sua).filter(Boolean);
   return [...new Set(names)];
 });
+
+const filteredPhanLuongList = computed(() => listPhanLuong.filter(pl => pl.toLowerCase().includes(phanLuongSearchText.value.toLowerCase())));
+const filteredKetQuaList = computed(() => listKetQua.filter(kq => kq.toLowerCase().includes(ketQuaSearchText.value.toLowerCase())));
+const filteredUserList = computed(() => uniqueNguoiSua.value.filter(u => u.toLowerCase().includes(userSearchText.value.toLowerCase())));
 
 const filteredData = computed(() => {
   return listToKhai.value.filter(item => {
@@ -204,6 +230,24 @@ const fetchData = async () => {
   }
 };
 
+const selectSearchPhanLuong = (pl) => {
+  searchFilters.value.phan_luong = pl;
+  phanLuongSearchText.value = pl;
+  showPhanLuongDropdown.value = false;
+};
+
+const selectSearchKetQua = (kq) => {
+  searchFilters.value.ket_qua_thong_quan = kq;
+  ketQuaSearchText.value = kq;
+  showKetQuaDropdown.value = false;
+};
+
+const selectSearchUser = (user) => {
+  searchFilters.value.ten_nguoi_sua = user;
+  userSearchText.value = user;
+  showUserDropdown.value = false;
+};
+
 const showShipmentInfo = async (tk) => {
   selectedItem.value = tk;
   viewType.value = 'shipment';
@@ -233,12 +277,23 @@ const clearFilters = () => {
     ngay_thong_quan: '',
     ten_nguoi_sua: ''
   };
+  phanLuongSearchText.value = '';
+  ketQuaSearchText.value = '';
+  userSearchText.value = '';
   currentPage.value = 1;
 };
 
 watch([searchFilters, pageSize], () => {
   currentPage.value = 1;
 }, { deep: true });
+
+onMounted(() => {
+  window.addEventListener('click', (e) => {
+    if (!e.target.closest('.combobox-wrapper')) {
+      showPhanLuongDropdown.value = showKetQuaDropdown.value = showUserDropdown.value = false;
+    }
+  });
+});
 
 const handleDelete = async (id) => {
   if (confirm('Bạn có chắc chắn muốn xóa tờ khai này không?')) {
@@ -314,4 +369,38 @@ const getKetQuaStyle = (kq) => {
 .action-btn-no-mg:hover { transform: scale(1.2); }
 
 .badge-active { background-color: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+
+.row-even { background-color: #f2f2f2 !important; }
+.row-odd { background-color: #ffffff !important; }
+
+/* CSS cho Combobox Tìm kiếm trong Toolbar */
+.combobox-wrapper { position: relative; }
+.combobox-input-sm {
+  width: 100%; height: 36px; padding: 8px 12px; border: 1px solid #ccc;
+  border-radius: 6px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s; font-size: 13px;
+}
+.combobox-input-sm:focus { border-color: #3498db; outline: none; }
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 6px; margin: 2px 0 0 0; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 8px 12px; cursor: pointer; transition: background 0.2s;
+  font-size: 13px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
+  text-align: left;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
+
+/* Đảm bảo bảng hiển thị đẹp */
+.table-card table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.table-card th, .table-card td {
+  padding: 12px 15px;
+  white-space: nowrap;
+}
 </style>
