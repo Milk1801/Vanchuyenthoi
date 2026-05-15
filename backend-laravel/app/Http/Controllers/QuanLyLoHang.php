@@ -15,6 +15,11 @@ class QuanLyLoHang extends Controller
             ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
             ->leftJoin('khach_hang', 'lo_hang.ma_khach_hang', '=', 'khach_hang.ma_khach_hang')
             ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
+            ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
+            ->leftJoin('thong_bao_hang_den', 'lo_hang.ma_lo_hang', '=', 'thong_bao_hang_den.ma_lo_hang')
+            ->leftJoin('lenh_giao_hang', 'lo_hang.ma_lo_hang', '=', 'lenh_giao_hang.ma_lo_hang')
+            ->leftJoin('bien_ban_giao_nhan', 'lo_hang.ma_lo_hang', '=', 'bien_ban_giao_nhan.ma_lo_hang')
+            ->leftJoin('to_khai_hai_quan', 'lo_hang.ma_lo_hang', '=', 'to_khai_hai_quan.ma_lo_hang')
             ->select(
                 'lo_hang.ma_lo_hang', 
                 'lo_hang.ten_lo_hang', 
@@ -25,7 +30,12 @@ class QuanLyLoHang extends Controller
                 'lo_hang.ma_khach_hang', 
                 'booking.so_booking', 
                 'khach_hang.ten_khach_hang', 
-                'tai_khoan.ho_ten as nguoi_sua_doi'
+                'tai_khoan.ho_ten as nguoi_sua_doi',
+                'van_don.so_van_don',
+                'thong_bao_hang_den.ma_thong_bao_hang_den',
+                'lenh_giao_hang.ma_lenh_giao_hang',
+                'bien_ban_giao_nhan.ma_bien_ban_giao_nhan',
+                'to_khai_hai_quan.ma_to_khai_hai_quan'
             )
             ->addSelect([
 
@@ -53,7 +63,6 @@ class QuanLyLoHang extends Controller
         return response()->json(["success" => false, "message" => "Lỗi: " . $e->getMessage()]);
     }
 }
-
 
 
     public function save(Request $request)

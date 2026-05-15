@@ -124,6 +124,8 @@ Route::get('/bookings', [QuanLyBooking::class, 'index']);
 Route::get('/bookings/references', [QuanLyBooking::class, 'getReferences']);
 Route::post('/bookings/save', [QuanLyBooking::class, 'save']);
 Route::post('/bookings/delete', [QuanLyBooking::class, 'delete']);
+Route::get('/bookings/chua-dung', [QuanLyBooking::class, 'BookingChuaDung']);
+
 
 
 /*

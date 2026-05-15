@@ -2,6 +2,13 @@
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý thông tin Lô Hàng</h3>
     
+    <!-- Thông báo Booking chưa sử dụng -->
+    <div v-if="unusedBookingCount > 0" class="booking-alert-banner">
+      <span class="icon">🔔</span>
+      <span class="text">Hiện có <strong>{{ unusedBookingCount }}</strong> Booking Note chưa được liên kết (chưa có lô hàng nào chọn).</span>
+      <button @click="router.push('/lo-hang/booking')" class="btn-go">Xem danh sách ➔</button>
+    </div>
+
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
         <input 
@@ -21,25 +28,75 @@
         >
       </div>
 
-      <select v-model="filterKhachHang" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
-        <option :value="null">👤 Khách hàng (Tất cả)</option>
-        <option v-for="kh in listKhachHang" :key="kh.ma_khach_hang" :value="kh.ma_khach_hang">{{ kh.ten_khach_hang }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="khSearchText" placeholder="👤 Khách hàng..." @focus="showKhDropdown = true" class="combobox-input-sm">
+        <ul v-if="showKhDropdown" class="combobox-list">
+          <li @click="selectFilter('kh', null, 'Tất cả Khách hàng')">Tất cả Khách hàng</li>
+          <li v-for="kh in filteredKhList" :key="kh.ma_khach_hang" @click="selectFilter('kh', kh.ma_khach_hang, kh.ten_khach_hang)">
+            {{ kh.ten_khach_hang }}
+          </li>
+        </ul>
+      </div>
 
       <select v-model="filterIncoterms" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 150px;">
         <option :value="null">🚚 Incoterms (Tất cả)</option>
         <option v-for="dk in ['FOB', 'CIF', 'EXW', 'DAP', 'DDP', 'CFR']" :key="dk" :value="dk">{{ dk }}</option>
       </select>
 
-      <select v-model="filterHangHoa" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
-        <option :value="null">📦 Loại hàng (Tất cả)</option>
-        <option v-for="h in listHangHoa" :key="h.ma_hang_hoa" :value="h.ma_hang_hoa">{{ h.ten_hang_hoa }}</option>
-      </select>
+      <div class="combobox-wrapper" style="width: 180px;">
+        <input type="text" v-model="hhSearchText" placeholder="📦 Loại hàng..." @focus="showHhDropdown = true" class="combobox-input-sm">
+        <ul v-if="showHhDropdown" class="combobox-list">
+          <li @click="selectFilter('hh', null, 'Tất cả Loại hàng')">Tất cả Loại hàng</li>
+          <li v-for="h in filteredHhList" :key="h.ma_hang_hoa" @click="selectFilter('hh', h.ma_hang_hoa, h.ten_hang_hoa)">
+            {{ h.ten_hang_hoa }}
+          </li>
+        </ul>
+      </div>
 
       <select v-model="filterTrangThai" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
         <option value="ALL">- Tất cả Trạng thái -</option>
         <option v-for="st in listTrangThai" :key="st" :value="st">{{ st }}</option>
       </select>
+
+      <div class="combobox-wrapper" style="width: 160px;">
+        <input type="text" v-model="blSearchText" placeholder="📄 Số Vận Đơn..." @focus="showBlDropdown = true" class="combobox-input-sm">
+        <ul v-if="showBlDropdown" class="combobox-list">
+          <li @click="selectFilter('bl', null, '')">-- Tất cả Vận đơn --</li>
+          <li v-for="val in filteredBlList" :key="val" @click="selectFilter('bl', val, val)">{{ val }}</li>
+        </ul>
+      </div>
+
+      <div class="combobox-wrapper" style="width: 140px;">
+        <input type="text" v-model="anSearchText" placeholder="📧 Mã AN..." @focus="showAnDropdown = true" class="combobox-input-sm">
+        <ul v-if="showAnDropdown" class="combobox-list">
+          <li @click="selectFilter('an', null, '')">-- Tất cả AN --</li>
+          <li v-for="val in filteredAnList" :key="val" @click="selectFilter('an', val, val)">{{ val }}</li>
+        </ul>
+      </div>
+
+      <div class="combobox-wrapper" style="width: 140px;">
+        <input type="text" v-model="doSearchText" placeholder="🚚 Mã D/O..." @focus="showDoDropdown = true" class="combobox-input-sm">
+        <ul v-if="showDoDropdown" class="combobox-list">
+          <li @click="selectFilter('do', null, '')">-- Tất cả DO --</li>
+          <li v-for="val in filteredDoList" :key="val" @click="selectFilter('do', val, val)">{{ val }}</li>
+        </ul>
+      </div>
+
+      <div class="combobox-wrapper" style="width: 140px;">
+        <input type="text" v-model="bbgnSearchText" placeholder="📝 Mã BBGN..." @focus="showBbgnDropdown = true" class="combobox-input-sm">
+        <ul v-if="showBbgnDropdown" class="combobox-list">
+          <li @click="selectFilter('bbgn', null, '')">-- Tất cả BBGN --</li>
+          <li v-for="val in filteredBbgnList" :key="val" @click="selectFilter('bbgn', val, val)">{{ val }}</li>
+        </ul>
+      </div>
+
+      <div class="combobox-wrapper" style="width: 140px;">
+        <input type="text" v-model="tkSearchText" placeholder="📑 Mã Tờ Khai..." @focus="showTkDropdown = true" class="combobox-input-sm">
+        <ul v-if="showTkDropdown" class="combobox-list">
+          <li @click="selectFilter('tk', null, '')">-- Tất cả Tờ Khai --</li>
+          <li v-for="val in filteredTkList" :key="val" @click="selectFilter('tk', val, val)">{{ val }}</li>
+        </ul>
+      </div>
 
       <select v-model="filterUser" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
         <option :value="null">👤 Người sửa (Tất cả)</option>
@@ -81,7 +138,7 @@
             </div>
           </div>
 
-          <div class="table-card" style="margin-top: 15px;">
+          <div class="table-card scrollable-table" style="margin-top: 15px;">
             <table>
               <thead>
                 <tr>
@@ -91,6 +148,11 @@
                   <th>Khách Hàng</th>
                   <th>Điều kiện</th>
                   <th>Booking</th>
+                  <th>Số Vận Đơn</th>
+                  <th>Mã AN</th>
+                  <th>Mã D/O</th>
+                  <th>Mã BBGN</th>
+                  <th>Mã Tờ Khai</th>
                   <th>Nguồn gốc</th>
                   <th>Trạng thái</th>
                   <th>Người sửa cuối</th>
@@ -110,6 +172,11 @@
                       <button v-if="lh.ma_booking" @click="showBookingInfo(lh)" class="view-btn" title="Xem Booking">👁️</button>
                     </div>
                   </td>
+                  <td>{{ lh.so_van_don || '---' }}</td>
+                  <td>{{ lh.ma_thong_bao_hang_den || '---' }}</td>
+                  <td>{{ lh.ma_lenh_giao_hang || '---' }}</td>
+                  <td>{{ lh.ma_bien_ban_giao_nhan || '---' }}</td>
+                  <td>{{ lh.ma_to_khai_hai_quan || '---' }}</td>
                   <td>{{ lh.nguon_goc || '---' }}</td>
                   <td>
                     <span class="badge" :class="statusClass(lh.trang_thai_lo_hang)" style="white-space: nowrap;">
@@ -131,7 +198,7 @@
                   </td>
                 </tr>
                 <tr v-if="filteredLoHang.length === 0">
-                  <td colspan="9" style="text-align: center; padding: 20px; color: #7f8c8d;">
+                  <td colspan="15" style="text-align: center; padding: 20px; color: #7f8c8d;">
                     Không tìm thấy lô hàng nào!
                   </td>
                 </tr>
@@ -197,7 +264,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -213,6 +280,43 @@ const filterIncoterms = ref(null);
 const filterUser = ref(null);
 const filterHangHoa = ref(null);
 const listHangHoa = ref([]);
+const unusedBookingCount = ref(0);
+let refreshInterval = null;
+const filterSoVanDon = ref(null);
+const filterAn = ref(null);
+const filterDo = ref(null);
+const filterBbgn = ref(null);
+const filterTk = ref(null);
+
+// State cho Combobox tìm kiếm
+const khSearchText = ref('');
+const showKhDropdown = ref(false);
+const hhSearchText = ref('');
+const showHhDropdown = ref(false);
+const blSearchText = ref('');
+const showBlDropdown = ref(false);
+const anSearchText = ref('');
+const showAnDropdown = ref(false);
+const doSearchText = ref('');
+const showDoDropdown = ref(false);
+const bbgnSearchText = ref('');
+const showBbgnDropdown = ref(false);
+const tkSearchText = ref('');
+const showTkDropdown = ref(false);
+
+// Computed lọc danh sách cho dropdown
+const filteredKhList = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(khSearchText.value.toLowerCase())));
+const filteredHhList = computed(() => listHangHoa.value.filter(h => h.ten_hang_hoa.toLowerCase().includes(hhSearchText.value.toLowerCase())));
+
+const getUniqueList = (key, searchVal) => {
+  const list = [...new Set(listLoHang.value.map(lh => lh[key]).filter(Boolean))].sort();
+  return list.filter(item => String(item).toLowerCase().includes(searchVal.toLowerCase()));
+};
+const filteredBlList = computed(() => getUniqueList('so_van_don', blSearchText.value));
+const filteredAnList = computed(() => getUniqueList('ma_thong_bao_hang_den', anSearchText.value));
+const filteredDoList = computed(() => getUniqueList('ma_lenh_giao_hang', doSearchText.value));
+const filteredBbgnList = computed(() => getUniqueList('ma_bien_ban_giao_nhan', bbgnSearchText.value));
+const filteredTkList = computed(() => getUniqueList('ma_to_khai_hai_quan', tkSearchText.value));
 
 // State cho Side Panel
 const viewType = ref('none'); // 'none', 'booking', 'items'
@@ -247,7 +351,12 @@ const filteredLoHang = computed(() => {
     const matchSearch = !search || 
       (lh.ten_lo_hang && lh.ten_lo_hang.toLowerCase().includes(search)) || 
       (lh.ma_lo_hang && lh.ma_lo_hang.toString().includes(search)) ||
-      (lh.nguon_goc && lh.nguon_goc.toLowerCase().includes(search));
+      (lh.nguon_goc && lh.nguon_goc.toLowerCase().includes(search)) ||
+      (lh.so_van_don && lh.so_van_don.toLowerCase().includes(search)) ||
+      (lh.ma_thong_bao_hang_den && lh.ma_thong_bao_hang_den.toString().includes(search)) ||
+      (lh.ma_lenh_giao_hang && lh.ma_lenh_giao_hang.toString().includes(search)) ||
+      (lh.ma_bien_ban_giao_nhan && lh.ma_bien_ban_giao_nhan.toString().includes(search)) ||
+      (lh.ma_to_khai_hai_quan && lh.ma_to_khai_hai_quan.toString().includes(search));
       
     const itemSearch = searchItemQuery.value.toLowerCase();
     const matchItemSearch = !itemSearch || (lh.ds_ten_hang && lh.ds_ten_hang.toLowerCase().includes(itemSearch));
@@ -263,9 +372,48 @@ const filteredLoHang = computed(() => {
       matchHangHoa = ids.includes(Number(filterHangHoa.value));
     }
 
-    return matchSearch && matchItemSearch && matchTrangThai && matchKhachHang && matchIncoterms && matchUser && matchHangHoa;
+    const matchBl = !filterSoVanDon.value || lh.so_van_don === filterSoVanDon.value;
+    const matchAn = !filterAn.value || String(lh.ma_thong_bao_hang_den) === String(filterAn.value);
+    const matchDo = !filterDo.value || String(lh.ma_lenh_giao_hang) === String(filterDo.value);
+    const matchBbgn = !filterBbgn.value || String(lh.ma_bien_ban_giao_nhan) === String(filterBbgn.value);
+    const matchTk = !filterTk.value || String(lh.ma_to_khai_hai_quan) === String(filterTk.value);
+
+    return matchSearch && matchItemSearch && matchTrangThai && matchKhachHang && 
+           matchIncoterms && matchUser && matchHangHoa && matchBl && matchAn && matchDo && matchBbgn && matchTk;
   });
 });
+
+const selectFilter = (type, val, text) => {
+  if (type === 'kh') {
+    filterKhachHang.value = val;
+    khSearchText.value = text || '';
+    showKhDropdown.value = false;
+  } else if (type === 'hh') {
+    filterHangHoa.value = val;
+    hhSearchText.value = text || '';
+    showHhDropdown.value = false;
+  } else if (type === 'bl') {
+    filterSoVanDon.value = val;
+    blSearchText.value = text || '';
+    showBlDropdown.value = false;
+  } else if (type === 'an') {
+    filterAn.value = val;
+    anSearchText.value = text || '';
+    showAnDropdown.value = false;
+  } else if (type === 'do') {
+    filterDo.value = val;
+    doSearchText.value = text || '';
+    showDoDropdown.value = false;
+  } else if (type === 'bbgn') {
+    filterBbgn.value = val;
+    bbgnSearchText.value = text || '';
+    showBbgnDropdown.value = false;
+  } else if (type === 'tk') {
+    filterTk.value = val;
+    tkSearchText.value = text || '';
+    showTkDropdown.value = false;
+  }
+};
 
 const paginatedLoHang = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
@@ -289,10 +437,26 @@ const resetFilters = () => {
   filterIncoterms.value = null;
   filterUser.value = null;
   filterHangHoa.value = null;
+  filterSoVanDon.value = null;
+  filterAn.value = null;
+  filterDo.value = null;
+  filterBbgn.value = null;
+  filterTk.value = null;
   searchItemQuery.value = '';
+  khSearchText.value = '';
+  hhSearchText.value = '';
+  blSearchText.value = anSearchText.value = doSearchText.value = bbgnSearchText.value = tkSearchText.value = '';
   currentPage.value = 1;
   fetchData();
   fetchReferences();
+};
+
+const fetchUnusedBookingCount = async () => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/chua-dung`);
+    const data = await res.json();
+    if (data.success) unusedBookingCount.value = data.count;
+  } catch (e) { console.error("Lỗi tải thông báo:", e); }
 };
 
 // Logic Xem Booking
@@ -386,7 +550,24 @@ const handleDelete = async (id) => {
   } catch (e) { alert("Lỗi kết nối!"); }
 };
 
-onMounted(() => { fetchData(); fetchReferences(); });
+onMounted(() => { 
+  fetchData(); 
+  fetchReferences();
+  fetchUnusedBookingCount();
+
+  // Thiết lập làm mới mỗi 15 giây
+  refreshInterval = setInterval(fetchUnusedBookingCount, 15000);
+
+  window.addEventListener('click', (e) => {
+    if (!e.target.closest('.combobox-wrapper')) {
+      showKhDropdown.value = showHhDropdown.value = showBlDropdown.value = showAnDropdown.value = showDoDropdown.value = showBbgnDropdown.value = showTkDropdown.value = false;
+    }
+  });
+});
+
+onUnmounted(() => {
+  if (refreshInterval) clearInterval(refreshInterval);
+});
 </script>
 
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
@@ -440,4 +621,92 @@ onMounted(() => { fetchData(); fetchReferences(); });
 .table-card table tbody tr:hover {
   background-color: #eef7ff;
 }
+
+/* Cố định cột STT và Thao tác tương tự QuanLyVanDon.vue */
+.scrollable-table {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.scrollable-table table {
+  min-width: 1800px; /* Đảm bảo bảng đủ rộng để kích hoạt thanh cuộn */
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.scrollable-table th:first-child,
+.scrollable-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 2px solid #ddd;
+}
+
+.scrollable-table th:last-child,
+.scrollable-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  border-left: 2px solid #ddd;
+}
+
+/* Đảm bảo màu nền đặc để không lộ chữ bên dưới khi cuộn */
+.scrollable-table th:first-child,
+.scrollable-table th:last-child {
+  background-color: #f8f9fa !important; /* Màu nền của header */
+}
+
+.table-card table tbody tr:nth-child(odd) td:first-child,
+.table-card table tbody tr:nth-child(odd) td:last-child {
+  background-color: #ffffff !important; /* Màu nền dòng lẻ */
+}
+
+.table-card table tbody tr:nth-child(even) td:first-child,
+.table-card table tbody tr:nth-child(even) td:last-child {
+  background-color: #f2f2f2 !important; /* Màu nền dòng chẵn */
+}
+
+/* Giữ màu hover cho cột cố định */
+.table-card table tbody tr:hover td:first-child,
+.table-card table tbody tr:hover td:last-child {
+  background-color: #eef7ff !important;
+}
+
+/* Style cho Combobox tìm kiếm */
+.combobox-wrapper { position: relative; }
+.combobox-input-sm {
+  width: 100%; height: 38px; padding: 8px 12px; border: 1px solid #ccc;
+  border-radius: 4px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s; font-size: 14px;
+}
+.combobox-input-sm:focus { border-color: #3498db; outline: none; }
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 4px; margin: 2px 0 0 0; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 8px 12px; cursor: pointer; transition: background 0.2s;
+  font-size: 13px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
+  text-align: left;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
+
+/* Style cho Banner thông báo */
+.booking-alert-banner {
+  background: #fff4e5; border: 1px solid #ffcc80; border-radius: 8px;
+  padding: 12px 20px; margin-bottom: 20px; display: flex; align-items: center;
+  gap: 15px; animation: fadeInDown 0.5s ease;
+}
+.booking-alert-banner .icon { font-size: 20px; }
+.booking-alert-banner .text { color: #856404; font-size: 14px; flex: 1; }
+.booking-alert-banner .btn-go {
+  background: #f39c12; color: white; border: none; padding: 6px 12px;
+  border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
+  transition: 0.2s;
+}
+.booking-alert-banner .btn-go:hover { background: #e67e22; }
+
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 </style>

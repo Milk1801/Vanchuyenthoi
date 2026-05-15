@@ -91,4 +91,20 @@ class QuanLyBooking extends Controller
             return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]);
         }
     }
+    
+    public function BookingChuaDung()
+    {
+        try {
+            $count = DB::table('booking')
+                ->where('thoi_gian_xoa', '<=', '2000-01-01 00:00:00')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('lo_hang')
+                        ->whereRaw('lo_hang.ma_booking = booking.ma_booking')
+                        ->where('lo_hang.thoi_gian_xoa', '<=', '2000-01-01 00:00:00');
+                })
+                ->count();
+            return response()->json(['success' => true, 'count' => $count]);
+        } catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()]); }
+    }
 }
