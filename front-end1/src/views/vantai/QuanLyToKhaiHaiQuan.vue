@@ -66,31 +66,31 @@
           </div>
         </div>
 
-        <div class="table-card">
-          <table>
+        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd;">
+          <table style="min-width: 1200px; width: 100%; border-collapse: collapse;">
             <thead>
               <tr>
-                <th style="width: 50px; text-align: center;">STT</th>
+                <th class="sticky-col-left" style="width: 50px; text-align: center;">STT</th>
                 <th>Mã Tờ Khai</th>
-                <th>Thuộc Lô Hàng</th>
-                <th>Ngày Thông Quan</th>
-                <th>Phân Luồng</th>
-                <th>Kết Quả</th>
-                <th>Người sửa</th>
-                <th style="text-align: center;">Thao tác</th>
+                <th>Lô hàng</th>
+                <th>Ngày thông quan</th>
+                <th>Phân luồng</th>
+                <th>Kết quả thông quan</th>
+                <th>Người sửa cuối</th>
+                <th class="sticky-col-right" style="text-align: center;">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(tk, index) in paginatedData" :key="tk.ma_to_khai_hai_quan" 
                   :class="{ 'row-selected': (selectedItem?.ma_to_khai_hai_quan === tk.ma_to_khai_hai_quan), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
-                <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td class="fw-bold">{{ tk.ma_to_khai_hai_quan }}</td>
-                <td class="fw-bold" style="color: #2980b9;">{{ tk.ten_lo_hang || '---' }}</td>
+                <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                <td>{{ tk.ma_to_khai_hai_quan }}</td>
+                <td>{{ tk.ten_lo_hang || '---' }}</td>
                 <td>{{ formatDateTime(tk.ngay_thong_quan) }}</td>
                 <td><span class="badge" :style="getPhanLuongStyle(tk.phan_luong)">{{ tk.phan_luong || 'N/A' }}</span></td>
                 <td><span class="badge" :style="getKetQuaStyle(tk.ket_qua_thong_quan)">{{ tk.ket_qua_thong_quan || 'N/A' }}</span></td>
                 <td>{{ tk.ten_nguoi_sua || 'N/A' }}</td>
-                <td style="text-align: center;">
+                <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: grid; grid-template-columns: repeat(3, 35px); gap: 5px; justify-content: center; margin: 0 auto; width: fit-content;">
                     <button class="action-btn-no-mg text-success" @click="showShipmentInfo(tk)" title="Xem thông tin lô hàng">📋</button>
                     <button class="action-btn-no-mg text-primary" @click="router.push('/van-tai/to-khai-hai-quan/edit/' + tk.ma_to_khai_hai_quan)" title="Sửa">✏️</button>
@@ -323,7 +323,7 @@ const formatDateTime = (str) => {
 
 const getPhanLuongStyle = (pl) => {
   if (pl === 'Luồng Xanh') return { backgroundColor: '#27ae60', color: 'white', whiteSpace: 'nowrap' };
-  if (pl === 'Luồng Vàng') return { backgroundColor: '#f1c40f', color: '#333', whiteSpace: 'nowrap' };
+  if (pl === 'Luồng Vàng') return { backgroundColor: '#f1c40f', color: 'white', whiteSpace: 'nowrap' };
   if (pl === 'Luồng Đỏ') return { backgroundColor: '#e74c3c', color: 'white', whiteSpace: 'nowrap' };
   return { backgroundColor: '#95a5a6', color: 'white', whiteSpace: 'nowrap' };
 };
@@ -372,6 +372,29 @@ const getKetQuaStyle = (kq) => {
 
 .row-even { background-color: #f2f2f2 !important; }
 .row-odd { background-color: #ffffff !important; }
+
+/* CSS cho cột cố định */
+.sticky-col-left {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 1px solid #ddd !important;
+}
+.sticky-col-right {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  border-left: 1px solid #ddd !important;
+}
+tr.row-even .sticky-col-left, tr.row-even .sticky-col-right { background-color: #f2f2f2 !important; }
+tr.row-odd .sticky-col-left, tr.row-odd .sticky-col-right { background-color: #ffffff !important; }
+tr.row-selected .sticky-col-left, tr.row-selected .sticky-col-right { background-color: #f0f7ff !important; }
+thead th.sticky-col-left, thead th.sticky-col-right { background-color: #f8f9fa !important; z-index: 11; }
+
+.table-card table th, .table-card table td { 
+  white-space: nowrap; 
+  padding: 12px 15px; 
+}
 
 /* CSS cho Combobox Tìm kiếm trong Toolbar */
 .combobox-wrapper { position: relative; }
