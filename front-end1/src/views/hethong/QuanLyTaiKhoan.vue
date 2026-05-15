@@ -14,6 +14,21 @@
     </div>
 
     <div v-else class="table-card">
+      <!-- Kiểm soát phân trang -->
+      <div v-if="listAccounts.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span>Hiển thị</span>
+          <select v-model="pageSize" style="padding: 5px 8px; border-radius: 5px; border: 1px solid #ccc;">
+            <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
+          </select>
+          <span>mục</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button @click="prevPage" :disabled="currentPage === 1" class="btn-pagination">◀ Trước</button>
+          <span style="font-weight: bold;">Trang {{ currentPage }} / {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="btn-pagination">Sau ▶</button>
+        </div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -27,7 +42,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="acc in filteredAccounts" :key="acc.ma_tai_khoan">
+          <tr v-for="acc in paginatedAccounts" :key="acc.ma_tai_khoan">
             <td>{{ acc.ma_tai_khoan }}</td>
             <td>{{ acc.ho_ten }}</td>
             <td>{{ acc.email }}</td>
@@ -50,13 +65,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const listAccounts = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
+
+// Phân trang
+const currentPage = ref(1);
+const pageSize = ref(10);
+const pageSizes = [10, 20, 50];
 
 const formatDate = (dateString) => {
   if (!dateString) return "Chưa cập nhật";
@@ -76,6 +96,21 @@ const filteredAccounts = computed(() => {
       (acc.ten_quyen && acc.ten_quyen.toLowerCase().includes(search))
     );
   });
+});
+
+const paginatedAccounts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredAccounts.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(filteredAccounts.value.length / pageSize.value) || 1);
+
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+
+watch([searchQuery, pageSize], () => {
+  currentPage.value = 1;
 });
 
 const fetchAccounts = async () => {
@@ -133,6 +168,12 @@ onMounted(fetchAccounts);
 
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
 <style scoped>
+.btn-pagination {
+  padding: 5px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: 0.2s;
+}
+.btn-pagination:hover:not(:disabled) { background: #f0f0f0; border-color: #3498db; color: #3498db; }
+.btn-pagination:disabled { cursor: not-allowed; opacity: 0.5; }
+
 /* Style bổ sung cho danh sách checkbox quyền */
 .checkbox-group {
   display: grid;
@@ -155,5 +196,15 @@ onMounted(fetchAccounts);
 .checkbox-group input[type="checkbox"] {
   width: auto;
   margin: 0;
+}
+/* Zebra Striping cho bảng */
+.table-card table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+.table-card table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.table-card table tbody tr:hover {
+  background-color: #eef7ff;
 }
 </style>
