@@ -11,56 +11,92 @@ class QuanLyLoHang extends Controller
     public function index()
 {
     try {
+
         $data = DB::table('lo_hang')
             ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
             ->leftJoin('khach_hang', 'lo_hang.ma_khach_hang', '=', 'khach_hang.ma_khach_hang')
             ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
-            ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
-            ->leftJoin('thong_bao_hang_den', 'lo_hang.ma_lo_hang', '=', 'thong_bao_hang_den.ma_lo_hang')
-            ->leftJoin('lenh_giao_hang', 'lo_hang.ma_lo_hang', '=', 'lenh_giao_hang.ma_lo_hang')
-            ->leftJoin('bien_ban_giao_nhan', 'lo_hang.ma_lo_hang', '=', 'bien_ban_giao_nhan.ma_lo_hang')
-            ->leftJoin('to_khai_hai_quan', 'lo_hang.ma_lo_hang', '=', 'to_khai_hai_quan.ma_lo_hang')
+
             ->select(
-                'lo_hang.ma_lo_hang', 
-                'lo_hang.ten_lo_hang', 
-                'lo_hang.dieu_kien_thuong_mai', 
-                'lo_hang.trang_thai_lo_hang', 
-                'lo_hang.nguon_goc', 
-                'lo_hang.ma_booking', 
-                'lo_hang.ma_khach_hang', 
-                'booking.so_booking', 
-                'khach_hang.ten_khach_hang', 
-                'tai_khoan.ho_ten as nguoi_sua_doi',
-                'van_don.so_van_don',
-                'thong_bao_hang_den.ma_thong_bao_hang_den',
-                'lenh_giao_hang.ma_lenh_giao_hang',
-                'bien_ban_giao_nhan.ma_bien_ban_giao_nhan',
-                'to_khai_hai_quan.ma_to_khai_hai_quan'
+                'lo_hang.ma_lo_hang',
+                'lo_hang.ten_lo_hang',
+                'lo_hang.dieu_kien_thuong_mai',
+                'lo_hang.trang_thai_lo_hang',
+                'lo_hang.nguon_goc',
+                'lo_hang.ma_booking',
+                'lo_hang.ma_khach_hang',
+
+                'booking.so_booking',
+
+                'khach_hang.ten_khach_hang',
+
+                'tai_khoan.ho_ten as nguoi_sua_doi'
             )
+
             ->addSelect([
 
+                // vận đơn
+                'so_van_don' => DB::table('van_don')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT so_van_don SEPARATOR ', ')")
+                    ->whereColumn('van_don.ma_lo_hang', 'lo_hang.ma_lo_hang'),
+
+                // thông báo hàng đến
+                'ma_thong_bao_hang_den' => DB::table('thong_bao_hang_den')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ma_thong_bao_hang_den SEPARATOR ', ')")
+                    ->whereColumn('thong_bao_hang_den.ma_lo_hang', 'lo_hang.ma_lo_hang'),
+
+                // lệnh giao hàng
+                'ma_lenh_giao_hang' => DB::table('lenh_giao_hang')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ma_lenh_giao_hang SEPARATOR ', ')")
+                    ->whereColumn('lenh_giao_hang.ma_lo_hang', 'lo_hang.ma_lo_hang'),
+
+                // biên bản giao nhận
+                'ma_bien_ban_giao_nhan' => DB::table('bien_ban_giao_nhan')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ma_bien_ban_giao_nhan SEPARATOR ', ')")
+                    ->whereColumn('bien_ban_giao_nhan.ma_lo_hang', 'lo_hang.ma_lo_hang'),
+
+                // tờ khai hải quan
+                'ma_to_khai_hai_quan' => DB::table('to_khai_hai_quan')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ma_to_khai_hai_quan SEPARATOR ', ')")
+                    ->whereColumn('to_khai_hai_quan.ma_lo_hang', 'lo_hang.ma_lo_hang'),
+
+                // count chi tiết lô hàng
                 'has_items' => DB::table('chi_tiet_lo_hang')
-                    ->selectRaw('count(*)')
-                    ->whereColumn('ma_lo_hang', 'lo_hang.ma_lo_hang')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('chi_tiet_lo_hang.ma_lo_hang', 'lo_hang.ma_lo_hang')
                     ->where('thoi_gian_xoa', '<', '2000-01-01'),
 
+                // ds mã hàng
                 'ds_ma_hang_hoa' => DB::table('chi_tiet_lo_hang')
-                    ->selectRaw('GROUP_CONCAT(DISTINCT ma_hang_hoa)')
-                    ->whereColumn('ma_lo_hang', 'lo_hang.ma_lo_hang')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ma_hang_hoa SEPARATOR ', ')")
+                    ->whereColumn('chi_tiet_lo_hang.ma_lo_hang', 'lo_hang.ma_lo_hang')
                     ->where('thoi_gian_xoa', '<', '2000-01-01'),
 
+                // ds tên hàng
                 'ds_ten_hang' => DB::table('chi_tiet_lo_hang')
-                    ->selectRaw('GROUP_CONCAT(DISTINCT ten_hang SEPARATOR " ")')
-                    ->whereColumn('ma_lo_hang', 'lo_hang.ma_lo_hang')
-                    ->where('thoi_gian_xoa', '<', '2000-01-01')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ten_hang SEPARATOR ', ')")
+                    ->whereColumn('chi_tiet_lo_hang.ma_lo_hang', 'lo_hang.ma_lo_hang')
+                    ->where('thoi_gian_xoa', '<', '2000-01-01'),
+
             ])
+
             ->where('lo_hang.thoi_gian_xoa', '<', '2000-01-01')
-            ->orderBy('ma_lo_hang', 'desc')
+
+            ->orderByDesc('lo_hang.ma_lo_hang')
+
             ->get();
 
-        return response()->json(["success" => true, "data" => $data]);
+        return response()->json([
+            "success" => true,
+            "data" => $data
+        ]);
+
     } catch (\Exception $e) {
-        return response()->json(["success" => false, "message" => "Lỗi: " . $e->getMessage()]);
+
+        return response()->json([
+            "success" => false,
+            "message" => $e->getMessage()
+        ]);
     }
 }
 

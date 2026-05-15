@@ -67,7 +67,7 @@
       </div>
 
       <div class="combobox-wrapper" style="width: 140px;">
-        <input type="text" v-model="anSearchText" placeholder="📧 Mã AN..." @focus="showAnDropdown = true" class="combobox-input-sm">
+        <input type="text" v-model="anSearchText" placeholder="📧 Mã giấy báo hàng đến..." @focus="showAnDropdown = true" class="combobox-input-sm">
         <ul v-if="showAnDropdown" class="combobox-list">
           <li @click="selectFilter('an', null, '')">-- Tất cả AN --</li>
           <li v-for="val in filteredAnList" :key="val" @click="selectFilter('an', val, val)">{{ val }}</li>
@@ -149,7 +149,7 @@
                   <th>Điều kiện</th>
                   <th>Booking</th>
                   <th>Số Vận Đơn</th>
-                  <th>Mã AN</th>
+                  <th>Mã giấy báo hàng đến</th>
                   <th>Mã D/O</th>
                   <th>Mã BBGN</th>
                   <th>Mã Tờ Khai</th>
