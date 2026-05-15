@@ -13,26 +13,35 @@
       </div>
     </div>
 
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+      
       <div class="search-box" style="flex: 1; min-width: 200px;">
-        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Mã CP, Tên chi phí, Lô hàng..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Mã CP, Tên chi phí, Lô hàng..." style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box;">
       </div>
       
-      <select v-model="filterLoaiGiaoDich" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: white;">
+      <select v-model="filterLoaiGiaoDich" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; background: white; font-size: 14px;">
         <option value="">Tất cả Loại GD</option>
         <option value="THU">Khoản Thu</option>
         <option value="CHI">Khoản Chi</option>
       </select>
 
-      <select v-model="filterStatus" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: white;">
+      <select v-model="filterStatus" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; background: white; font-size: 14px;">
         <option value="">Tất cả trạng thái</option>
         <option value="Chưa thanh toán">🔴 Chưa thanh toán</option>
         <option value="Thanh toán một phần">🟡 Thanh toán một phần</option>
         <option value="Đã thanh toán">🟢 Đã thanh toán</option>
       </select>
+      
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <label style="font-size: 13px; font-weight: bold; color: #555;">Từ:</label>
+        <input type="date" v-model="fromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <label style="font-size: 13px; font-weight: bold; color: #555;">Đến:</label>
+        <input type="date" v-model="toDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+      </div>
 
-      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
-      <button @click="exportExcel" class="btn-excel" style="border-radius: 6px; padding: 10px 20px; background: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold;">
+      <button @click="exportExcel" class="btn-excel" style="border-radius: 6px; padding: 8px 20px; background: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold;">
         📊 Xuất Excel
       </button>
     </div>
@@ -57,7 +66,7 @@
             <td colspan="9" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td>
           </tr>
           <tr v-else-if="filteredList.length === 0">
-            <td colspan="9" style="text-align: center; padding: 20px;">Không có dữ liệu!</td>
+            <td colspan="9" style="text-align: center; padding: 20px; color: #e74c3c;">Không tìm thấy dữ liệu nào phù hợp với bộ lọc!</td>
           </tr>
           <tr v-for="item in filteredList" :key="item.ma_chi_phi" style="border-bottom: 1px solid #eee;">
             <td style="padding: 12px 15px; font-weight: bold; color: #7f8c8d;">CP-{{ item.ma_chi_phi }}</td>
@@ -184,6 +193,8 @@ const isSaving = ref(false);
 const searchQuery = ref(''); 
 const filterStatus = ref('');
 const filterLoaiGiaoDich = ref('');
+const fromDate = ref(''); 
+const toDate = ref(''); 
 
 const detailPanel = ref({ show: false, data: {} });
 
@@ -232,19 +243,34 @@ const dashboardStats = computed(() => {
   return { tong_chua_thanh_toan, tong_da_thanh_toan };
 });
 
-// Hàm lọc dữ liệu hiển thị trên bảng
+// HÀM LỌC DỮ LIỆU ĐÃ ĐƯỢC FIX LỖI "TÌM THEO NGÀY"
 const filteredList = computed(() => {
   return listChiPhi.value.filter(item => {
+    // 1. Lọc theo ô tìm kiếm
     const search = searchQuery.value.toLowerCase();
     const matchSearch = !search || 
       (item.ten_chi_phi && item.ten_chi_phi.toLowerCase().includes(search)) || 
       (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) ||
       (`cp-${item.ma_chi_phi}`).includes(search);
 
+    // 2. Lọc theo Loại GD & Trạng thái
     const matchLoaiGiaoDich = !filterLoaiGiaoDich.value || item.loai_giao_dich === filterLoaiGiaoDich.value;
     const matchStatus = !filterStatus.value || item.trang_thai_thanh_toan === filterStatus.value;
 
-    return matchSearch && matchLoaiGiaoDich && matchStatus;
+    // 3. LỌC THEO KHOẢNG NGÀY THANH TOÁN
+    let matchDate = true;
+    if (fromDate.value || toDate.value) {
+      if (!item.ngay_thanh_toan) {
+        matchDate = false; // Phiếu chưa có ngày thanh toán sẽ không hiện lên khi đang lọc ngày
+      } else {
+        const itemDate = new Date(item.ngay_thanh_toan).getTime();
+        const start = fromDate.value ? new Date(fromDate.value).setHours(0, 0, 0, 0) : 0;
+        const end = toDate.value ? new Date(toDate.value).setHours(23, 59, 59, 999) : Infinity;
+        matchDate = itemDate >= start && itemDate <= end;
+      }
+    }
+
+    return matchSearch && matchLoaiGiaoDich && matchStatus && matchDate;
   });
 });
 

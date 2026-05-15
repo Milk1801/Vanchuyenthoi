@@ -26,7 +26,7 @@
       </button>
     </div>
 
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
       <div class="search-box" style="flex: 1; min-width: 200px;">
         <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Tên chi phí, Lô hàng..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
       </div>
@@ -38,7 +38,15 @@
         <option value="Đã thanh toán">🟢 Đã thanh toán</option>
       </select>
 
-      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px;">🔄 Làm mới</button>
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <label style="font-size: 13px; font-weight: bold; color: #555;">Từ:</label>
+        <input type="date" v-model="fromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <label style="font-size: 13px; font-weight: bold; color: #555;">Đến:</label>
+        <input type="date" v-model="toDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+      </div>
+
       <button class="btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
         ➕ THÊM CHI PHÍ
       </button>
@@ -182,6 +190,8 @@ const isModalOpen = ref(false);
 
 const searchQuery = ref(''); 
 const filterStatus = ref('');
+const fromDate = ref(''); 
+const toDate = ref('');   
 
 const dashboardStats = ref({ tong_thu: 0, tong_chi: 0, ton_dong: 0 });
 
@@ -225,7 +235,7 @@ const getStatusClass = (status) => {
   return 'badge-danger';
 };
 
-// Logic lọc dữ liệu
+// Logic lọc dữ liệu (Đã bổ sung bộ lọc Ngày)
 const filteredList = computed(() => {
   return listChiPhi.value.filter(item => {
     // 1. Lọc theo Tab (THU / CHI)
@@ -240,7 +250,20 @@ const filteredList = computed(() => {
     // 3. Lọc theo Combo Box Trạng Thái
     const matchStatus = !filterStatus.value || item.trang_thai_thanh_toan === filterStatus.value;
 
-    return matchTab && matchSearch && matchStatus;
+    // 4. Lọc theo Ngày Thanh Toán
+    let matchDate = true;
+    if (fromDate.value || toDate.value) {
+      if (!item.ngay_thanh_toan) {
+        matchDate = false; // Phiếu chưa có ngày thanh toán sẽ không hiện lên khi đang lọc ngày
+      } else {
+        const itemDate = new Date(item.ngay_thanh_toan).getTime();
+        const start = fromDate.value ? new Date(fromDate.value).setHours(0, 0, 0, 0) : 0;
+        const end = toDate.value ? new Date(toDate.value).setHours(23, 59, 59, 999) : Infinity;
+        matchDate = itemDate >= start && itemDate <= end;
+      }
+    }
+
+    return matchTab && matchSearch && matchStatus && matchDate;
   });
 });
 
@@ -330,28 +353,6 @@ const handleDelete = async (id) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/chi-phi/delete`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ma_chi_phi: id })
-    });
-    if ((await res.json()).success) fetchData();
-  } catch (e) { alert("Lỗi!"); }
-};
-
-// Nút thao tác nhanh Đã thanh toán (Nghiệp vụ 5.2)
-const markAsPaid = async (id) => {
-  if (!confirm("Xác nhận khoản tiền này ĐÃ ĐƯỢC THANH TOÁN?")) return;
-  
-  const currentUser = JSON.parse(localStorage.getItem('sincere_user'));
-  const userId = currentUser ? currentUser.ma_tai_khoan : null;
-
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/chi-phi/update-status`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ 
-        ma_chi_phi: id, 
-        trang_thai_thanh_toan: 'Đã thanh toán', 
-        ngay_thanh_toan: today,
-        nguoi_sua_cuoi: userId // Gắn tên kế toán vừa ấn nút thu tiền
-      })
     });
     if ((await res.json()).success) fetchData();
   } catch (e) { alert("Lỗi!"); }

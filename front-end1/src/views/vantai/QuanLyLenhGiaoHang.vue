@@ -2,26 +2,38 @@
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Lệnh Giao Hàng (D/O)</h3>
 
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+      
       <div class="search-box" style="flex: 1; min-width: 250px;">
-        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Số Booking, Tên lô hàng..." style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="text" v-model="searchQuery" placeholder="🔍 Tên lô, Booking, Vận đơn, Số Cont..." style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; height: 40px;">
       </div>
 
-      <div class="filter-box" style="min-width: 180px;">
-        <select v-model="filterStatus" style="width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff;">
-          <option value="">📋 Tất cả trạng thái</option>
+      <div class="filter-box" style="min-width: 160px;">
+        <select v-model="filterStatus" style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff; box-sizing: border-box; height: 40px;">
+          <option value="">📋 Tất cả</option>
           <option value="hoantat">✅ Đã hoàn tất</option>
-          <option value="chuahoantat">⏳ Chưa hoàn tất</option>
+          <option value="chuahoantat">⏳ Chưa xong</option>
         </select>
       </div>
 
-      <button @click="fetchData()" class="btn-refresh" style="padding: 10px 20px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff;">🔄 Làm mới</button>
-      <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
-        ➕ THÊM MỚI LỆNH D/O
-      </button>
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <label style="font-size: 13px; font-weight: bold; color: #555;">Từ:</label>
+        <input type="date" v-model="fromDate" style="padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <label style="font-size: 13px; font-weight: bold; color: #555;">Đến:</label>
+        <input type="date" v-model="toDate" style="padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button @click="clearFilters()" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;" title="Xóa bộ lọc">❌</button>
+        <button class="btn btn-success" @click="openModal()" style="height: 40px; border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center;">
+          ➕ THÊM MỚI D/O
+        </button>
+      </div>
     </div>
 
-    <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-radius: 8px; margin-top: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #dee2e6;">
+    <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #dee2e6;">
       <div style="display: flex; align-items: center; gap: 10px;">
         <label style="color: #495057;">Hiển thị</label>
         <select v-model="itemsPerPage" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;">
@@ -45,7 +57,8 @@
           <tr>
             <th style="padding: 12px 15px; width: 100px;">Mã Lệnh</th>
             <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
-            <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th> <th style="padding: 12px 15px;">Số Booking</th>
+            <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th> 
+            <th style="padding: 12px 15px;">Số Booking</th>
             <th style="padding: 12px 15px;">Số Vận Đơn</th>
             <th style="padding: 12px 15px;">Số Container</th>
             <th style="padding: 12px 15px;">Ngày Phát Hành</th>
@@ -54,13 +67,13 @@
         </thead>
         <tbody>
           <tr v-if="isLoading"><td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
-          <tr v-else-if="paginatedList.length === 0"><td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu phù hợp!</td></tr>
+          <tr v-else-if="paginatedList.length === 0"><td colspan="8" style="text-align: center; padding: 20px; color: #e74c3c;">Không tìm thấy dữ liệu nào phù hợp với bộ lọc!</td></tr>
           
           <tr v-for="item in paginatedList" :key="item.ma_phieu" class="table-row">
             <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">DO-{{ item.ma_phieu }}</td>
             <td style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
-              <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem Lô hàng">👁️</button>
+              <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem chi tiết Lô hàng">👁️</button>
             </td>
             
             <td style="padding: 12px 15px; text-align: center;">
@@ -71,15 +84,15 @@
 
             <td style="padding: 12px 15px;">
               {{ item.so_booking || 'N/A' }}
-              <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem Booking">👁️</button>
+              <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem chi tiết Booking">👁️</button>
             </td>
             <td style="padding: 12px 15px; font-weight: bold;">
               {{ item.so_van_don || '---' }}
-              <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem Vận đơn">👁️</button>
+              <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem chi tiết Vận đơn">👁️</button>
             </td>
             <td style="padding: 12px 15px;">
               {{ item.so_cont || 'N/A' }}
-              <button v-if="item.so_cont" @click="viewDetail('container', item)" class="btn-eye" title="Xem Container">👁️</button>
+              <button v-if="item.so_cont" @click="viewDetail('container', item)" class="btn-eye" title="Xem chi tiết Container">👁️</button>
             </td>
             <td style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             <td style="padding: 12px 15px; text-align: center;">
@@ -92,34 +105,48 @@
       </table>
     </div>
 
-    
-
     <div v-if="detailPanel.show" class="side-panel">
       <div class="panel-header">
         <h4>{{ detailPanel.title }}</h4>
         <button @click="detailPanel.show = false" class="close-btn">✖</button>
       </div>
       <div class="panel-body">
+        
         <table v-if="detailPanel.type === 'booking'" class="detail-table">
           <tbody>
             <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking }}</strong></td></tr>
             <tr><td>Tên tàu:</td><td><strong>{{ detailPanel.data.ten_con_tau || '---' }}</strong></td></tr>
             <tr><td>Số chuyến:</td><td><strong>{{ detailPanel.data.so_chuyen || '---' }}</strong></td></tr>
+            <tr><td>Giờ cắt máng:</td><td style="color: #e74c3c;"><strong>{{ formatDateTime(detailPanel.data.gio_cat_mang) }}</strong></td></tr>
+            <tr><td>Ngày đi (ETD):</td><td><strong>{{ formatDateTime(detailPanel.data.etd) }}</strong></td></tr>
             <tr><td>Ngày đến (ETA):</td><td><strong>{{ formatDateTime(detailPanel.data.eta) }}</strong></td></tr>
           </tbody>
         </table>
+
         <table v-if="detailPanel.type === 'lo_hang'" class="detail-table">
           <tbody>
             <tr><td>Tên Lô hàng:</td><td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></td></tr>
+            <tr><td>Khách hàng:</td><td><strong>{{ detailPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
+            <tr><td>ĐK Thương mại:</td><td><strong style="color: #8e44ad;">{{ detailPanel.data.dieu_kien_thuong_mai || '---' }}</strong></td></tr>
+            <tr><td>Trạng thái:</td><td>
+              <span class="badge" :class="checkIsHoanTat(detailPanel.data) ? 'badge-success' : 'badge-warning'">
+                {{ checkIsHoanTat(detailPanel.data) ? 'Đã hoàn tất' : 'Đang xử lý' }}
+              </span>
+            </td></tr>
           </tbody>
         </table>
+
         <table v-if="detailPanel.type === 'van_don' || detailPanel.type === 'container'" class="detail-table">
           <tbody>
-            <tr><td>Số HBL:</td><td><strong>{{ detailPanel.data.so_van_don || '---' }}</strong></td></tr>
+            <tr><td>Số House Bill:</td><td><strong style="color: #2980b9;">{{ detailPanel.data.so_van_don || '---' }}</strong></td></tr>
+            <tr><td>Số Master Bill:</td><td><strong>{{ detailPanel.data.so_van_don_goc || '---' }}</strong></td></tr>
+            <tr><td>Loại vận đơn:</td><td><strong>{{ detailPanel.data.loai_van_don || '---' }}</strong></td></tr>
+            <tr><td>PT Đóng hàng:</td><td><strong>{{ detailPanel.data.phuong_thuc_dong_cont || '---' }}</strong></td></tr>
             <tr><td>Số Container:</td><td><strong>{{ detailPanel.data.so_cont || '---' }}</strong></td></tr>
             <tr><td>Số Chì (Seal):</td><td><strong>{{ detailPanel.data.so_chi || '---' }}</strong></td></tr>
           </tbody>
         </table>
+
       </div>
     </div>
 
@@ -164,9 +191,11 @@ const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
 
-// CÁC BIẾN CHO TÌM KIẾM VÀ LỌC
+// CÁC BIẾN CHO TÌM KIẾM VÀ LỌC NÂNG CẤP
 const searchQuery = ref(''); 
-const filterStatus = ref(''); // Biến mới cho Combobox Trạng thái
+const filterStatus = ref(''); 
+const fromDate = ref(''); // Biến Ngày bắt đầu
+const toDate = ref('');   // Biến Ngày kết thúc
 
 // CÁC BIẾN CHO PHÂN TRANG
 const itemsPerPage = ref(10);
@@ -177,55 +206,64 @@ const searchLoHangInput = ref('');
 const isDropdownOpen = ref(false);
 const formData = ref({ ma_phieu: null, ma_lo_hang: null, ngay_phat_hanh: '' });
 
+// Nút xóa bộ lọc
+const clearFilters = () => {
+  searchQuery.value = '';
+  filterStatus.value = '';
+  fromDate.value = '';
+  toDate.value = '';
+};
+
 const formatDateTime = (dateStr) => {
   if (!dateStr) return 'N/A';
   return new Date(dateStr).toLocaleString('vi-VN');
 };
 
-// --- HÀM KIỂM TRA TRẠNG THÁI HOÀN TẤT ---
 const checkIsHoanTat = (item) => {
   let status = item.trang_thai_lo_hang; 
-  // Nếu API D/O không trả về trạng thái, đi tìm trong bảng Lô hàng
   if (status === undefined) {
     const lo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
     status = lo ? lo.trang_thai_lo_hang : null; 
   }
-
-  const strStatus = String(status).toLowerCase();
-  // Nhận diện các từ khóa có nghĩa là "Hoàn tất"
+  const strStatus = String(status).trim().toLowerCase();
   if (strStatus.includes('hoàn tất') || strStatus === '1' || strStatus === 'true') {
     return true;
   }
   return false;
 };
 
-// --- LOGIC LỌC DỮ LIỆU TỔNG HỢP ---
+// --- LOGIC LỌC DỮ LIỆU TỔNG HỢP (MỞ RỘNG) ---
 const filteredList = computed(() => {
   return listDO.value.filter(item => {
-    // 1. Lọc theo Text (Ô tìm kiếm)
+    // 1. Lọc theo Text (Mở rộng tìm cả Vận đơn và Số Cont)
     const search = searchQuery.value.toLowerCase();
     const matchSearch = !search || 
                        (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || 
-                       (item.so_booking && item.so_booking.toLowerCase().includes(search));
+                       (item.so_booking && item.so_booking.toLowerCase().includes(search)) ||
+                       (item.so_van_don && item.so_van_don.toLowerCase().includes(search)) ||
+                       (item.so_cont && item.so_cont.toLowerCase().includes(search));
 
-    // 2. Lọc theo Combobox (Trạng thái)
+    // 2. Lọc theo Trạng thái
     let matchStatus = true;
     const isHoanTat = checkIsHoanTat(item);
-    
-    if (filterStatus.value === 'hoantat') {
-      matchStatus = isHoanTat === true;
-    } else if (filterStatus.value === 'chuahoantat') {
-      matchStatus = isHoanTat === false;
+    if (filterStatus.value === 'hoantat') matchStatus = isHoanTat === true;
+    else if (filterStatus.value === 'chuahoantat') matchStatus = isHoanTat === false;
+
+    // 3. Lọc theo Khoảng Ngày (Ngày phát hành)
+    let matchDate = true;
+    if (fromDate.value || toDate.value) {
+      const itemDate = new Date(item.ngay_phat_hanh).getTime();
+      // Đặt giờ phút về 00:00:00 cho ngày bắt đầu, và 23:59:59 cho ngày kết thúc
+      const start = fromDate.value ? new Date(fromDate.value).setHours(0, 0, 0, 0) : 0;
+      const end = toDate.value ? new Date(toDate.value).setHours(23, 59, 59, 999) : Infinity;
+      matchDate = itemDate >= start && itemDate <= end;
     }
 
-    return matchSearch && matchStatus;
+    return matchSearch && matchStatus && matchDate;
   });
 });
 
-// --- LOGIC PHÂN TRANG ---
-const totalPages = computed(() => {
-  return Math.ceil(filteredList.value.length / itemsPerPage.value);
-});
+const totalPages = computed(() => Math.ceil(filteredList.value.length / itemsPerPage.value));
 
 const paginatedList = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
@@ -236,33 +274,19 @@ const paginatedList = computed(() => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-// Tự động Reset về trang 1 nếu người dùng thay đổi bộ lọc hoặc phân trang
-watch([searchQuery, itemsPerPage, filterStatus], () => {
+// Tự động Reset về trang 1 khi dùng bất kỳ bộ lọc nào
+watch([searchQuery, itemsPerPage, filterStatus, fromDate, toDate], () => {
   currentPage.value = 1;
 });
 
-// --- CÁC HÀM XỬ LÝ KHÁC (Giữ nguyên) ---
-
 const filteredLoHangOptions = computed(() => {
-  // BƯỚC 1: Lọc bỏ những lô hàng "Hoàn tất" và "Hủy"
   const loHangHopLe = listLoHang.value.filter(lo => {
-    // Lấy chuẩn xác tên cột từ Database của bạn
     let status = lo.trang_thai_lo_hang || ''; 
-    let strStatus = String(status).trim().toLowerCase(); // Viết thường để dễ so sánh
-
-    // Nếu trạng thái là 'hoàn tất' hoặc 'hủy' -> KHÔNG cho hiện ra (return false)
-    if (strStatus === 'hoàn tất' || strStatus === 'hủy') {
-      return false; 
-    }
-    
-    // Nếu là 'mới tạo' hoặc các trạng thái khác -> Cho hiện ra (return true)
+    let strStatus = String(status).trim().toLowerCase(); 
+    if (strStatus === 'hoàn tất' || strStatus === 'hủy') return false; 
     return true; 
   });
-
-  // BƯỚC 2: Nếu ô tìm kiếm trống, hiển thị toàn bộ danh sách hợp lệ
   if (!searchLoHangInput.value) return loHangHopLe;
-
-  // BƯỚC 3: Nếu người dùng có gõ tìm kiếm, lọc tiếp theo từ khóa
   const term = searchLoHangInput.value.toLowerCase();
   return loHangHopLe.filter(lo => 
     (lo.ten_lo_hang && lo.ten_lo_hang.toLowerCase().includes(term)) || 
@@ -280,10 +304,9 @@ watch(searchLoHangInput, (newVal) => { if (newVal === '') formData.value.ma_lo_h
 
 const viewDetail = (type, item) => {
   detailPanel.value.type = type; detailPanel.value.data = item; detailPanel.value.show = true;
-  if (type === 'booking') detailPanel.value.title = '🚢 Thông tin Booking';
-  if (type === 'lo_hang') detailPanel.value.title = '📦 Thông tin Lô hàng';
-  if (type === 'van_don') detailPanel.value.title = '📑 Thông tin Vận đơn';
-  if (type === 'container') detailPanel.value.title = '🗃️ Thông tin Container';
+  if (type === 'booking') detailPanel.value.title = '🚢 Chi tiết Booking';
+  if (type === 'lo_hang') detailPanel.value.title = '📦 Chi tiết Lô hàng';
+  if (type === 'van_don' || type === 'container') detailPanel.value.title = '📑 Chi tiết Vận đơn & Cont';
 };
 
 const fetchData = async () => {
@@ -349,17 +372,21 @@ onMounted(fetchData);
 
 <style scoped>
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 3px 6px; font-size: 12px; margin-left: 8px; }
-.btn-eye:hover { background: #3498db; border-color: #3498db; }
-.side-panel { position: fixed; top: 90px; right: 20px; width: 350px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 100; animation: slideIn 0.3s ease-out; }
+.btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 4px 8px; font-size: 13px; margin-left: 8px; transition: all 0.2s; }
+.btn-eye:hover { background: #3498db; border-color: #3498db; color: white; transform: scale(1.1); }
+.side-panel { position: fixed; top: 90px; right: 20px; width: 380px; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #eee; z-index: 100; animation: slideIn 0.3s ease-out; }
 .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f2f6; background: #fafbfc; border-radius: 8px 8px 0 0; }
 .panel-header h4 { margin: 0; color: #2c3e50; font-size: 16px; }
-.close-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #7f8c8d; }
+.close-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: #7f8c8d; transition: 0.2s;}
+.close-btn:hover { color: #e74c3c; transform: rotate(90deg); }
 .panel-body { padding: 15px; }
+
+/* Nâng cấp bảng chi tiết */
 .detail-table { width: 100%; border-collapse: collapse; }
-.detail-table tr { border-bottom: 1px dashed #ecf0f1; }
-.detail-table td { padding: 10px 0; color: #7f8c8d; font-size: 13px; width: 40%;}
-.detail-table strong { font-size: 13px; color: #2c3e50; display: table-cell; padding-left: 10px;}
+.detail-table tr { border-bottom: 1px solid #f1f2f6; }
+.detail-table td { padding: 12px 0; color: #555; font-size: 14px; width: 40%; vertical-align: top;}
+.detail-table strong { font-size: 14px; color: #2c3e50; display: table-cell; padding-left: 10px;}
+
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 /* Màu nền chẵn lẻ */
@@ -372,7 +399,7 @@ onMounted(fetchData);
 .btn-page:hover:not(:disabled) { background: #f1f3f5; border-color: #adb5bd; }
 .btn-page:disabled { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
 
-/* Badge Trạng Thái (Thẻ màu) */
+/* Badge Trạng Thái */
 .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; white-space: nowrap; }
 .badge-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
 .badge-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
