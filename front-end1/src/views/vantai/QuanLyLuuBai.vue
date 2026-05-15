@@ -2,12 +2,14 @@
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Lưu Bãi</h3>
     
-    <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: center;">
-      <div class="search-box" style="flex: 2; min-width: 250px;">
-        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo tên lô hàng..." style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+    <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+      <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
+        <div class="search-box" style="flex: 1; min-width: 200px;">
+          <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo tên lô hàng hoặc mã lô hàng..." style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+        </div>
       </div>
 
-      <div class="combobox-wrapper" style="flex: 1; min-width: 160px;">
+      <div class="combobox-wrapper" style="width: 180px;">
         <input type="text" v-model="trangThaiSearchText" placeholder="📂 Trạng thái..." @focus="showTrangThaiDropdown = true" class="combobox-input-sm">
         <ul v-if="showTrangThaiDropdown" class="combobox-list">
           <li @click="selectSearchTrangThai('ALL')">📂 Tất cả trạng thái</li>
@@ -15,25 +17,24 @@
         </ul>
       </div>
 
-      <div class="combobox-wrapper" style="flex: 1; min-width: 140px;">
+      <div class="combobox-wrapper" style="width: 180px;">
         <input type="text" v-model="cuocVoSearchText" placeholder="💰 Cược vỏ..." @focus="showCuocVoDropdown = true" class="combobox-input-sm">
         <ul v-if="showCuocVoDropdown" class="combobox-list">
-          <li @click="selectSearchCuocVo('ALL')">💰 Cược vỏ (Tất cả)</li>
+          <li @click="selectSearchCuocVo('ALL')">💰 Tất cả cược vỏ</li>
           <li v-for="cv in filteredCuocVoList" :key="cv" @click="selectSearchCuocVo(cv)">{{ cv }}</li>
         </ul>
       </div>
 
-      <div class="combobox-wrapper" style="flex: 1; min-width: 160px;">
+      <div class="combobox-wrapper" style="width: 180px;">
         <input type="text" v-model="userSearchText" placeholder="👤 Người sửa..." @focus="showUserDropdown = true" class="combobox-input-sm">
         <ul v-if="showUserDropdown" class="combobox-list">
-          <li @click="selectSearchUser('ALL')">👤 Người sửa (Tất cả)</li>
+          <li @click="selectSearchUser('ALL')">👤 Tất cả người sửa</li>
           <li v-for="user in filteredUsers" :key="user" @click="selectSearchUser(user)">{{ user }}</li>
         </ul>
       </div>
 
       <button @click="clearFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s;" title="Xóa lọc">🧹 Xóa lọc</button>
-
-      <button class="btn btn-success" @click="router.push('/van-tai/luu-bai/add')" style="white-space: nowrap;">+ THÊM LƯU BÃI</button>
+      <button class="btn btn-success" @click="router.push('/van-tai/luu-bai/add')" style="border-radius: 6px;">+ THÊM LƯU BÃI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu...</div>
@@ -58,35 +59,35 @@
     </div>
         
 
-        <div class="table-card">
-          <table>
+        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd;">
+          <table style="min-width: 1200px; width: 100%; border-collapse: collapse;">
             <thead>
               <tr>
-                <th style="width: 50px; text-align: center;">STT</th>
-                <th @click="sortBy('ten_lo_hang')" style="cursor: pointer; user-select: none;">Lô Hàng</th>
-                <th @click="sortBy('ngay_bat_dau_luu_bai')" style="cursor: pointer; user-select: none;">Ngày Bắt Đầu</th>
-                <th @click="sortBy('ngay_luu_bai_mien_phi')" style="cursor: pointer; user-select: none; text-align: center;">Ngày Miễn Phí</th>
-                <th @click="sortBy('cuoc_vo')" style="cursor: pointer; user-select: none;">Cược Vỏ</th>
-                <th @click="sortBy('trang_thai_luu_bai')" style="cursor: pointer; user-select: none;">Trạng Thái</th>
-                <th>Người Sửa</th>
-                <th style="text-align: center;">Thao tác</th>
+                <th class="sticky-col-left" style="width: 50px; text-align: center;">STT</th>
+                <th>Lô hàng</th>
+                <th>Ngày bắt đầu</th>
+                <th style="text-align: center;">Ngày miễn phí</th>
+                <th>Cược vỏ</th>
+                <th>Trạng thái</th>
+                <th>Người sửa cuối</th>
+                <th class="sticky-col-right" style="text-align: center;">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in paginatedData" :key="item.ma_luu_bai" 
                   :class="{ 'row-selected': (selectedItem?.ma_luu_bai === item.ma_luu_bai), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
-                <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td class="fw-bold" style="color: #2980b9;">{{ item.ten_lo_hang }}</td>
+                <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                <td>{{ item.ten_lo_hang }}</td>
                 <td>{{ item.ngay_bat_dau_luu_bai ? new Date(item.ngay_bat_dau_luu_bai).toLocaleString('vi-VN') : '---' }}</td>
                 <td style="text-align: center;">{{ item.ngay_luu_bai_mien_phi }}</td>
                 <td>{{ item.cuoc_vo }}</td>
                 <td>
-                  <span class="badge" :class="item.trang_thai_luu_bai === 'Đã trả vỏ' ? 'badge-active' : 'badge-warning'">
+                  <span class="badge" :style="getStatusStyle(item.trang_thai_luu_bai)">
                     {{ item.trang_thai_luu_bai }}
                   </span>
                 </td>
                 <td>{{ item.ten_nguoi_sua || 'N/A' }}</td>
-                <td style="text-align: center;">
+                <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: grid; grid-template-columns: repeat(3, 35px); gap: 5px; justify-content: center; margin: 0 auto; width: fit-content;">
                     <button class="action-btn-no-mg text-success" @click="showShipmentInfo(item)" title="Xem thông tin lô hàng">📋</button>
                     <button class="action-btn-no-mg text-primary" @click="router.push('/van-tai/luu-bai/edit/' + item.ma_luu_bai)" title="Sửa">✏️</button>
@@ -314,16 +315,17 @@ const handleDelete = async (id) => {
 };
 
 onMounted(fetchData);
+
+const getStatusStyle = (status) => {
+  if (status === 'Đã trả vỏ') return { backgroundColor: '#27ae60', color: 'white', whiteSpace: 'nowrap' };
+  if (status === 'Đang lưu bãi') return { backgroundColor: '#f1c40f', color: 'white', whiteSpace: 'nowrap' };
+  return { backgroundColor: '#f39c12', color: 'white', whiteSpace: 'nowrap' };
+};
 </script>
 
 <style scoped src="../../assets/quanlytaikhoan.css"></style>
 <style scoped>
 .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-.badge-active { background-color: #27ae60; color: white; }
-.badge-warning { background-color: #f39c12; color: white; }
-
-.badge-warning { background-color: #f39c12; color: white; white-space: nowrap;}
-.badge-active { background-color: #27ae60; color: white; white-space: nowrap;}
 
 .side-panel {
   width: 380px; background: white; border-radius: 8px; border: 1px solid #ddd;
@@ -348,8 +350,30 @@ onMounted(fetchData);
 .row-selected { background-color: #f0f7ff !important; }
 .action-btn-no-mg { background: none; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; height: 35px; width: 35px; }
 .action-btn-no-mg:hover { transform: scale(1.2); }
-</style>
-<style scoped>
+
+/* CSS cho cột cố định */
+.sticky-col-left {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 1px solid #ddd !important;
+}
+.sticky-col-right {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  border-left: 1px solid #ddd !important;
+}
+tr.row-even .sticky-col-left, tr.row-even .sticky-col-right { background-color: #f2f2f2 !important; }
+tr.row-odd .sticky-col-left, tr.row-odd .sticky-col-right { background-color: #ffffff !important; }
+tr.row-selected .sticky-col-left, tr.row-selected .sticky-col-right { background-color: #f0f7ff !important; }
+thead th.sticky-col-left, thead th.sticky-col-right { background-color: #f8f9fa !important; z-index: 11; }
+
+.table-card table th, .table-card table td { 
+  white-space: nowrap; 
+  padding: 12px 15px; 
+}
+
 /* CSS cho Combobox Tìm kiếm trong Toolbar */
 .combobox-wrapper { position: relative; width: 100%; }
 .combobox-input-sm {
@@ -381,7 +405,7 @@ onMounted(fetchData);
 .row-even { background-color: #f2f2f2 !important; }
 .row-odd { background-color: #ffffff !important; }
 
-/* Ensure table cells have consistent padding */
+/* Đảm bảo bảng hiển thị đẹp */
 .table-card table th, .table-card table td { 
   white-space: nowrap; 
   padding: 12px 15px; 

@@ -105,22 +105,22 @@
             <thead>
               <tr>
                 <th class="sticky-col-left" style="width: 50px; text-align: center;">STT</th>
-                <th>Mã</th>
+                <th>Mã Vận Đơn</th>
                 <th>Số Vận Đơn</th>
                 <th>Số Vận Đơn Gốc</th>
                 <th>Loại B/L</th>
                 <th>Lô hàng</th>
-                <th>Cảng Đi (POL)</th>
-                <th>Cảng Đến (POD)</th>
-                <th>Người Gửi (Shipper)</th>
-                <th>Người Nhận (Consignee)</th>
-                <th>Bên Được Thông Báo</th>
+                <th>Cảng đi (POL)</th>
+                <th>Cảng đến (POD)</th>
+                <th>Người gửi (Shipper)</th>
+                <th>Người nhận (Consignee)</th>
+                <th>Bên được thông báo</th>
                 <th>Điều kiện cước</th>
-                <th>Phương thức</th>
+                <th>Phương thức đóng Cont</th>
                 <th>Số Container</th>
-                <th>Số Chì (Seal)</th>
-                <th>Ngày PH</th>
-                <th>Người sửa</th>
+                <th>Số Chì </th>
+                <th>Ngày phát hành</th>
+                <th>Người sửa cuối</th>
                 <th class="sticky-col-right" style="text-align: center;">Thao tác</th>
               </tr>
             </thead>
@@ -128,16 +128,16 @@
               <tr v-for="(vd, index) in paginatedVanDon" :key="vd.ma_van_don" 
                   :class="{ 'row-selected': (selectedItem?.ma_van_don === vd.ma_van_don), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
                 <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td class="fw-bold">{{ vd.ma_van_don }}</td>
-                <td class="fw-bold" style="color: #2980b9;">{{ vd.so_van_don }}</td>
+                <td>{{ vd.ma_van_don }}</td>
+                <td>{{ vd.so_van_don }}</td>
                 <td>{{ vd.so_van_don_goc || '---' }}</td>
                 <td><span class="badge badge-active" style="white-space: nowrap; font-size: 11px;">{{ vd.loai_van_don }}</span></td>
-                <td class="fw-bold">{{ vd.ten_lo_hang || '---' }}</td>
+                <td >{{ vd.ten_lo_hang || '---' }}</td>
                 <td><strong>{{ vd.ten_cang_di || '---' }}</strong></td>
                 <td><strong>{{ vd.ten_cang_den || '---' }}</strong></td>
-                <td style="font-size: 13px;">{{ vd.ten_nguoi_gui_hang || '---' }}</td>
-                <td style="font-size: 13px;">{{ vd.ten_nguoi_nhan_hang || '---' }}</td>
-                <td style="font-size: 13px;">{{ vd.ten_ben_duoc_thong_bao || '---' }}</td>
+                <td>{{ vd.ten_nguoi_gui_hang || '---' }}</td>
+                <td>{{ vd.ten_nguoi_nhan_hang || '---' }}</td>
+                <td>{{ vd.ten_ben_duoc_thong_bao || '---' }}</td>
                 <td style="text-align: center;">{{ vd.dieu_kien_cuoc }}</td>
                 <td style="text-align: center;"><strong>{{ vd.phuong_thuc_dong_cont }}</strong></td>
                 <td>{{ vd.so_cont || '---' }}</td>
