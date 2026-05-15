@@ -6,7 +6,6 @@
     <div v-if="unusedBookingCount > 0" class="booking-alert-banner">
       <span class="icon">🔔</span>
       <span class="text">Hiện có <strong>{{ unusedBookingCount }}</strong> Booking Note chưa được liên kết (chưa có lô hàng nào chọn).</span>
-      <button @click="router.push('/lo-hang/booking')" class="btn-go">Xem danh sách ➔</button>
     </div>
 
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
