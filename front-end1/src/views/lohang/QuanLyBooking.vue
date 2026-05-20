@@ -78,6 +78,15 @@
       </div>
     </div>
 
+    <!-- Bộ lọc ẩn hiện cột -->
+    <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 10px; border: 1px solid #e1e4e8; border-radius: 8px; background: #f8f9fa;">
+      <strong style="margin-right: 10px;">Hiển thị cột:</strong>
+      <label v-for="col in columnDefinitions" :key="col.key" style="margin-right: 15px; font-size: 14px; cursor: pointer;">
+        <input type="checkbox" v-model="columnVisibility[col.key]" style="margin-right: 5px;">
+        {{ col.label }}
+      </label>
+    </div>
+
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
       Đang tải dữ liệu Booking Note...
     </div>
@@ -99,51 +108,53 @@
         </div>
       </div>
 
-      <div class="table-card">
+      <div class="table-card scrollable-table">
       <table>
         <thead>
           <tr>
             <th style="width: 50px; text-align: center;">STT</th>
-            <th>Số Booking</th>
-            <th>Tên Tàu / Chuyến</th>
-            <th>Hãng Tàu</th>
-            <th>Cảng Đi (POL)</th>
-            <th>Cảng Đến (POD)</th>
-            <th>Cut-off (Cắt máng)</th>
-            <th>ETD (Dự kiến đi)</th>
-            <th>ETA (Dự kiến đến)</th>
-            <th>Người sửa cuối</th>
-            <th style="text-align: center;">Thao tác</th>
+            <th v-if="columnVisibility.so_booking" style="width: 150px;">Số Booking</th>
+            <th v-if="columnVisibility.tau_chuyen" style="width: 200px;">Tên Tàu / Chuyến</th>
+            <th v-if="columnVisibility.ten_hang_tau" style="width: 150px;">Hãng Tàu</th>
+            <th v-if="columnVisibility.ten_cang_di" style="width: 150px;">Cảng Đi (POL)</th>
+            <th v-if="columnVisibility.ten_cang_den" style="width: 150px;">Cảng Đến (POD)</th>
+            <th v-if="columnVisibility.gio_cat_mang" style="width: 150px;">Cut-off (Cắt máng)</th>
+            <th v-if="columnVisibility.etd" style="width: 150px;">ETD (Dự kiến đi)</th>
+            <th v-if="columnVisibility.eta" style="width: 150px;">ETA (Dự kiến đến)</th>
+            <th v-if="columnVisibility.nguoi_sua_doi" style="width: 150px;">Người sửa cuối</th>
+            <th style="width: 100px; text-align: center;">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(bk, index) in paginatedBookings" :key="bk.ma_booking">
             <td style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-            <td style="color: #2980b9;">{{ bk.so_booking }}</td>
-            <td>
+            <td v-if="columnVisibility.so_booking" style="color: #2980b9;">{{ bk.so_booking }}</td>
+            <td v-if="columnVisibility.tau_chuyen">
               <strong>{{ bk.ten_con_tau || 'N/A' }}</strong><br>
               <span style="font-size: 12px; color: #7f8c8d;">{{ bk.so_chuyen || 'N/A' }}</span>
             </td>
-            <td>{{ bk.ten_hang_tau || 'Chưa rõ' }}</td>
-            <td>{{ bk.ten_cang_di || '---' }}</td>
-            <td>{{ bk.ten_cang_den || '---' }}</td>
-            <td>
+            <td v-if="columnVisibility.ten_hang_tau">{{ bk.ten_hang_tau || 'Chưa rõ' }}</td>
+            <td v-if="columnVisibility.ten_cang_di">{{ bk.ten_cang_di || '---' }}</td>
+            <td v-if="columnVisibility.ten_cang_den">{{ bk.ten_cang_den || '---' }}</td>
+            <td v-if="columnVisibility.gio_cat_mang">
               <span class="badge badge-warning" style="white-space: nowrap;">{{ formatDateTime(bk.gio_cat_mang) }}</span>
             </td>
-            <td>
+            <td v-if="columnVisibility.etd">
               <span class="badge" style="background-color: #3498db; color: white; white-space: nowrap;">{{ formatDateTime(bk.etd) }}</span>
             </td>
-            <td>
+            <td v-if="columnVisibility.eta">
               <span class="badge" style="background-color: #2ecc71; color: white; white-space: nowrap;">{{ formatDateTime(bk.eta) }}</span>
             </td>
-            <td>{{ bk.nguoi_sua_doi || 'N/A' }}</td>
+            <td v-if="columnVisibility.nguoi_sua_doi">{{ bk.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
+              <div style="display: flex; gap: 8px; justify-content: center;">
               <button class="action-btn text-primary" @click="router.push('/lo-hang/booking/edit/' + bk.ma_booking)" title="Cập nhật">✏️</button>
               <button class="action-btn text-danger" @click="handleDelete(bk.ma_booking)" title="Xóa">🗑️</button>
+              </div>
             </td>
           </tr>
           <tr v-if="filteredBookings.length === 0">
-            <td colspan="11" style="text-align: center; padding: 20px; color: #7f8c8d;">
+            <td :colspan="visibleColumnCount" style="text-align: center; padding: 20px; color: #7f8c8d;">
               Không tìm thấy Booking nào!
             </td>
           </tr>
@@ -155,7 +166,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -177,6 +188,30 @@ const polSearchText = ref('');
 const showPolDropdown = ref(false);
 const podSearchText = ref('');
 const showPodDropdown = ref(false);
+
+// Cấu hình ẩn hiện cột
+const columnDefinitions = ref([
+  { key: 'so_booking', label: 'Số Booking' },
+  { key: 'tau_chuyen', label: 'Tàu / Chuyến' },
+  { key: 'ten_hang_tau', label: 'Hãng Tàu' },
+  { key: 'ten_cang_di', label: 'Cảng Đi' },
+  { key: 'ten_cang_den', label: 'Cảng Đến' },
+  { key: 'gio_cat_mang', label: 'Cut-off' },
+  { key: 'etd', label: 'ETD' },
+  { key: 'eta', label: 'ETA' },
+  { key: 'nguoi_sua_doi', label: 'Người sửa cuối' },
+]);
+
+const columnVisibility = reactive({});
+columnDefinitions.value.forEach(col => {
+  columnVisibility[col.key] = true;
+});
+
+const visibleColumnCount = computed(() => {
+  let count = 2; // Mặc định có STT và Thao tác
+  columnDefinitions.value.forEach(col => { if (columnVisibility[col.key]) count++; });
+  return count;
+});
 
 // Computed lọc danh sách cho dropdown
 const filteredHtList = computed(() => 
@@ -347,6 +382,7 @@ onMounted(async () => {
 .btn-pagination {
   padding: 5px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;
 }
+.btn-pagination:hover:not(:disabled) { background: #f0f0f0; border-color: #3498db; color: #3498db; }
 .btn-pagination:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Style cho Combobox tìm kiếm */
@@ -375,5 +411,54 @@ onMounted(async () => {
 }
 .table-card table tbody tr:hover {
   background-color: #eef7ff;
+}
+
+/* Cố định cột STT và Thao tác và thiết lập bảng co giãn */
+.scrollable-table {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.scrollable-table table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.scrollable-table th:first-child,
+.scrollable-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 2px solid #ddd;
+}
+
+.scrollable-table th:last-child,
+.scrollable-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  border-left: 2px solid #ddd;
+}
+
+.scrollable-table th:first-child,
+.scrollable-table th:last-child {
+  background-color: #f8f9fa !important;
+}
+
+.table-card table tbody tr:nth-child(odd) td:first-child,
+.table-card table tbody tr:nth-child(odd) td:last-child {
+  background-color: #ffffff !important;
+}
+
+.table-card table tbody tr:nth-child(even) td:first-child,
+.table-card table tbody tr:nth-child(even) td:last-child {
+  background-color: #f2f2f2 !important;
+}
+
+.table-card table tbody tr:hover td:first-child,
+.table-card table tbody tr:hover td:last-child {
+  background-color: #eef7ff !important;
 }
 </style>

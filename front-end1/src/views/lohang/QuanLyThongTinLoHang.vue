@@ -113,6 +113,16 @@
       <button class="btn btn-success" @click="router.push('/lo-hang/thong-tin-lo-hang/add')">+ TẠO LÔ HÀNG MỚI</button>
     </div>
 
+    <!-- New section for column visibility checkboxes -->
+    <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 10px; border: 1px solid #e1e4e8; border-radius: 8px; background: #f8f9fa;">
+      <strong style="margin-right: 10px;">Hiển thị cột:</strong>
+      <label v-for="col in columnDefinitions" :key="col.key" style="margin-right: 15px; font-size: 14px; cursor: pointer;">
+        <input type="checkbox" v-model="columnVisibility[col.key]" style="margin-right: 5px;">
+        {{ col.label }}
+      </label>
+    </div>
+
+
     <div style="display: flex; gap: 20px; align-items: flex-start;">
       <!-- BÊN TRÁI: DANH SÁCH LÔ HÀNG -->
       <div style="flex: 1; min-width: 0;">
@@ -142,47 +152,47 @@
               <thead>
                 <tr>
                   <th style="width: 50px; text-align: center;">STT</th>
-                  <th>Mã Lô</th>
-                  <th>Tên Lô Hàng</th>
-                  <th>Khách Hàng</th>
-                  <th>Điều kiện</th>
-                  <th>Booking</th>
-                  <th>Số Vận Đơn</th>
-                  <th>Mã giấy báo hàng đến</th>
-                  <th>Mã D/O</th>
-                  <th>Mã BBGN</th>
-                  <th>Mã Tờ Khai</th>
-                  <th>Nguồn gốc</th>
-                  <th>Trạng thái</th>
-                  <th>Người sửa cuối</th>
-                  <th style="text-align: center;">Thao tác</th>
+                  <th v-if="columnVisibility.ma_lo_hang" style="width: 80px;">Mã Lô</th>
+                  <th v-if="columnVisibility.ten_lo_hang" style="width: 250px;">Tên Lô Hàng</th>
+                  <th v-if="columnVisibility.ten_khach_hang" style="width: 200px;">Khách Hàng</th>
+                  <th v-if="columnVisibility.dieu_kien_thuong_mai" style="width: 100px;">Điều kiện</th>
+                  <th v-if="columnVisibility.so_booking" style="width: 150px;">Booking Note</th>
+                  <th v-if="columnVisibility.so_van_don" style="width: 150px;">Số Vận Đơn</th>
+                  <th v-if="columnVisibility.ma_thong_bao_hang_den" style="width: 130px;">Mã AN</th>
+                  <th v-if="columnVisibility.ma_lenh_giao_hang" style="width: 120px;">Mã D/O</th>
+                  <th v-if="columnVisibility.ma_bien_ban_giao_nhan" style="width: 120px;">Mã BBGN</th>
+                  <th v-if="columnVisibility.ma_to_khai_hai_quan" style="width: 120px;">Mã Tờ Khai</th>
+                  <th v-if="columnVisibility.nguon_goc" style="width: 150px;">Nguồn gốc</th>
+                  <th v-if="columnVisibility.trang_thai_lo_hang" style="width: 160px;">Trạng thái</th>
+                  <th v-if="columnVisibility.nguoi_sua_doi" style="width: 150px;">Người sửa cuối</th>
+                  <th style="width: 180px; text-align: center;">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(lh, index) in paginatedLoHang" :key="lh.ma_lo_hang" :class="{ 'row-selected': (selectedItem?.ma_lo_hang === lh.ma_lo_hang) }">
                   <td class="fw-bold" style="text-align: center;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                  <td>{{ lh.ma_lo_hang }}</td>
-                  <td style="color: #2980b9;">{{ lh.ten_lo_hang }}</td>
-                  <td>{{ lh.ten_khach_hang || '---' }}</td>
-                  <td><span class="badge" style="background-color: #9b59b6; color: white;">{{ lh.dieu_kien_thuong_mai }}</span></td>
-                  <td>
+                  <td v-if="columnVisibility.ma_lo_hang">{{ lh.ma_lo_hang }}</td>
+                  <td v-if="columnVisibility.ten_lo_hang" style="color: #2980b9;">{{ lh.ten_lo_hang }}</td>
+                  <td v-if="columnVisibility.ten_khach_hang">{{ lh.ten_khach_hang || '---' }}</td>
+                  <td v-if="columnVisibility.dieu_kien_thuong_mai"><span class="badge" style="background-color: #9b59b6; color: white;">{{ lh.dieu_kien_thuong_mai }}</span></td>
+                  <td v-if="columnVisibility.so_booking">
                     <div style="display: flex; align-items: center; gap: 5px;">
                       {{ lh.so_booking || 'Chưa gắn' }}
                       <button v-if="lh.ma_booking" @click="showBookingInfo(lh)" class="view-btn" title="Xem Booking">👁️</button>
                     </div>
                   </td>
-                  <td>{{ lh.so_van_don || '---' }}</td>
-                  <td>{{ lh.ma_thong_bao_hang_den || '---' }}</td>
-                  <td>{{ lh.ma_lenh_giao_hang || '---' }}</td>
-                  <td>{{ lh.ma_bien_ban_giao_nhan || '---' }}</td>
-                  <td>{{ lh.ma_to_khai_hai_quan || '---' }}</td>
-                  <td>{{ lh.nguon_goc || '---' }}</td>
-                  <td>
+                  <td v-if="columnVisibility.so_van_don">{{ lh.so_van_don || '---' }}</td>
+                  <td v-if="columnVisibility.ma_thong_bao_hang_den">{{ lh.ma_thong_bao_hang_den || '---' }}</td>
+                  <td v-if="columnVisibility.ma_lenh_giao_hang">{{ lh.ma_lenh_giao_hang || '---' }}</td>
+                  <td v-if="columnVisibility.ma_bien_ban_giao_nhan">{{ lh.ma_bien_ban_giao_nhan || '---' }}</td>
+                  <td v-if="columnVisibility.ma_to_khai_hai_quan">{{ lh.ma_to_khai_hai_quan || '---' }}</td>
+                  <td v-if="columnVisibility.nguon_goc">{{ lh.nguon_goc || '---' }}</td>
+                  <td v-if="columnVisibility.trang_thai_lo_hang">
                     <span class="badge" :class="statusClass(lh.trang_thai_lo_hang)" style="white-space: nowrap;">
                       {{ lh.trang_thai_lo_hang }}
                     </span>
                   </td>
-                  <td>{{ lh.nguoi_sua_doi || 'N/A' }}</td>
+                  <td v-if="columnVisibility.nguoi_sua_doi">{{ lh.nguoi_sua_doi || 'N/A' }}</td>
                   <td style="text-align: center;">
                     <div style="display: flex; gap: 8px; justify-content: center;">
                       <button 
@@ -196,8 +206,8 @@
                     </div>
                   </td>
                 </tr>
-                <tr v-if="filteredLoHang.length === 0">
-                  <td colspan="15" style="text-align: center; padding: 20px; color: #7f8c8d;">
+                <tr v-if="paginatedLoHang.length === 0">
+                  <td :colspan="visibleColumnCount" style="text-align: center; padding: 20px; color: #7f8c8d;">
                     Không tìm thấy lô hàng nào!
                   </td>
                 </tr>
@@ -263,7 +273,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -272,7 +282,7 @@ const listKhachHang = ref([]);
 const listBooking = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
-const searchItemQuery = ref('');
+const searchItemQuery = ref(''); // Keep this for item search
 const filterTrangThai = ref('ALL');
 const filterKhachHang = ref(null);
 const filterIncoterms = ref(null);
@@ -302,6 +312,28 @@ const bbgnSearchText = ref('');
 const showBbgnDropdown = ref(false);
 const tkSearchText = ref('');
 const showTkDropdown = ref(false);
+
+// Column visibility feature
+const columnDefinitions = ref([
+  { key: 'ma_lo_hang', label: 'Mã Lô' },
+  { key: 'ten_lo_hang', label: 'Tên Lô Hàng' },
+  { key: 'ten_khach_hang', label: 'Khách Hàng' },
+  { key: 'dieu_kien_thuong_mai', label: 'Điều kiện' },
+  { key: 'so_booking', label: 'Booking' },
+  { key: 'so_van_don', label: 'Số Vận Đơn' },
+  { key: 'ma_thong_bao_hang_den', label: 'Mã AN' },
+  { key: 'ma_lenh_giao_hang', label: 'Mã D/O' },
+  { key: 'ma_bien_ban_giao_nhan', label: 'Mã BBGN' },
+  { key: 'ma_to_khai_hai_quan', label: 'Mã Tờ Khai' },
+  { key: 'nguon_goc', label: 'Nguồn gốc' },
+  { key: 'trang_thai_lo_hang', label: 'Trạng thái' },
+  { key: 'nguoi_sua_doi', label: 'Người sửa cuối' },
+]);
+
+const columnVisibility = reactive({});
+columnDefinitions.value.forEach(col => {
+  columnVisibility[col.key] = true;
+});
 
 // Computed lọc danh sách cho dropdown
 const filteredKhList = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(khSearchText.value.toLowerCase())));
@@ -495,6 +527,18 @@ const showShipmentItems = async (lh) => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
+// Computed property for colspan in "No data" row
+const visibleColumnCount = computed(() => {
+  // Start with 2 for STT and Thao tác (which are always visible)
+  let count = 2;
+  for (const key in columnVisibility) {
+    if (columnVisibility[key]) {
+      count++;
+    }
+  }
+  return count;
+});
+
 watch([searchQuery, searchItemQuery, filterTrangThai, filterKhachHang, filterIncoterms, filterUser, filterHangHoa, pageSize], () => {
   currentPage.value = 1;
 });
@@ -628,7 +672,8 @@ onUnmounted(() => {
 }
 
 .scrollable-table table {
-  min-width: 1800px; /* Đảm bảo bảng đủ rộng để kích hoạt thanh cuộn */
+  width: max-content;
+  min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -704,6 +749,12 @@ onUnmounted(() => {
   background: #f39c12; color: white; border: none; padding: 6px 12px;
   border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
   transition: 0.2s;
+}
+
+.column-visibility-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 .booking-alert-banner .btn-go:hover { background: #e67e22; }
 
