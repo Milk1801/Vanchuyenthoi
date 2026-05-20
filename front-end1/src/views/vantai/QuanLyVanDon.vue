@@ -77,6 +77,20 @@
       </div>
     </div>
 
+    <!-- New: Column Visibility Controls -->
+    <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+      <h5 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">Hiển thị cột dữ liệu:</h5>
+      <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+        <div v-for="(col, key) in columnVisibility" :key="key" class="checkbox-item">
+          <input type="checkbox" :id="'col-' + key" v-model="col.visible" style="margin-right: 5px;">
+          <label :for="'col-' + key" style="font-size: 13px; color: #555;">{{ col.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- End New: Column Visibility Controls -->
+
+
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
       Đang tải dữ liệu Vận đơn...
     </div>
@@ -100,50 +114,57 @@
           </div>
         </div>
 
-        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd;">
-          <table style="min-width: 2200px; width: 100%; border-collapse: collapse;">
+        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd; width: 100%;">
+          <table style="width: max-content; border-collapse: collapse;">
             <thead>
               <tr>
                 <th class="sticky-col-left" style="width: 50px; text-align: center;">STT</th>
-                <th>Mã Vận Đơn</th>
-                <th>Số Vận Đơn</th>
-                <th>Số Vận Đơn Gốc</th>
-                <th>Loại B/L</th>
-                <th>Lô hàng</th>
-                <th>Cảng đi (POL)</th>
-                <th>Cảng đến (POD)</th>
-                <th>Người gửi (Shipper)</th>
-                <th>Người nhận (Consignee)</th>
-                <th>Bên được thông báo</th>
-                <th>Điều kiện cước</th>
-                <th>Phương thức đóng Cont</th>
-                <th>Số Container</th>
-                <th>Số Chì </th>
-                <th>Ngày phát hành</th>
-                <th>Người sửa cuối</th>
-                <th class="sticky-col-right" style="text-align: center;">Thao tác</th>
+                <th v-if="columnVisibility.ma_van_don.visible" style="width: 120px;">Mã Vận Đơn</th>
+                <th v-if="columnVisibility.so_van_don.visible" style="width: 150px;">Số Vận Đơn</th>
+                <th v-if="columnVisibility.so_van_don_goc.visible" style="width: 150px;">Số Vận Đơn Gốc</th>
+                <th v-if="columnVisibility.loai_van_don.visible" style="width: 120px;">Loại B/L</th>
+                <th v-if="columnVisibility.ten_lo_hang.visible" style="width: 200px;">Lô hàng</th>
+                <th v-if="columnVisibility.ten_cang_di.visible" style="width: 150px;">Cảng đi (POL)</th>
+                <th v-if="columnVisibility.ten_cang_den.visible" style="width: 150px;">Cảng đến (POD)</th>
+                <th v-if="columnVisibility.ten_nguoi_gui_hang.visible" style="width: 220px;">Người gửi (Shipper)</th>
+                <th v-if="columnVisibility.ten_nguoi_nhan_hang.visible" style="width: 220px;">Người nhận (Consignee)</th>
+                <th v-if="columnVisibility.ten_ben_duoc_thong_bao.visible" style="width: 220px;">Bên được thông báo</th>
+                <th v-if="columnVisibility.dieu_kien_cuoc.visible" style="width: 150px;">Điều kiện cước</th>
+                <th v-if="columnVisibility.phuong_thuc_dong_cont.visible" style="width: 150px;">Phương thức đóng Cont</th>
+                <th v-if="columnVisibility.so_cont.visible" style="width: 150px;">Số Container</th>
+                <th v-if="columnVisibility.so_chi.visible" style="width: 120px;">Số Chì </th>
+                <th v-if="columnVisibility.ngay_phat_hanh.visible" style="width: 130px;">Ngày phát hành</th>
+                <th v-if="columnVisibility.nguoi_sua_doi.visible" style="width: 150px;">Người sửa cuối</th>
+                <th class="sticky-col-right" style="text-align: center; width: 120px;">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(vd, index) in paginatedVanDon" :key="vd.ma_van_don" 
                   :class="{ 'row-selected': (selectedItem?.ma_van_don === vd.ma_van_don), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
                 <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td>{{ vd.ma_van_don }}</td>
-                <td>{{ vd.so_van_don }}</td>
-                <td>{{ vd.so_van_don_goc || '---' }}</td>
-                <td><span class="badge badge-active" style="white-space: nowrap; font-size: 11px;">{{ vd.loai_van_don }}</span></td>
-                <td >{{ vd.ten_lo_hang || '---' }}</td>
-                <td><strong>{{ vd.ten_cang_di || '---' }}</strong></td>
-                <td><strong>{{ vd.ten_cang_den || '---' }}</strong></td>
-                <td>{{ vd.ten_nguoi_gui_hang || '---' }}</td>
-                <td>{{ vd.ten_nguoi_nhan_hang || '---' }}</td>
-                <td>{{ vd.ten_ben_duoc_thong_bao || '---' }}</td>
-                <td style="text-align: center;">{{ vd.dieu_kien_cuoc }}</td>
-                <td style="text-align: center;"><strong>{{ vd.phuong_thuc_dong_cont }}</strong></td>
-                <td>{{ vd.so_cont || '---' }}</td>
-                <td>{{ vd.so_chi || '---' }}</td>
-                <td>{{ formatDate(vd.ngay_phat_hanh) }}</td>
-                <td>{{ vd.nguoi_sua_doi || 'N/A' }}</td>
+                <td v-if="columnVisibility.ma_van_don.visible">{{ vd.ma_van_don }}</td>
+                <td v-if="columnVisibility.so_van_don.visible">{{ vd.so_van_don }}</td>
+                <td v-if="columnVisibility.so_van_don_goc.visible">{{ vd.so_van_don_goc || '---' }}</td>
+                <td v-if="columnVisibility.loai_van_don.visible"><span class="badge badge-active" style="white-space: nowrap; font-size: 11px;">{{ vd.loai_van_don }}</span></td>
+                <td v-if="columnVisibility.ten_lo_hang.visible"
+                    @mouseenter="handleMouseEnter($event, vd)" 
+                    @mousemove="handleMouseMove"
+                    @mouseleave="handleMouseLeave"
+                    @click="goToLoHangList(vd.ma_lo_hang)"
+                    style="cursor: pointer; color: #2980b9; font-weight: 500; text-decoration: underline;">
+                  {{ vd.ten_lo_hang || '---' }}
+                </td>
+                <td v-if="columnVisibility.ten_cang_di.visible"><strong>{{ vd.ten_cang_di || '---' }}</strong></td>
+                <td v-if="columnVisibility.ten_cang_den.visible"><strong>{{ vd.ten_cang_den || '---' }}</strong></td>
+                <td v-if="columnVisibility.ten_nguoi_gui_hang.visible">{{ vd.ten_nguoi_gui_hang || '---' }}</td>
+                <td v-if="columnVisibility.ten_nguoi_nhan_hang.visible">{{ vd.ten_nguoi_nhan_hang || '---' }}</td>
+                <td v-if="columnVisibility.ten_ben_duoc_thong_bao.visible">{{ vd.ten_ben_duoc_thong_bao || '---' }}</td>
+                <td v-if="columnVisibility.dieu_kien_cuoc.visible" style="text-align: center;">{{ vd.dieu_kien_cuoc }}</td>
+                <td v-if="columnVisibility.phuong_thuc_dong_cont.visible" style="text-align: center;"><strong>{{ vd.phuong_thuc_dong_cont }}</strong></td>
+                <td v-if="columnVisibility.so_cont.visible">{{ vd.so_cont || '---' }}</td>
+                <td v-if="columnVisibility.so_chi.visible">{{ vd.so_chi || '---' }}</td>
+                <td v-if="columnVisibility.ngay_phat_hanh.visible">{{ formatDate(vd.ngay_phat_hanh) }}</td>
+                <td v-if="columnVisibility.nguoi_sua_doi.visible">{{ vd.nguoi_sua_doi || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: grid; grid-template-columns: repeat(2, 35px); gap: 5px; justify-content: center; margin: 0 auto; width: fit-content;">
                     <button class="action-btn-no-mg text-success" @click="showShipmentInfo(vd)" title="Xem thông tin lô hàng">📋</button>
@@ -154,7 +175,7 @@
                 </td>
               </tr>
               <tr v-if="filteredVanDon.length === 0">
-                <td colspan="11" style="text-align: center; padding: 20px; color: #7f8c8d;">
+                <td :colspan="visibleColumnsCount" style="text-align: center; padding: 20px; color: #7f8c8d;">
                   Không tìm thấy vận đơn nào!
                 </td>
               </tr>
@@ -193,6 +214,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Tooltip hiển thị thông tin lô hàng khi hover -->
+    <div v-if="tooltipShipment" class="shipment-tooltip" :style="{ top: tooltipPos.y + 'px', left: tooltipPos.x + 'px' }">
+      <div class="tooltip-header">📦 Thông tin lô hàng</div>
+      <div class="tooltip-content">
+        <div><strong>Mã:</strong> <span>#{{ tooltipShipment.ma_lo_hang }}</span></div>
+        <div><strong>Tên:</strong> <span>{{ tooltipShipment.ten_lo_hang }}</span></div>
+        <div><strong>Khách hàng:</strong> <span>{{ tooltipShipment.ten_khach_hang || 'N/A' }}</span></div>
+        <div><strong>Incoterms:</strong> <span>{{ tooltipShipment.dieu_kien_thuong_mai || 'N/A' }}</span></div>
+        <div><strong>Trạng thái:</strong> <span class="badge badge-active" style="font-size: 11px;">{{ tooltipShipment.trang_thai_lo_hang }}</span></div>
+        <div><strong>Booking:</strong> <span>{{ tooltipShipment.so_booking || 'N/A' }}</span></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -204,6 +238,7 @@ const router = useRouter();
 const listVanDon = ref([]);
 const listCangBien = ref([]);
 const listKhachHang = ref([]);
+const listAllLoHang = ref([]);
 const isLoading = ref(true);
 const searchSoVanDon = ref('');
 const searchSoVanDonGoc = ref('');
@@ -243,10 +278,38 @@ const selectedItem = ref(null);
 const selectedShipment = ref(null);
 const isPanelLoading = ref(false);
 
+const tooltipShipment = ref(null);
+const tooltipPos = ref({ x: 0, y: 0 });
+
 // Phân trang
 const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
+
+// New: Column Visibility State
+const columnVisibility = ref({
+  ma_van_don: { label: 'Mã Vận Đơn', visible: true },
+  so_van_don: { label: 'Số Vận Đơn', visible: true },
+  so_van_don_goc: { label: 'Số Vận Đơn Gốc', visible: true },
+  loai_van_don: { label: 'Loại B/L', visible: true },
+  ten_lo_hang: { label: 'Lô hàng', visible: true },
+  ten_cang_di: { label: 'Cảng đi (POL)', visible: true },
+  ten_cang_den: { label: 'Cảng đến (POD)', visible: true },
+  ten_nguoi_gui_hang: { label: 'Người gửi (Shipper)', visible: true },
+  ten_nguoi_nhan_hang: { label: 'Người nhận (Consignee)', visible: true },
+  ten_ben_duoc_thong_bao: { label: 'Bên được thông báo', visible: true },
+  dieu_kien_cuoc: { label: 'Điều kiện cước', visible: true },
+  phuong_thuc_dong_cont: { label: 'Phương thức đóng Cont', visible: true },
+  so_cont: { label: 'Số Container', visible: true },
+  so_chi: { label: 'Số Chì', visible: true },
+  ngay_phat_hanh: { label: 'Ngày phát hành', visible: true },
+  nguoi_sua_doi: { label: 'Người sửa cuối', visible: true },
+});
+
+const visibleColumnsCount = computed(() => {
+  // Mặc định có STT và Thao tác (2) + các cột được chọn
+  return Object.values(columnVisibility.value).filter(col => col.visible).length + 2;
+});
 
 const listLoaiVanDon = ['Original B/L', 'Surrendered B/L', 'Seaway Bill'];
 
@@ -368,24 +431,34 @@ const selectSearchLoai = (type) => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-const showShipmentInfo = async (vd) => {
+const goToLoHangList = (ma_lo_hang) => {
+  router.push({ 
+    path: '/lo-hang/thong-tin-lo-hang', 
+    query: { ma_lo_hang: ma_lo_hang } 
+  });
+};
+
+const handleMouseEnter = (event, vd) => {
+  const found = listAllLoHang.value.find(lh => lh.ma_lo_hang === vd.ma_lo_hang);
+  if (found) {
+    tooltipShipment.value = found;
+    tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+  }
+};
+
+const handleMouseMove = (event) => {
+  tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+};
+
+const handleMouseLeave = () => {
+  tooltipShipment.value = null;
+};
+
+const showShipmentInfo = (vd) => {
   selectedItem.value = vd;
   viewType.value = 'shipment';
   panelTitle.value = '📦 Thông tin lô hàng: ' + vd.ten_lo_hang;
-  isPanelLoading.value = true;
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/lo-hang`);
-    const data = await res.json();
-    if (data.success) {
-      selectedShipment.value = data.data.find(lh => lh.ma_lo_hang === vd.ma_lo_hang);
-    } else {
-      selectedShipment.value = null;
-    }
-  } catch (error) {
-    selectedShipment.value = null;
-  } finally {
-    isPanelLoading.value = false;
-  }
+  selectedShipment.value = listAllLoHang.value.find(lh => lh.ma_lo_hang === vd.ma_lo_hang);
 };
 
 const handlePrintPDF = (id) => {
@@ -404,11 +477,19 @@ const fetchData = async () => {
 
 const fetchReferences = async () => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/van-don/references`);
-    const data = await res.json();
-    if (data.success) {
-      listCangBien.value = data.cang_bien;
-      listKhachHang.value = data.khach_hang || [];
+    const [resRef, resLH] = await Promise.all([
+      fetch(`${import.meta.env.VITE_API_URL}/van-don/references`),
+      fetch(`${import.meta.env.VITE_API_URL}/lo-hang`)
+    ]);
+    const dataRef = await resRef.json();
+    const dataLH = await resLH.json();
+
+    if (dataRef.success) {
+      listCangBien.value = dataRef.cang_bien;
+      listKhachHang.value = dataRef.khach_hang || [];
+    }
+    if (dataLH.success) {
+      listAllLoHang.value = dataLH.data;
     }
   } catch (error) {
     console.error("Lỗi lấy danh mục!");
@@ -531,4 +612,40 @@ thead th.sticky-col-left, thead th.sticky-col-right { background-color: #f8f9fa 
 .action-btn-no-mg { background: none; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; height: 35px; width: 35px; }
 .action-btn-no-mg:hover { transform: scale(1.2); }
 .text-warning { color: #f39c12; }
+
+.shipment-tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  width: 300px;
+  pointer-events: none;
+  font-size: 13px;
+  color: #2c3e50;
+}
+.tooltip-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #2980b9;
+}
+.tooltip-content div {
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tooltip-content strong {
+  color: #7f8c8d;
+  font-weight: normal;
+  white-space: nowrap;
+}
+.tooltip-content span {
+  text-align: right;
+  font-weight: 600;
+}
 </style>
