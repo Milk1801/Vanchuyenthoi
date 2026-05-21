@@ -2,32 +2,51 @@
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Thông Báo Hàng Đến (Arrival Notice)</h3>
 
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: nowrap; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; position: relative;">
       
-      <div class="search-box" style="flex: 1; min-width: 250px;">
-        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm kiếm: Tên lô, Booking, Khách hàng, Vận đơn, Số Cont..." style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box;">
+      <div class="search-box" style="flex: 1; min-width: 180px;">
+        <input type="text" v-model="searchQuery" placeholder="🔍 Tên lô, Booking, Khách hàng, Vận đơn..." style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; height: 40px;">
       </div>
 
-      <div class="filter-box" style="min-width: 150px;">
-        <select v-model="filterStatus" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff; box-sizing: border-box;">
+      <div class="filter-box" style="min-width: 140px; flex-shrink: 0;">
+        <select v-model="filterStatus" style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff; box-sizing: border-box; height: 40px;">
           <option value="">📋 Tất cả</option>
           <option value="hoantat">✅ Đã hoàn tất</option>
           <option value="chuahoantat">⏳ Chưa xong</option>
         </select>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 5px;">
+      <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;">
         <label style="font-size: 13px; font-weight: bold; color: #555;">Từ:</label>
-        <input type="date" v-model="fromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="date" v-model="fromDate" style="padding: 0 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
       </div>
-      <div style="display: flex; align-items: center; gap: 5px;">
+      
+      <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;">
         <label style="font-size: 13px; font-weight: bold; color: #555;">Đến:</label>
-        <input type="date" v-model="toDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="date" v-model="toDate" style="padding: 0 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
       </div>
 
-      <div style="display: flex; gap: 10px;">
-        <button @click="clearFilters()" class="btn-clear" style="padding: 8px 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff;" title="Xóa bộ lọc">❌</button>
-        <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 8px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
+      <div style="display: flex; gap: 10px; flex-shrink: 0;">
+        
+        <div style="position: relative;">
+          <button @click="showColumnMenu = !showColumnMenu" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #2c3e50;" title="Tùy chỉnh cột hiển thị">
+            ⚙️ Cột hiển thị
+          </button>
+          
+          <div v-if="showColumnMenu" class="column-dropdown">
+            <div class="dropdown-title">Tick để hiện/ẩn cột:</div>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.loHang"> Thuộc Lô Hàng</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.trangThai"> Trạng Thái</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.booking"> Số Booking</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.tenTau"> Tên Tàu</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.vanDon"> Số Vận Đơn</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.ngayPhatHanh"> Ngày Phát Hành</label>
+          </div>
+        </div>
+        <div v-if="showColumnMenu" @click="showColumnMenu = false" class="invisible-backdrop"></div>
+
+        <button @click="clearFilters()" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;" title="Xóa bộ lọc">❌</button>
+        <button class="btn btn-success" @click="openModal()" style="height: 40px; border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
           ➕ THÊM MỚI
         </button>
       </div>
@@ -56,45 +75,48 @@
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
             <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
-            <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
-            <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th> 
-            <th style="padding: 12px 15px;">Số Booking</th>
-            <th style="padding: 12px 15px;">Khách Hàng</th>
-            <th style="padding: 12px 15px;">Tên Tàu</th>
-            <th style="padding: 12px 15px;">Số Vận Đơn</th>
-            <th style="padding: 12px 15px;">Ngày Phát Hành</th>
+            <th v-if="visibleColumns.loHang" style="padding: 12px 15px;">Lô Hàng</th>
+            <th v-if="visibleColumns.trangThai" style="padding: 12px 15px; text-align: center;">Trạng Thái</th> 
+            <th v-if="visibleColumns.booking" style="padding: 12px 15px;">Số Booking</th>
+            <th v-if="visibleColumns.tenTau" style="padding: 12px 15px;">Tên Tàu</th>
+            <th v-if="visibleColumns.vanDon" style="padding: 12px 15px;">Số Vận Đơn</th>
+            <th v-if="visibleColumns.ngayPhatHanh" style="padding: 12px 15px;">Ngày Phát Hành</th>
             <th style="padding: 12px 15px; text-align: center; width: 150px;">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="isLoading"><td colspan="9" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
-          <tr v-else-if="paginatedList.length === 0"><td colspan="9" style="text-align: center; padding: 20px; color: #e74c3c;">Không tìm thấy dữ liệu nào phù hợp với bộ lọc!</td></tr>
+          <tr v-if="isLoading"><td :colspan="activeColumnCount" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          <tr v-else-if="paginatedList.length === 0"><td :colspan="activeColumnCount" style="text-align: center; padding: 20px; color: #e74c3c;">Không tìm thấy dữ liệu!</td></tr>
           
           <tr v-for="item in paginatedList" :key="item.ma_phieu" class="table-row">
             <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">TB-{{ item.ma_phieu }}</td>
-            <td style="padding: 12px 15px;">
+            
+            <td v-if="visibleColumns.loHang" style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
               <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem chi tiết Lô hàng">👁️</button>
             </td>
 
-            <td style="padding: 12px 15px; text-align: center;">
+            <td v-if="visibleColumns.trangThai" style="padding: 12px 15px; text-align: center;">
               <span class="badge" :class="checkIsHoanTat(item) ? 'badge-success' : 'badge-warning'">
                 {{ checkIsHoanTat(item) ? '✅ Hoàn tất' : '⏳ Chưa xong' }}
               </span>
             </td>
 
-            <td style="padding: 12px 15px;">
+            <td v-if="visibleColumns.booking" style="padding: 12px 15px;">
               {{ item.so_booking || 'N/A' }}
               <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem chi tiết Booking">👁️</button>
             </td>
-            <td style="padding: 12px 15px;">{{ item.ten_khach_hang || 'N/A' }}</td>
-            <td style="padding: 12px 15px;">{{ item.ten_con_tau || 'N/A' }}</td>
-            <td style="padding: 12px 15px; font-weight: bold;">
+            
+            <td v-if="visibleColumns.tenTau" style="padding: 12px 15px;">{{ item.ten_con_tau || 'N/A' }}</td>
+            
+            <td v-if="visibleColumns.vanDon" style="padding: 12px 15px; font-weight: bold;">
               {{ item.so_van_don || '---' }}
               <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem chi tiết Vận đơn">👁️</button>
             </td>
-            <td style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
-            <td style="padding: 12px 15px; text-align: center;">
+            
+            <td v-if="visibleColumns.ngayPhatHanh" style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
+            
+            <td style="padding: 12px 15px; text-align: center; white-space: nowrap;">
               <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">📄</button>
               <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
               <button @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
@@ -190,11 +212,32 @@ const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
 
-// CÁC BIẾN CHO TÌM KIẾM VÀ LỌC NÂNG CẤP
+// CÁC BIẾN CHO TÌM KIẾM VÀ LỌC
 const searchQuery = ref(''); 
 const filterStatus = ref(''); 
 const fromDate = ref(''); 
 const toDate = ref('');   
+
+// --- LOGIC ẨN/HIỆN CỘT ---
+const showColumnMenu = ref(false);
+const savedColumns = JSON.parse(localStorage.getItem('an_visible_columns'));
+const visibleColumns = ref(savedColumns || {
+  loHang: true,
+  trangThai: true,
+  booking: true,
+  khachHang: true,
+  tenTau: true,
+  vanDon: true,
+  ngayPhatHanh: true
+});
+
+watch(visibleColumns, (newVal) => {
+  localStorage.setItem('an_visible_columns', JSON.stringify(newVal));
+}, { deep: true });
+
+const activeColumnCount = computed(() => {
+  return 2 + Object.values(visibleColumns.value).filter(v => v === true).length;
+});
 
 // CÁC BIẾN CHO PHÂN TRANG
 const itemsPerPage = ref(10);
@@ -206,7 +249,6 @@ const isDropdownOpen = ref(false);
 
 const formData = ref({ ma_phieu: null, ma_lo_hang: null, ngay_phat_hanh: '' });
 
-// Nút xóa bộ lọc
 const clearFilters = () => {
   searchQuery.value = '';
   filterStatus.value = '';
@@ -219,7 +261,6 @@ const formatDateTime = (dateStr) => {
   return new Date(dateStr).toLocaleString('vi-VN');
 };
 
-// --- HÀM KIỂM TRA TRẠNG THÁI ---
 const checkIsHoanTat = (item) => {
   let status = item.trang_thai_lo_hang; 
   if (status === undefined) {
@@ -233,10 +274,9 @@ const checkIsHoanTat = (item) => {
   return false;
 };
 
-// --- LOGIC LỌC TỔNG HỢP (MỞ RỘNG TÌM KIẾM THEO NGÀY VÀ NHIỀU TRƯỜNG) ---
+// LOGIC LỌC TỔNG HỢP
 const filteredList = computed(() => {
   return listAN.value.filter(item => {
-    // 1. Lọc theo chữ (Mở rộng tìm cả Vận đơn, Tàu, Khách hàng, Số Cont)
     const search = searchQuery.value.toLowerCase();
     const matchSearch = !search || 
                        (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search)) || 
@@ -246,13 +286,11 @@ const filteredList = computed(() => {
                        (item.ten_con_tau && item.ten_con_tau.toLowerCase().includes(search)) ||
                        (item.so_cont && item.so_cont.toLowerCase().includes(search));
 
-    // 2. Lọc theo trạng thái
     let matchStatus = true;
     const isHoanTat = checkIsHoanTat(item);
     if (filterStatus.value === 'hoantat') matchStatus = isHoanTat === true;
     else if (filterStatus.value === 'chuahoantat') matchStatus = isHoanTat === false;
 
-    // 3. Lọc theo Khoảng Ngày (Ngày phát hành)
     let matchDate = true;
     if (fromDate.value || toDate.value) {
       const itemDate = new Date(item.ngay_phat_hanh).getTime();
@@ -265,7 +303,6 @@ const filteredList = computed(() => {
   });
 });
 
-// --- LOGIC PHÂN TRANG ---
 const totalPages = computed(() => Math.ceil(filteredList.value.length / itemsPerPage.value));
 
 const paginatedList = computed(() => {
@@ -277,22 +314,16 @@ const paginatedList = computed(() => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-// Tự động Reset về trang 1
 watch([searchQuery, itemsPerPage, filterStatus, fromDate, toDate], () => { currentPage.value = 1; });
 
-// --- LỌC LÔ HÀNG BỎ QUA "HOÀN TẤT" & "HỦY" ---
 const filteredLoHangOptions = computed(() => {
   const loHangHopLe = listLoHang.value.filter(lo => {
     let status = lo.trang_thai_lo_hang || ''; 
     let strStatus = String(status).trim().toLowerCase(); 
-    if (strStatus === 'hoàn tất' || strStatus === 'hủy') {
-      return false; 
-    }
+    if (strStatus === 'hoàn tất' || strStatus === 'hủy') return false; 
     return true; 
   });
-
   if (!searchLoHangInput.value) return loHangHopLe;
-
   const term = searchLoHangInput.value.toLowerCase();
   return loHangHopLe.filter(lo => 
     (lo.ten_lo_hang && lo.ten_lo_hang.toLowerCase().includes(term)) || 
@@ -377,6 +408,15 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
+/* CSS NÚT ẨN/HIỆN CỘT MỚI */
+.column-dropdown { position: absolute; top: 100%; right: 0; z-index: 1000; background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); width: 220px; margin-top: 8px; animation: fadeIn 0.2s ease-out; }
+.dropdown-title { font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #f1f2f6; padding-bottom: 8px; color: #2c3e50; font-size: 14px; }
+.dropdown-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; color: #495057; font-size: 14px; transition: color 0.2s; }
+.dropdown-item:hover { color: #3498db; }
+.dropdown-item input { cursor: pointer; width: 16px; height: 16px; accent-color: #3498db; }
+.invisible-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
 /* CSS CHUNG */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 4px 8px; font-size: 13px; margin-left: 8px; transition: all 0.2s; }

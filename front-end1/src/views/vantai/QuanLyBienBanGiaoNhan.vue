@@ -16,18 +16,37 @@
         </select>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 5px;">
+      <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;">
         <label style="font-size: 13px; font-weight: bold; color: #555;">Từ:</label>
-        <input type="date" v-model="fromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="date" v-model="fromDate" style="padding: 0 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
       </div>
-      <div style="display: flex; align-items: center; gap: 5px;">
+      
+      <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;">
         <label style="font-size: 13px; font-weight: bold; color: #555;">Đến:</label>
-        <input type="date" v-model="toDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="date" v-model="toDate" style="padding: 0 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
       </div>
 
-      <div style="display: flex; gap: 10px;">
-        <button @click="clearFilters()" class="btn-clear" style="padding: 8px 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff;" title="Xóa bộ lọc">❌</button>
-        <button class="btn btn-success" @click="openModal()" style="border-radius: 6px; padding: 8px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
+      <div style="display: flex; gap: 10px; flex-shrink: 0;">
+        
+        <div style="position: relative;">
+          <button @click="showColumnMenu = !showColumnMenu" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #2c3e50;" title="Tùy chỉnh cột hiển thị">
+            ⚙️ Cột hiển thị
+          </button>
+          
+          <div v-if="showColumnMenu" class="column-dropdown">
+            <div class="dropdown-title">Tick để hiện/ẩn cột:</div>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.loHang"> Thuộc Lô Hàng</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.trangThai"> Trạng Thái</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.so_cont"> Số Container</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.donViVanTai"> Đơn vị vận tải</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.vanDon"> Số Vận Đơn</label>
+            <label class="dropdown-item"><input type="checkbox" v-model="visibleColumns.ngayLap"> Ngày Phát Hành</label>
+          </div>
+        </div>
+        <div v-if="showColumnMenu" @click="showColumnMenu = false" class="invisible-backdrop"></div>
+
+        <button @click="clearFilters()" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;" title="Xóa bộ lọc">❌</button>
+        <button class="btn btn-success" @click="openModal()" style="height: 40px; border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
           ➕ THÊM MỚI
         </button>
       </div>
@@ -56,46 +75,46 @@
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
             <th style="padding: 12px 15px; width: 100px;">Mã Phiếu</th>
-            <th style="padding: 12px 15px;">Thuộc Lô Hàng</th>
-            <th style="padding: 12px 15px; text-align: center;">Trạng Thái</th>
-            <th style="padding: 12px 15px;">Số Vận Đơn</th>
-            <th style="padding: 12px 15px;">Số Container</th>
-            <th style="padding: 12px 15px;">Đơn Vị Vận Tải</th>
-            <th style="padding: 12px 15px;">Ngày Lập</th>
+            <th v-if="visibleColumns.loHang" style="padding: 12px 15px;">Thuộc Lô Hàng</th>
+            <th v-if="visibleColumns.trangThai" style="padding: 12px 15px; text-align: center;">Trạng Thái</th>
+            <th v-if="visibleColumns.vanDon" style="padding: 12px 15px;">Số Vận Đơn</th>
+            <th v-if="visibleColumns.so_cont" style="padding: 12px 15px;">Số Container</th>
+            <th v-if="visibleColumns.donViVanTai" style="padding: 12px 15px;">Đơn Vị Vận Tải</th>
+            <th v-if="visibleColumns.ngayLap" style="padding: 12px 15px;">Ngày Lập</th>
             <th style="padding: 12px 15px; text-align: center; width: 150px;">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="isLoading"><td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
-          <tr v-else-if="paginatedList.length === 0"><td colspan="8" style="text-align: center; padding: 20px; color: #e74c3c;">Không tìm thấy dữ liệu nào phù hợp với bộ lọc!</td></tr>
+          <tr v-if="isLoading"><td :colspan="activeColumnCount" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          <tr v-else-if="paginatedList.length === 0"><td :colspan="activeColumnCount" style="text-align: center; padding: 20px; color: #e74c3c;">Không tìm thấy dữ liệu nào phù hợp với bộ lọc!</td></tr>
           
           <tr v-for="item in paginatedList" :key="item.ma_phieu" class="table-row">
             <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">BB-{{ item.ma_phieu }}</td>
-            <td style="padding: 12px 15px;">
+            <td v-if="visibleColumns.loHang" style="padding: 12px 15px;">
               {{ item.ten_lo_hang || 'N/A' }}
               <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem chi tiết Lô hàng">👁️</button>
             </td>
 
-            <td style="padding: 12px 15px; text-align: center;">
+            <td v-if="visibleColumns.trangThai" style="padding: 12px 15px; text-align: center;">
               <span class="badge" :class="checkIsHoanTat(item) ? 'badge-success' : 'badge-warning'">
                 {{ checkIsHoanTat(item) ? '✅ Hoàn tất' : '⏳ Chưa xong' }}
               </span>
             </td>
 
-            <td style="padding: 12px 15px; font-weight: bold;">
+            <td v-if="visibleColumns.vanDon" style="padding: 12px 15px; font-weight: bold;">
               {{ item.so_van_don || '---' }}
               <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem chi tiết Vận đơn">👁️</button>
             </td>
-            <td style="padding: 12px 15px;">
+            <td v-if="visibleColumns.so_cont" style="padding: 12px 15px;">
               {{ item.so_cont || 'N/A' }}
               <button v-if="item.so_cont" @click="viewDetail('container', item)" class="btn-eye" title="Xem chi tiết Container">👁️</button>
             </td>
-            <td style="padding: 12px 15px; color: #e67e22; font-weight: bold;">
+            <td v-if="visibleColumns.donViVanTai" style="padding: 12px 15px; color: #e67e22; font-weight: bold;">
               {{ item.ten_hang_van_tai || 'Chưa điều xe' }}
               <button v-if="item.ten_hang_van_tai" @click="viewDetail('nha_xe', item)" class="btn-eye" title="Xem thông tin Nhà xe">👁️</button>
             </td>
-            <td style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
-            <td style="padding: 12px 15px; text-align: center;">
+            <td v-if="visibleColumns.ngayLap" style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
+            <td style="padding: 12px 15px; text-align: center; white-space: nowrap;">
               <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">📄</button>
               <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
               <button @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
@@ -141,7 +160,6 @@
           <tbody>
             <tr><td>Tên Nhà xe:</td><td><strong style="color: #e67e22;">{{ detailPanel.data.ten_hang_van_tai || '---' }}</strong></td></tr>
             <tr><td>Mã số hệ thống:</td><td><strong>NX-{{ detailPanel.data.ma_hang_van_tai }}</strong></td></tr>
-            <tr><td colspan="2" style="font-style: italic; font-size: 12px;">(Bạn có thể xem chi tiết thông tin tài xế và biển số xe ở Menu Hãng Vận Tải)</td></tr>
           </tbody>
         </table>
 
@@ -338,6 +356,28 @@ const selectHangVanTai = (hang) => {
 
 watch(searchHangVanTaiInput, (newVal) => { if (newVal === '') formData.value.ma_hang_van_tai = ''; });
 
+// --- LOGIC ẨN/HIỆN CỘT ---
+const showColumnMenu = ref(false);
+// Kiểm tra xem có cấu hình cột đã lưu trong máy chưa, nếu chưa thì mặc định bật hết
+const savedColumns = JSON.parse(localStorage.getItem('do_visible_columns'));
+const visibleColumns = ref(savedColumns || {
+  loHang: true,
+  trangThai: true,
+  vanDon: true,
+  donViVanTai: true,
+  container: true,
+  ngayLap: true
+});
+
+// Lắng nghe thay đổi, nếu người dùng tick/bỏ tick thì tự động lưu vào trình duyệt
+watch(visibleColumns, (newVal) => {
+  localStorage.setItem('do_visible_columns', JSON.stringify(newVal));
+}, { deep: true });
+
+// Tính toán động số lượng cột hiển thị để gộp dòng (colspan) lúc báo lỗi hoặc loading
+const activeColumnCount = computed(() => {
+  return 2 + Object.values(visibleColumns.value).filter(v => v === true).length;
+});
 
 // --- CÁC HÀM XỬ LÝ CHÍNH ---
 const viewDetail = (type, item) => {
@@ -422,6 +462,15 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
+/* CSS NÚT ẨN/HIỆN CỘT MỚI */
+.column-dropdown { position: absolute; top: 100%; right: 0; z-index: 1000; background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); width: 220px; margin-top: 8px; animation: fadeIn 0.2s ease-out; }
+.dropdown-title { font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #f1f2f6; padding-bottom: 8px; color: #2c3e50; font-size: 14px; }
+.dropdown-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; color: #495057; font-size: 14px; transition: color 0.2s; }
+.dropdown-item:hover { color: #3498db; }
+.dropdown-item input { cursor: pointer; width: 16px; height: 16px; accent-color: #3498db; }
+.invisible-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
 /* CSS CHUNG */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 4px 8px; font-size: 13px; margin-left: 8px; transition: all 0.2s; }
