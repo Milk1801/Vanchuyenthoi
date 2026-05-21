@@ -47,7 +47,18 @@
 
     <div v-if="isLoadingData" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu Tờ khai...</div>
 
-    <div v-else style="display: flex; gap: 20px; align-items: flex-start;">
+    <div v-else>
+      <!-- Ẩn hiện cột -->
+      <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+        <h5 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">Hiển thị cột dữ liệu:</h5>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+          <div v-for="(col, key) in columnVisibility" :key="key" class="checkbox-item">
+            <input type="checkbox" :id="'col-' + key" v-model="col.visible" style="margin-right: 5px;">
+            <label :for="'col-' + key" style="font-size: 13px; color: #555;">{{ col.label }}</label>
+          </div>
+        </div>
+      </div>
+
       <!-- BÊN TRÁI: DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
@@ -66,73 +77,63 @@
           </div>
         </div>
 
-        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd;">
-          <table style="min-width: 1200px; width: 100%; border-collapse: collapse;">
+        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd; width: 100%;">
+          <table style="width: max-content; border-collapse: collapse;">
             <thead>
               <tr>
                 <th class="sticky-col-left" style="width: 50px; text-align: center;">STT</th>
-                <th>Mã Tờ Khai</th>
-                <th>Lô hàng</th>
-                <th>Ngày thông quan</th>
-                <th>Phân luồng</th>
-                <th>Kết quả thông quan</th>
-                <th>Người sửa cuối</th>
-                <th class="sticky-col-right" style="text-align: center;">Thao tác</th>
+                <th v-if="columnVisibility.ma_to_khai.visible" style="width: 150px;">Mã Tờ Khai</th>
+                <th v-if="columnVisibility.ten_lo_hang.visible" style="width: 250px;">Lô hàng</th>
+                <th v-if="columnVisibility.ngay_thong_quan.visible" style="width: 180px;">Ngày thông quan</th>
+                <th v-if="columnVisibility.phan_luong.visible" style="width: 130px;">Phân luồng</th>
+                <th v-if="columnVisibility.ket_qua_thong_quan.visible" style="width: 180px;">Kết quả thông quan</th>
+                <th v-if="columnVisibility.ten_nguoi_sua.visible" style="width: 150px;">Người sửa cuối</th>
+                <th class="sticky-col-right" style="text-align: center; width: 100px;">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(tk, index) in paginatedData" :key="tk.ma_to_khai_hai_quan" 
-                  :class="{ 'row-selected': (selectedItem?.ma_to_khai_hai_quan === tk.ma_to_khai_hai_quan), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
+                  :class="{ 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
                 <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td>{{ tk.ma_to_khai_hai_quan }}</td>
-                <td>{{ tk.ten_lo_hang || '---' }}</td>
-                <td>{{ formatDateTime(tk.ngay_thong_quan) }}</td>
-                <td><span class="badge" :style="getPhanLuongStyle(tk.phan_luong)">{{ tk.phan_luong || 'N/A' }}</span></td>
-                <td><span class="badge" :style="getKetQuaStyle(tk.ket_qua_thong_quan)">{{ tk.ket_qua_thong_quan || 'N/A' }}</span></td>
-                <td>{{ tk.ten_nguoi_sua || 'N/A' }}</td>
+                <td v-if="columnVisibility.ma_to_khai.visible">{{ tk.ma_to_khai_hai_quan }}</td>
+                <td v-if="columnVisibility.ten_lo_hang.visible"
+                    @mouseenter="handleMouseEnter($event, tk)" 
+                    @mousemove="handleMouseMove"
+                    @mouseleave="handleMouseLeave"
+                    @click="goToLoHangEdit(tk.ma_lo_hang)"
+                    style="cursor: pointer; color: #2980b9; font-weight: 500; text-decoration: underline;">
+                  {{ tk.ten_lo_hang || '---' }}
+                </td>
+                <td v-if="columnVisibility.ngay_thong_quan.visible">{{ formatDateTime(tk.ngay_thong_quan) }}</td>
+                <td v-if="columnVisibility.phan_luong.visible"><span class="badge" :style="getPhanLuongStyle(tk.phan_luong)">{{ tk.phan_luong || 'N/A' }}</span></td>
+                <td v-if="columnVisibility.ket_qua_thong_quan.visible"><span class="badge" :style="getKetQuaStyle(tk.ket_qua_thong_quan)">{{ tk.ket_qua_thong_quan || 'N/A' }}</span></td>
+                <td v-if="columnVisibility.ten_nguoi_sua.visible">{{ tk.ten_nguoi_sua || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
-                  <div style="display: grid; grid-template-columns: repeat(3, 35px); gap: 5px; justify-content: center; margin: 0 auto; width: fit-content;">
-                    <button class="action-btn-no-mg text-success" @click="showShipmentInfo(tk)" title="Xem thông tin lô hàng">📋</button>
+                  <div style="display: flex; gap: 2px; justify-content: center;">
                     <button class="action-btn-no-mg text-primary" @click="router.push('/van-tai/to-khai-hai-quan/edit/' + tk.ma_to_khai_hai_quan)" title="Sửa">✏️</button>
                     <button class="action-btn-no-mg text-danger" @click="handleDelete(tk.ma_to_khai_hai_quan)" title="Xóa">🗑️</button>
                   </div>
                 </td>
               </tr>
               <tr v-if="filteredData.length === 0">
-                <td colspan="8" style="text-align: center; padding: 20px; color: #7f8c8d;">Không tìm thấy tờ khai nào!</td>
+                <td :colspan="visibleColumnsCount" style="text-align: center; padding: 20px; color: #7f8c8d;">Không tìm thấy tờ khai nào!</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+    </div>
 
-      <!-- BÊN PHẢI: SIDE PANEL -->
-      <div v-if="viewType !== 'none'" class="side-panel">
-        <div class="panel-header">
-          <h4>{{ panelTitle }}</h4>
-          <button @click="viewType = 'none'" class="close-panel">✖</button>
-        </div>
-        <div class="panel-body">
-          <div v-if="isPanelLoading" style="text-align: center; padding: 20px;">Đang tải...</div>
-          <div v-else-if="!selectedShipment" style="text-align: center; padding: 20px;">Không tìm thấy thông tin lô hàng</div>
-          <div v-else>
-            <div class="info-list">
-              <div class="info-item"><strong>Mã lô hàng:</strong> <span>#{{ selectedShipment.ma_lo_hang }}</span></div>
-              <div class="info-item"><strong>Tên lô hàng:</strong> <span>{{ selectedShipment.ten_lo_hang }}</span></div>
-              <div class="info-item"><strong>Khách hàng:</strong> <span>{{ selectedShipment.ten_khach_hang || 'N/A' }}</span></div>
-              <div class="info-item"><strong>Điều kiện (Incoterms):</strong> <span>{{ selectedShipment.dieu_kien_thuong_mai || 'N/A' }}</span></div>
-              <div class="info-item"><strong>Trạng thái:</strong> <span class="badge badge-active">{{ selectedShipment.trang_thai_lo_hang }}</span></div>
-              <div class="info-item"><strong>Booking liên kết:</strong> <span>{{ selectedShipment.so_booking || 'N/A' }}</span></div>
-              <div class="info-item" style="flex-direction: column; align-items: flex-start; gap: 5px; border-bottom: none;">
-                <strong>Nguồn gốc / Ghi chú:</strong>
-                <div style="padding: 10px; background: #f9f9f9; border-radius: 4px; width: 100%; font-size: 13px; color: #555;">{{ selectedShipment.nguon_goc || '(Trống)' }}</div>
-              </div>
-              <button @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + selectedShipment.ma_lo_hang)" class="btn btn-success" style="width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; padding: 12px;">
-                📦 ĐI ĐẾN CHI TIẾT LÔ HÀNG
-              </button>
-            </div>
-          </div>
-        </div>
+    <!-- Tooltip hiển thị thông tin lô hàng khi hover -->
+    <div v-if="tooltipShipment" class="shipment-tooltip" :style="{ top: tooltipPos.y + 'px', left: tooltipPos.x + 'px' }">
+      <div class="tooltip-header">📦 Thông tin lô hàng</div>
+      <div class="tooltip-content">
+        <div><strong>Mã:</strong> <span>#{{ tooltipShipment.ma_lo_hang }}</span></div>
+        <div><strong>Tên:</strong> <span>{{ tooltipShipment.ten_lo_hang }}</span></div>
+        <div><strong>Khách hàng:</strong> <span>{{ tooltipShipment.ten_khach_hang || 'N/A' }}</span></div>
+        <div><strong>Incoterms:</strong> <span>{{ tooltipShipment.dieu_kien_thuong_mai || 'N/A' }}</span></div>
+        <div><strong>Trạng thái:</strong> <span class="badge badge-active" style="font-size: 11px;">{{ tooltipShipment.trang_thai_lo_hang }}</span></div>
+        <div><strong>Booking:</strong> <span>{{ tooltipShipment.so_booking || 'N/A' }}</span></div>
       </div>
     </div>
   </div>
@@ -151,12 +152,23 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 
-// Side Panel
-const viewType = ref('none');
-const panelTitle = ref('');
-const selectedItem = ref(null);
-const selectedShipment = ref(null);
-const isPanelLoading = ref(false);
+// Cấu hình ẩn hiện cột
+const columnVisibility = ref({
+  ma_to_khai: { label: 'Mã Tờ Khai', visible: true },
+  ten_lo_hang: { label: 'Lô hàng', visible: true },
+  ngay_thong_quan: { label: 'Ngày thông quan', visible: true },
+  phan_luong: { label: 'Phân luồng', visible: true },
+  ket_qua_thong_quan: { label: 'Kết quả thông quan', visible: true },
+  ten_nguoi_sua: { label: 'Người sửa cuối', visible: true },
+});
+
+const visibleColumnsCount = computed(() => {
+  return Object.values(columnVisibility.value).filter(col => col.visible).length + 2;
+});
+
+const listAllLoHang = ref([]);
+const tooltipShipment = ref(null);
+const tooltipPos = ref({ x: 0, y: 0 });
 
 const listPhanLuong = ['Luồng Xanh', 'Luồng Vàng', 'Luồng Đỏ'];
 const listKetQua = ['Chờ xử lý', 'Đã thông quan', 'Từ chối'];
@@ -230,6 +242,18 @@ const fetchData = async () => {
   }
 };
 
+const fetchReferences = async () => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/lo-hang`);
+    const data = await res.json();
+    if (data.success) {
+      listAllLoHang.value = data.data;
+    }
+  } catch (error) {
+    console.error("Lỗi lấy danh sách lô hàng!");
+  }
+};
+
 const selectSearchPhanLuong = (pl) => {
   searchFilters.value.phan_luong = pl;
   phanLuongSearchText.value = pl;
@@ -248,24 +272,24 @@ const selectSearchUser = (user) => {
   showUserDropdown.value = false;
 };
 
-const showShipmentInfo = async (tk) => {
-  selectedItem.value = tk;
-  viewType.value = 'shipment';
-  panelTitle.value = '📦 Thông tin lô hàng: ' + (tk.ten_lo_hang || tk.ma_lo_hang);
-  isPanelLoading.value = true;
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/lo-hang`);
-    const data = await res.json();
-    if (data.success) {
-      selectedShipment.value = data.data.find(lh => lh.ma_lo_hang === tk.ma_lo_hang);
-    } else {
-      selectedShipment.value = null;
-    }
-  } catch (error) {
-    selectedShipment.value = null;
-  } finally {
-    isPanelLoading.value = false;
+const goToLoHangEdit = (ma_lo_hang) => {
+  router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
+};
+
+const handleMouseEnter = (event, tk) => {
+  const found = listAllLoHang.value.find(lh => lh.ma_lo_hang === tk.ma_lo_hang);
+  if (found) {
+    tooltipShipment.value = found;
+    tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
   }
+};
+
+const handleMouseMove = (event) => {
+  tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+};
+
+const handleMouseLeave = () => {
+  tooltipShipment.value = null;
 };
 
 const clearFilters = () => {
@@ -312,8 +336,9 @@ const handleDelete = async (id) => {
   }
 };
 
-onMounted(() => {
-  fetchData(); 
+onMounted(async () => {
+  await fetchData(); 
+  await fetchReferences();
 });
 
 const formatDateTime = (str) => {
@@ -390,6 +415,28 @@ tr.row-even .sticky-col-left, tr.row-even .sticky-col-right { background-color: 
 tr.row-odd .sticky-col-left, tr.row-odd .sticky-col-right { background-color: #ffffff !important; }
 tr.row-selected .sticky-col-left, tr.row-selected .sticky-col-right { background-color: #f0f7ff !important; }
 thead th.sticky-col-left, thead th.sticky-col-right { background-color: #f8f9fa !important; z-index: 11; }
+
+.shipment-tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  width: 300px;
+  pointer-events: none;
+  font-size: 13px;
+  color: #2c3e50;
+}
+.tooltip-header {
+  border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 8px; font-weight: bold; color: #2980b9;
+}
+.tooltip-content div {
+  margin-bottom: 4px; display: flex; justify-content: space-between; gap: 10px;
+}
+.tooltip-content strong { color: #7f8c8d; font-weight: normal; white-space: nowrap; }
+.tooltip-content span { text-align: right; font-weight: 600; }
 
 .table-card table th, .table-card table td { 
   white-space: nowrap; 

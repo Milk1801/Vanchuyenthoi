@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <!-- New: Column Visibility Controls -->
+    <!-- Ẩn hiện cột -->
     <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
       <h5 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">Hiển thị cột dữ liệu:</h5>
       <div style="display: flex; flex-wrap: wrap; gap: 15px;">
@@ -88,14 +88,14 @@
       </div>
     </div>
 
-    <!-- End New: Column Visibility Controls -->
+    <!-- Ẩn hiện cột -->
 
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
       Đang tải dữ liệu Vận đơn...
     </div>
 
-    <div v-else style="display: flex; gap: 20px; align-items: flex-start;">
+    <div v-else>
       <!-- BÊN TRÁI: DANH SÁCH VẬN ĐƠN -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
@@ -140,7 +140,7 @@
             </thead>
             <tbody>
               <tr v-for="(vd, index) in paginatedVanDon" :key="vd.ma_van_don" 
-                  :class="{ 'row-selected': (selectedItem?.ma_van_don === vd.ma_van_don), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
+                  :class="{ 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
                 <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td v-if="columnVisibility.ma_van_don.visible">{{ vd.ma_van_don }}</td>
                 <td v-if="columnVisibility.so_van_don.visible">{{ vd.so_van_don }}</td>
@@ -150,7 +150,7 @@
                     @mouseenter="handleMouseEnter($event, vd)" 
                     @mousemove="handleMouseMove"
                     @mouseleave="handleMouseLeave"
-                    @click="goToLoHangList(vd.ma_lo_hang)"
+                    @click="goToLoHangEdit(vd.ma_lo_hang)"
                     style="cursor: pointer; color: #2980b9; font-weight: 500; text-decoration: underline;">
                   {{ vd.ten_lo_hang || '---' }}
                 </td>
@@ -166,8 +166,7 @@
                 <td v-if="columnVisibility.ngay_phat_hanh.visible">{{ formatDate(vd.ngay_phat_hanh) }}</td>
                 <td v-if="columnVisibility.nguoi_sua_doi.visible">{{ vd.nguoi_sua_doi || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
-                  <div style="display: grid; grid-template-columns: repeat(2, 35px); gap: 5px; justify-content: center; margin: 0 auto; width: fit-content;">
-                    <button class="action-btn-no-mg text-success" @click="showShipmentInfo(vd)" title="Xem thông tin lô hàng">📋</button>
+                  <div style="display: flex; gap: 2px; justify-content: center;">
                     <button class="action-btn-no-mg text-warning" @click="handlePrintPDF(vd.ma_van_don)" title="Xuất PDF">🖨️</button>
                     <button class="action-btn-no-mg text-primary" @click="router.push('/van-tai/quan-ly-van-don/edit/' + vd.ma_van_don)" title="Sửa">✏️</button>
                     <button class="action-btn-no-mg text-danger" @click="handleDelete(vd.ma_van_don)" title="Xóa">🗑️</button>
@@ -181,36 +180,6 @@
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-
-      <!-- BÊN PHẢI: SIDE PANEL -->
-      <div v-if="viewType !== 'none'" class="side-panel">
-        <div class="panel-header">
-          <h4>{{ panelTitle }}</h4>
-          <button @click="viewType = 'none'" class="close-panel">✖</button>
-        </div>
-        <div class="panel-body">
-          <div v-if="isPanelLoading" style="text-align: center; padding: 20px;">Đang tải...</div>
-          <div v-else-if="!selectedShipment" style="text-align: center; padding: 20px;">Không tìm thấy thông tin lô hàng</div>
-          <div v-else>
-            <div class="info-list">
-              <div class="info-item"><strong>Mã lô hàng:</strong> <span>#{{ selectedShipment.ma_lo_hang }}</span></div>
-              <div class="info-item"><strong>Tên lô hàng:</strong> <span>{{ selectedShipment.ten_lo_hang }}</span></div>
-              <div class="info-item"><strong>Khách hàng:</strong> <span>{{ selectedShipment.ten_khach_hang || 'N/A' }}</span></div>
-              <div class="info-item"><strong>Điều kiện (Incoterms):</strong> <span>{{ selectedShipment.dieu_kien_thuong_mai || 'N/A' }}</span></div>
-              <div class="info-item"><strong>Trạng thái:</strong> <span class="badge badge-active">{{ selectedShipment.trang_thai_lo_hang }}</span></div>
-              <div class="info-item"><strong>Booking liên kết:</strong> <span>{{ selectedShipment.so_booking || 'N/A' }}</span></div>
-              <div class="info-item" style="flex-direction: column; align-items: flex-start; gap: 5px; border-bottom: none;">
-                <strong>Nguồn gốc / Ghi chú:</strong>
-                <div style="padding: 10px; background: #f9f9f9; border-radius: 4px; width: 100%; font-size: 13px; color: #555;">{{ selectedShipment.nguon_goc || '(Trống)' }}</div>
-              </div>
-
-              <button @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + selectedShipment.ma_lo_hang)" class="btn btn-success" style="width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; padding: 12px;">
-                📦 ĐI ĐẾN CHI TIẾT LÔ HÀNG
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -270,13 +239,6 @@ const showConsigneeDropdown = ref(false);
 const showNotifyDropdown = ref(false);
 const showUserDropdown = ref(false);
 const showLoaiVDDropdown = ref(false);
-
-// State cho Side Panel
-const viewType = ref('none');
-const panelTitle = ref('');
-const selectedItem = ref(null);
-const selectedShipment = ref(null);
-const isPanelLoading = ref(false);
 
 const tooltipShipment = ref(null);
 const tooltipPos = ref({ x: 0, y: 0 });
@@ -431,11 +393,8 @@ const selectSearchLoai = (type) => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-const goToLoHangList = (ma_lo_hang) => {
-  router.push({ 
-    path: '/lo-hang/thong-tin-lo-hang', 
-    query: { ma_lo_hang: ma_lo_hang } 
-  });
+const goToLoHangEdit = (ma_lo_hang) => {
+  router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
 };
 
 const handleMouseEnter = (event, vd) => {
@@ -452,13 +411,6 @@ const handleMouseMove = (event) => {
 
 const handleMouseLeave = () => {
   tooltipShipment.value = null;
-};
-
-const showShipmentInfo = (vd) => {
-  selectedItem.value = vd;
-  viewType.value = 'shipment';
-  panelTitle.value = '📦 Thông tin lô hàng: ' + vd.ten_lo_hang;
-  selectedShipment.value = listAllLoHang.value.find(lh => lh.ma_lo_hang === vd.ma_lo_hang);
 };
 
 const handlePrintPDF = (id) => {

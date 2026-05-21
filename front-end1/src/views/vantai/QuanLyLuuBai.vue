@@ -37,9 +37,21 @@
       <button class="btn btn-success" @click="router.push('/van-tai/luu-bai/add')" style="border-radius: 6px;">+ THÊM LƯU BÃI</button>
     </div>
 
+    <!-- Ẩn hiện cột -->
+    <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+      <h5 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">Hiển thị cột dữ liệu:</h5>
+      <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+        <div v-for="(col, key) in columnVisibility" :key="key" class="checkbox-item">
+          <input type="checkbox" :id="'col-' + key" v-model="col.visible" style="margin-right: 5px;">
+          <label :for="'col-' + key" style="font-size: 13px; color: #555;">{{ col.label }}</label>
+        </div>
+      </div>
+    </div>
+    <!-- Ẩn hiện cột -->
+
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu...</div>
 
-    <div v-else style="display: flex; gap: 20px; align-items: flex-start;">
+    <div v-else>
       <!-- BÊN TRÁI: DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
@@ -59,88 +71,79 @@
     </div>
         
 
-        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd;">
-          <table style="min-width: 1200px; width: 100%; border-collapse: collapse;">
+        <div class="table-card" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ddd; width: 100%;">
+          <table style="width: max-content; border-collapse: collapse;">
             <thead>
               <tr>
                 <th class="sticky-col-left" style="width: 50px; text-align: center;">STT</th>
-                <th>Lô hàng</th>
-                <th>Ngày bắt đầu</th>
-                <th style="text-align: center;">Ngày miễn phí</th>
-                <th>Cược vỏ</th>
-                <th>Trạng thái</th>
-                <th>Người sửa cuối</th>
-                <th class="sticky-col-right" style="text-align: center;">Thao tác</th>
+                <th v-if="columnVisibility.ten_lo_hang.visible" style="width: 250px;">Lô hàng</th>
+                <th v-if="columnVisibility.ngay_bat_dau_luu_bai.visible" style="width: 200px;">Ngày bắt đầu</th>
+                <th v-if="columnVisibility.ngay_luu_bai_mien_phi.visible" style="width: 150px; text-align: center;">Ngày miễn phí</th>
+                <th v-if="columnVisibility.cuoc_vo.visible" style="width: 120px;">Cược vỏ</th>
+                <th v-if="columnVisibility.trang_thai_luu_bai.visible" style="width: 150px;">Trạng thái</th>
+                <th v-if="columnVisibility.ten_nguoi_sua.visible" style="width: 150px;">Người sửa cuối</th>
+                <th class="sticky-col-right" style="text-align: center; width: 120px;">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in paginatedData" :key="item.ma_luu_bai" 
-                  :class="{ 'row-selected': (selectedItem?.ma_luu_bai === item.ma_luu_bai), 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
+                  :class="{ 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
                 <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-                <td>{{ item.ten_lo_hang }}</td>
-                <td>{{ item.ngay_bat_dau_luu_bai ? new Date(item.ngay_bat_dau_luu_bai).toLocaleString('vi-VN') : '---' }}</td>
-                <td style="text-align: center;">{{ item.ngay_luu_bai_mien_phi }}</td>
-                <td>{{ item.cuoc_vo }}</td>
-                <td>
+                <td v-if="columnVisibility.ten_lo_hang.visible"
+                    @mouseenter="handleMouseEnter($event, item)" 
+                    @mousemove="handleMouseMove"
+                    @mouseleave="handleMouseLeave"
+                    @click="goToLoHangEdit(item.ma_lo_hang)"
+                    style="cursor: pointer; color: #2980b9; font-weight: 500; text-decoration: underline;">
+                  {{ item.ten_lo_hang }}
+                </td>
+                <td v-if="columnVisibility.ngay_bat_dau_luu_bai.visible">{{ item.ngay_bat_dau_luu_bai ? new Date(item.ngay_bat_dau_luu_bai).toLocaleString('vi-VN') : '---' }}</td>
+                <td v-if="columnVisibility.ngay_luu_bai_mien_phi.visible" style="text-align: center;">{{ item.ngay_luu_bai_mien_phi }}</td>
+                <td v-if="columnVisibility.cuoc_vo.visible">{{ item.cuoc_vo }}</td>
+                <td v-if="columnVisibility.trang_thai_luu_bai.visible">
                   <span class="badge" :style="getStatusStyle(item.trang_thai_luu_bai)">
                     {{ item.trang_thai_luu_bai }}
                   </span>
                 </td>
-                <td>{{ item.ten_nguoi_sua || 'N/A' }}</td>
+                <td v-if="columnVisibility.ten_nguoi_sua.visible">{{ item.ten_nguoi_sua || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
-                  <div style="display: grid; grid-template-columns: repeat(3, 35px); gap: 5px; justify-content: center; margin: 0 auto; width: fit-content;">
-                    <button class="action-btn-no-mg text-success" @click="showShipmentInfo(item)" title="Xem thông tin lô hàng">📋</button>
+                  <div style="display: flex; gap: 2px; justify-content: center;">
                     <button class="action-btn-no-mg text-primary" @click="router.push('/van-tai/luu-bai/edit/' + item.ma_luu_bai)" title="Sửa">✏️</button>
                     <button class="action-btn-no-mg text-danger" @click="handleDelete(item.ma_luu_bai)" title="Xóa">🗑️</button>
                   </div>
                 </td>
               </tr>
               <tr v-if="paginatedData.length === 0">
-                <td colspan="8" style="text-align: center; padding: 20px; color: #7f8c8d;">Không tìm thấy dữ liệu nào!</td>
+                <td :colspan="visibleColumnsCount" style="text-align: center; padding: 20px; color: #7f8c8d;">Không tìm thấy dữ liệu nào!</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+    </div>
 
-      <!-- BÊN PHẢI: SIDE PANEL -->
-      <div v-if="viewType !== 'none'" class="side-panel">
-        <div class="panel-header">
-          <h4>{{ panelTitle }}</h4>
-          <button @click="viewType = 'none'" class="close-panel">✖</button>
-        </div>
-        <div class="panel-body">
-          <div v-if="isPanelLoading" style="text-align: center; padding: 20px;">Đang tải...</div>
-          <div v-else-if="!selectedShipment" style="text-align: center; padding: 20px;">Không tìm thấy thông tin lô hàng</div>
-          <div v-else>
-            <div class="info-list">
-              <div class="info-item"><strong>Mã lô hàng:</strong> <span>#{{ selectedShipment.ma_lo_hang }}</span></div>
-              <div class="info-item"><strong>Tên lô hàng:</strong> <span>{{ selectedShipment.ten_lo_hang }}</span></div>
-              <div class="info-item"><strong>Khách hàng:</strong> <span>{{ selectedShipment.ten_khach_hang || 'N/A' }}</span></div>
-              <div class="info-item"><strong>Điều kiện (Incoterms):</strong> <span>{{ selectedShipment.dieu_kien_thuong_mai || 'N/A' }}</span></div>
-              <div class="info-item"><strong>Trạng thái:</strong> <span class="badge badge-active">{{ selectedShipment.trang_thai_lo_hang }}</span></div>
-              <div class="info-item"><strong>Booking liên kết:</strong> <span>{{ selectedShipment.so_booking || 'N/A' }}</span></div>
-              <div class="info-item" style="flex-direction: column; align-items: flex-start; gap: 5px; border-bottom: none;">
-                <strong>Nguồn gốc / Ghi chú:</strong>
-                <div style="padding: 10px; background: #f9f9f9; border-radius: 4px; width: 100%; font-size: 13px; color: #555;">{{ selectedShipment.nguon_goc || '(Trống)' }}</div>
-              </div>
-              <button @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + selectedShipment.ma_lo_hang)" class="btn btn-success" style="width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; padding: 12px;">
-                📦 ĐI ĐẾN CHI TIẾT LÔ HÀNG
-              </button>
-            </div>
-          </div>
-        </div>
+    <!-- Tooltip hiển thị thông tin lô hàng khi hover -->
+    <div v-if="tooltipShipment" class="shipment-tooltip" :style="{ top: tooltipPos.y + 'px', left: tooltipPos.x + 'px' }">
+      <div class="tooltip-header">📦 Thông tin lô hàng</div>
+      <div class="tooltip-content">
+        <div><strong>Mã:</strong> <span>#{{ tooltipShipment.ma_lo_hang }}</span></div>
+        <div><strong>Tên:</strong> <span>{{ tooltipShipment.ten_lo_hang }}</span></div>
+        <div><strong>Khách hàng:</strong> <span>{{ tooltipShipment.ten_khach_hang || 'N/A' }}</span></div>
+        <div><strong>Incoterms:</strong> <span>{{ tooltipShipment.dieu_kien_thuong_mai || 'N/A' }}</span></div>
+        <div><strong>Trạng thái:</strong> <span class="badge badge-active" style="font-size: 11px; background-color: #3498db; color: white; padding: 2px 6px; border-radius: 10px;">{{ tooltipShipment.trang_thai_lo_hang }}</span></div>
+        <div><strong>Booking:</strong> <span>{{ tooltipShipment.so_booking || 'N/A' }}</span></div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const listLuuBai = ref([]);
+const listAllLoHang = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
 
@@ -164,12 +167,23 @@ const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 const sortConfig = ref({ key: null, direction: 'asc' });
 
-// Side Panel state
-const viewType = ref('none');
-const panelTitle = ref('');
-const selectedItem = ref(null);
-const selectedShipment = ref(null);
-const isPanelLoading = ref(false);
+// Column Visibility State
+const columnVisibility = ref({
+  ten_lo_hang: { label: 'Lô hàng', visible: true },
+  ngay_bat_dau_luu_bai: { label: 'Ngày bắt đầu', visible: true },
+  ngay_luu_bai_mien_phi: { label: 'Ngày miễn phí', visible: true },
+  cuoc_vo: { label: 'Cược vỏ', visible: true },
+  trang_thai_luu_bai: { label: 'Trạng thái', visible: true },
+  ten_nguoi_sua: { label: 'Người sửa cuối', visible: true },
+});
+
+const visibleColumnsCount = computed(() => {
+  // Mặc định có STT và Thao tác (2) + các cột được chọn
+  return Object.values(columnVisibility.value).filter(col => col.visible).length + 2;
+});
+
+const tooltipShipment = ref(null);
+const tooltipPos = ref({ x: 0, y: 0 });
 
 const uniqueUsers = computed(() => {
   const users = listLuuBai.value.map(item => item.ten_nguoi_sua).filter(Boolean);
@@ -181,7 +195,8 @@ const filteredCuocVoList = computed(() => ['Có', 'Không'].filter(c => c.toLowe
 const filteredUsers = computed(() => uniqueUsers.value.filter(u => u.toLowerCase().includes(userSearchText.value.toLowerCase())));
 
 const filteredAndSortedData = computed(() => {
-  let result = listLuuBai.value.filter(item => {
+  // 1. Lọc dữ liệu theo các tiêu chí tìm kiếm
+  let filtered = listLuuBai.value.filter(item => {
     const matchSearch = !searchQuery.value || 
                         item.ten_lo_hang.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                         String(item.ma_lo_hang).includes(searchQuery.value);
@@ -190,6 +205,17 @@ const filteredAndSortedData = computed(() => {
     const matchUser = filterUser.value === 'ALL' || item.ten_nguoi_sua === filterUser.value;
     return matchSearch && matchStatus && matchCuocVo && matchUser;
   });
+
+  // 2. Loại bỏ trùng lặp dựa trên ma_luu_bai (Khắc phục lỗi lặp hàng do dữ liệu nguồn)
+  const uniqueItems = [];
+  const seenIds = new Set();
+  for (const item of filtered) {
+    if (!seenIds.has(item.ma_luu_bai)) {
+      seenIds.add(item.ma_luu_bai);
+      uniqueItems.push(item);
+    }
+  }
+  let result = uniqueItems;
 
   if (sortConfig.value.key) {
     const { key, direction } = sortConfig.value;
@@ -210,7 +236,7 @@ const paginatedData = computed(() => {
   return filteredAndSortedData.value.slice(start, end);
 });
 
-const totalPages = computed(() => Math.ceil(filteredAndSortedData.value.length / pageSize.value));
+const totalPages = computed(() => Math.ceil(filteredAndSortedData.value.length / pageSize.value) || 1);
 
 const sortBy = (key) => {
   if (sortConfig.value.key === key) {
@@ -226,28 +252,28 @@ const getSortIcon = (key) => {
   return sortConfig.value.direction === 'asc' ? '🔼' : '🔽';
 };
 
-const showShipmentInfo = async (item) => {
-  selectedItem.value = item;
-  viewType.value = 'shipment';
-  panelTitle.value = '📦 Thông tin lô hàng: ' + (item.ten_lo_hang || item.ma_lo_hang);
-  isPanelLoading.value = true;
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/lo-hang`);
-    const data = await res.json();
-    if (data.success) {
-      selectedShipment.value = data.data.find(lh => lh.ma_lo_hang === item.ma_lo_hang);
-    } else {
-      selectedShipment.value = null;
-    }
-  } catch (error) {
-    selectedShipment.value = null;
-  } finally {
-    isPanelLoading.value = false;
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+
+const goToLoHangEdit = (ma_lo_hang) => {
+  router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
+};
+
+const handleMouseEnter = (event, item) => {
+  const found = listAllLoHang.value.find(lh => lh.ma_lo_hang === item.ma_lo_hang);
+  if (found) {
+    tooltipShipment.value = found;
+    tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
   }
 };
 
-const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
-const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+const handleMouseMove = (event) => {
+  tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+};
+
+const handleMouseLeave = () => {
+  tooltipShipment.value = null;
+};
 
 const selectSearchTrangThai = (status) => {
   filterTrangThai.value = status;
@@ -276,7 +302,6 @@ const clearFilters = () => {
   cuocVoSearchText.value = '';
   userSearchText.value = '';
   currentPage.value = 1;
-  viewType.value = 'none';
 };
 
 watch([searchQuery, filterTrangThai, filterCuocVo, filterUser, pageSize,
@@ -287,17 +312,25 @@ watch([searchQuery, filterTrangThai, filterCuocVo, filterUser, pageSize,
 const fetchData = async () => {
   isLoading.value = true;
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/luu-bai`);
-    const data = await res.json();
-    if (data.success) listLuuBai.value = data.data;
+    // Tải đồng thời danh sách lưu bãi và danh sách lô hàng để Tooltip có dữ liệu
+    const [resLB, resLH] = await Promise.all([
+      fetch(`${import.meta.env.VITE_API_URL}/luu-bai`),
+      fetch(`${import.meta.env.VITE_API_URL}/lo-hang`)
+    ]);
+    const dataLB = await resLB.json();
+    const dataLH = await resLH.json();
+
+    if (dataLB.success) listLuuBai.value = dataLB.data;
+    if (dataLH.success) listAllLoHang.value = dataLH.data;
   } catch (e) { console.error(e); }
   finally { 
     isLoading.value = false;
-    window.addEventListener('click', (e) => {
-      if (!e.target.closest('.combobox-wrapper')) {
-        showTrangThaiDropdown.value = showCuocVoDropdown.value = showUserDropdown.value = false;
-      }
-    });
+  }
+};
+
+const handleClickOutside = (e) => {
+  if (!e.target.closest('.combobox-wrapper')) {
+    showTrangThaiDropdown.value = showCuocVoDropdown.value = showUserDropdown.value = false;
   }
 };
 
@@ -314,7 +347,14 @@ const handleDelete = async (id) => {
   } catch (e) { alert("Lỗi kết nối"); }
 };
 
-onMounted(fetchData);
+onMounted(() => {
+  fetchData();
+  window.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleClickOutside);
+});
 
 const getStatusStyle = (status) => {
   if (status === 'Đã trả vỏ') return { backgroundColor: '#27ae60', color: 'white', whiteSpace: 'nowrap' };
@@ -411,4 +451,39 @@ thead th.sticky-col-left, thead th.sticky-col-right { background-color: #f8f9fa 
   padding: 12px 15px; 
 }
 
+.shipment-tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  width: 300px;
+  pointer-events: none;
+  font-size: 13px;
+  color: #2c3e50;
+}
+.tooltip-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #2980b9;
+}
+.tooltip-content div {
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tooltip-content strong {
+  color: #7f8c8d;
+  font-weight: normal;
+  white-space: nowrap;
+}
+.tooltip-content span {
+  text-align: right;
+  font-weight: 600;
+}
 </style>
