@@ -123,8 +123,7 @@
     </div>
 
 
-    <div style="display: flex; gap: 20px; align-items: flex-start;">
-      <!-- BÊN TRÁI: DANH SÁCH LÔ HÀNG -->
+    <div style="width: 100%;">
       <div style="flex: 1; min-width: 0;">
         <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
           Đang tải dữ liệu Lô hàng...
@@ -169,23 +168,63 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(lh, index) in paginatedLoHang" :key="lh.ma_lo_hang" :class="{ 'row-selected': (selectedItem?.ma_lo_hang === lh.ma_lo_hang) }">
+                <tr v-for="(lh, index) in paginatedLoHang" :key="lh.ma_lo_hang" :class="{ 'row-selected': (selectedItem === lh.ma_lo_hang) }" @click="selectedItem = lh.ma_lo_hang">
                   <td class="fw-bold" style="text-align: center;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                   <td v-if="columnVisibility.ma_lo_hang">{{ lh.ma_lo_hang }}</td>
-                  <td v-if="columnVisibility.ten_lo_hang" style="color: #2980b9;">{{ lh.ten_lo_hang }}</td>
+                  <td v-if="columnVisibility.ten_lo_hang">
+                    <div class="custom-tooltip">
+                      <span class="tooltip-trigger" style="color: #2980b9;">{{ lh.ten_lo_hang }}</span>
+                      <span v-if="lh.ds_ten_hang" class="tooltip-text" style="max-width: 400px;">
+                        <strong>📦 Danh sách hàng hóa:</strong><br>{{ lh.ds_ten_hang }}
+                      </span>
+                    </div>
+                  </td>
                   <td v-if="columnVisibility.ten_khach_hang">{{ lh.ten_khach_hang || '---' }}</td>
                   <td v-if="columnVisibility.dieu_kien_thuong_mai"><span class="badge" style="background-color: #9b59b6; color: white;">{{ lh.dieu_kien_thuong_mai }}</span></td>
                   <td v-if="columnVisibility.so_booking">
                     <div style="display: flex; align-items: center; gap: 5px;">
-                      {{ lh.so_booking || 'Chưa gắn' }}
-                      <button v-if="lh.ma_booking" @click="showBookingInfo(lh)" class="view-btn" title="Xem Booking">👁️</button>
+                      <div class="custom-tooltip" v-if="lh.so_booking">
+                        <span class="tooltip-trigger">{{ lh.so_booking }}</span>
+                        <span v-if="lh.booking_tooltip" class="tooltip-text">{{ lh.booking_tooltip }}</span>
+                      </div>
+                      <span v-else>Chưa gắn</span>
                     </div>
                   </td>
-                  <td v-if="columnVisibility.so_van_don">{{ lh.so_van_don || '---' }}</td>
-                  <td v-if="columnVisibility.ma_thong_bao_hang_den">{{ lh.ma_thong_bao_hang_den || '---' }}</td>
-                  <td v-if="columnVisibility.ma_lenh_giao_hang">{{ lh.ma_lenh_giao_hang || '---' }}</td>
-                  <td v-if="columnVisibility.ma_bien_ban_giao_nhan">{{ lh.ma_bien_ban_giao_nhan || '---' }}</td>
-                  <td v-if="columnVisibility.ma_to_khai_hai_quan">{{ lh.ma_to_khai_hai_quan || '---' }}</td>
+                  <td v-if="columnVisibility.so_van_don">
+                    <div class="custom-tooltip" v-if="lh.so_van_don">
+                      <span class="tooltip-trigger">{{ lh.so_van_don }}</span>
+                      <span v-if="lh.van_don_tooltip" class="tooltip-text">{{ lh.van_don_tooltip }}</span>
+                    </div>
+                    <span v-else>---</span>
+                  </td>
+                  <td v-if="columnVisibility.ma_thong_bao_hang_den">
+                    <div class="custom-tooltip" v-if="lh.ma_thong_bao_hang_den">
+                      <span class="tooltip-trigger">{{ lh.ma_thong_bao_hang_den }}</span>
+                      <span v-if="lh.an_tooltip" class="tooltip-text">{{ lh.an_tooltip }}</span>
+                    </div>
+                    <span v-else>---</span>
+                  </td>
+                  <td v-if="columnVisibility.ma_lenh_giao_hang">
+                    <div class="custom-tooltip" v-if="lh.ma_lenh_giao_hang">
+                      <span class="tooltip-trigger">{{ lh.ma_lenh_giao_hang }}</span>
+                      <span v-if="lh.do_tooltip" class="tooltip-text">{{ lh.do_tooltip }}</span>
+                    </div>
+                    <span v-else>---</span>
+                  </td>
+                  <td v-if="columnVisibility.ma_bien_ban_giao_nhan">
+                    <div class="custom-tooltip" v-if="lh.ma_bien_ban_giao_nhan">
+                      <span class="tooltip-trigger">{{ lh.ma_bien_ban_giao_nhan }}</span>
+                      <span v-if="lh.bbgn_tooltip" class="tooltip-text">{{ lh.bbgn_tooltip }}</span>
+                    </div>
+                    <span v-else>---</span>
+                  </td>
+                  <td v-if="columnVisibility.ma_to_khai_hai_quan">
+                    <div class="custom-tooltip" v-if="lh.ma_to_khai_hai_quan">
+                      <span class="tooltip-trigger">{{ lh.ma_to_khai_hai_quan }}</span>
+                      <span v-if="lh.to_khai_tooltip" class="tooltip-text">{{ lh.to_khai_tooltip }}</span>
+                    </div>
+                    <span v-else>---</span>
+                  </td>
                   <td v-if="columnVisibility.nguon_goc">{{ lh.nguon_goc || '---' }}</td>
                   <td v-if="columnVisibility.trang_thai_lo_hang">
                     <span class="badge" :class="statusClass(lh.trang_thai_lo_hang)" style="white-space: nowrap;">
@@ -195,11 +234,6 @@
                   <td v-if="columnVisibility.nguoi_sua_doi">{{ lh.nguoi_sua_doi || 'N/A' }}</td>
                   <td style="text-align: center;">
                     <div style="display: flex; gap: 8px; justify-content: center;">
-                      <button 
-                        :class="['action-btn', lh.has_items ? 'text-success' : 'text-warning']" 
-                        @click="lh.has_items && showShipmentItems(lh)" 
-                        :title="lh.has_items ? 'Xem chi tiết hàng hóa' : 'Lô hàng chưa có chi tiết'">
-                        {{ lh.has_items ? '📋' : '⚠️' }}</button>
                       <button class="action-btn text-primary" @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + lh.ma_lo_hang)" title="Sửa">✏️</button>
                       <button class="action-btn text-danger" @click="handleDelete(lh.ma_lo_hang)" title="Xóa">🗑️</button>
                       <button class="action-btn" @click="router.push(`/lo-hang/chung-tu/chi-tiet/${lh.ma_lo_hang}`)" title="Quản lý chứng từ cho lô hàng này">📂</button>
@@ -216,57 +250,6 @@
           </div>
         </template>
       </div>
-
-      <!-- BÊN PHẢI: KHU VỰC CHI TIẾT (SIDE PANEL) -->
-      <div v-if="viewType !== 'none'" class="side-panel">
-        <div class="panel-header">
-          <h4>{{ panelTitle }}</h4>
-          <button @click="viewType = 'none'" class="close-panel">✖</button>
-        </div>
-
-        <!-- Nội dung 1: Thông tin Booking -->
-        <div v-if="viewType === 'booking' && selectedBooking" class="panel-body">
-          <div class="info-row"><span>Số Booking:</span> <strong>{{ selectedBooking.so_booking }}</strong></div>
-          <div class="info-row"><span>Hãng tàu:</span> <strong>{{ selectedBooking.ten_hang_tau || 'N/A' }}</strong></div>
-          <div class="info-row"><span>Tên tàu:</span> <strong>{{ selectedBooking.ten_con_tau }}</strong></div>
-          <div class="info-row"><span>Số chuyến:</span> <strong>{{ selectedBooking.so_chuyen }}</strong></div>
-          <div class="info-row"><span>Giờ cắt máng:</span> <strong class="text-danger">{{ formatDateTime(selectedBooking.gio_cat_mang) }}</strong></div>
-          <hr>
-          <div class="info-row"><span>Cảng đi (POL):</span> <strong>{{ selectedBooking.ten_cang_di || '---' }}</strong></div>
-          <div class="info-row"><span>Cảng đến (POD):</span> <strong>{{ selectedBooking.ten_cang_den || '---' }}</strong></div>
-          <div class="info-row"><span>Ngày đi (ETD):</span> <strong class="text-primary">{{ formatDateTime(selectedBooking.etd) }}</strong></div>
-          <div class="info-row"><span>Ngày đến (ETA):</span> <strong class="text-success">{{ formatDateTime(selectedBooking.eta) }}</strong></div>
-        </div>
-
-        <!-- Nội dung 2: Chi tiết hàng hóa -->
-        <div v-if="viewType === 'items'" class="panel-body">
-          <div v-if="isPanelLoading" style="text-align: center; padding: 20px;">Đang tải...</div>
-          <div v-else-if="selectedItems.length === 0" style="text-align: center; padding: 20px;">Lô hàng trống</div>
-          <div v-else>
-             <table class="mini-table">
-               <thead>
-                 <tr>
-                   <th>Tên hàng</th>
-                   <th style="text-align: center;">SL</th>
-                   <th style="text-align: right;">KL (kg)</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 <tr v-for="item in selectedItems" :key="item.ma_chi_tiet_lo_hang">
-                   <td>{{ item.ten_hang }}</td>
-                   <td style="text-align: center;">{{ item.so_luong }} {{ item.ten_don_vi_tinh }}</td>
-                   <td style="text-align: right;">{{ item.trong_luong }}</td>
-                 </tr>
-               </tbody>
-             </table>
-             <div style="margin-top: 15px; background: #fdfdfd; padding: 10px; border-radius: 4px; font-size: 13px;">
-                <strong>Tổng kết sơ bộ:</strong><br>
-                - Tổng số kiện: {{ selectedItems.reduce((a, b) => a + (b.so_kien || 0), 0) }}<br>
-                - Tổng thể tích: {{ selectedItems.reduce((a, b) => a + (Number(b.the_tich) || 0), 0).toFixed(3) }} CBM
-             </div>
-          </div>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -280,6 +263,7 @@ const router = useRouter();
 const listLoHang = ref([]);
 const listKhachHang = ref([]);
 const listBooking = ref([]);
+const selectedItem = ref(null);
 const isLoading = ref(true);
 const searchQuery = ref('');
 const searchItemQuery = ref(''); // Keep this for item search
@@ -348,14 +332,6 @@ const filteredAnList = computed(() => getUniqueList('ma_thong_bao_hang_den', anS
 const filteredDoList = computed(() => getUniqueList('ma_lenh_giao_hang', doSearchText.value));
 const filteredBbgnList = computed(() => getUniqueList('ma_bien_ban_giao_nhan', bbgnSearchText.value));
 const filteredTkList = computed(() => getUniqueList('ma_to_khai_hai_quan', tkSearchText.value));
-
-// State cho Side Panel
-const viewType = ref('none'); // 'none', 'booking', 'items'
-const panelTitle = ref('');
-const selectedItem = ref(null);
-const selectedBooking = ref(null);
-const selectedItems = ref([]);
-const isPanelLoading = ref(false);
 
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -482,48 +458,6 @@ const resetFilters = () => {
   fetchReferences();
 };
 
-const fetchUnusedBookingCount = async () => {
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/chua-dung`);
-    const data = await res.json();
-    if (data.success) unusedBookingCount.value = data.count;
-  } catch (e) { console.error("Lỗi tải thông báo:", e); }
-};
-
-// Logic Xem Booking
-const showBookingInfo = (lh) => {
-  selectedItem.value = lh;
-  viewType.value = 'booking';
-  panelTitle.value = '📦 Thông tin Booking';
-  
-  // Tìm booking trong list references
-  const found = listBooking.value.find(b => b.ma_booking === lh.ma_booking);
-  selectedBooking.value = found || null;
-};
-
-// Logic Xem Chi tiết hàng hóa
-const showShipmentItems = async (lh) => {
-  selectedItem.value = lh;
-  viewType.value = 'items';
-  panelTitle.value = '📋 Danh sách hàng hóa';
-  isPanelLoading.value = true;
-  
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/chi-tiet-lo-hang?ma_lo_hang=${lh.ma_lo_hang}`);
-    const data = await res.json();
-    if (data.success) {
-      selectedItems.value = data.data;
-    } else {
-      selectedItems.value = [];
-    }
-  } catch (error) {
-    console.error("Lỗi lấy chi tiết hàng hóa");
-    selectedItems.value = [];
-  } finally {
-    isPanelLoading.value = false;
-  }
-};
-
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
@@ -578,6 +512,14 @@ const fetchData = async () => {
   finally { isLoading.value = false; }
 };
 
+const fetchUnusedBookingCount = async () => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/chua-dung`);
+    const data = await res.json();
+    if (data.success) unusedBookingCount.value = data.count;
+  } catch (e) { console.error("Lỗi tải thông báo:", e); }
+};
+
 const handleDelete = async (id) => {
   if (!confirm("Bạn có chắc muốn xóa lô hàng này?")) return;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
@@ -621,34 +563,6 @@ onUnmounted(() => {
 }
 .btn-pagination:hover:not(:disabled) { background: #f0f0f0; border-color: #3498db; color: #3498db; }
 .btn-pagination:disabled { cursor: not-allowed; opacity: 0.5; }
-
-.view-btn {
-  background: #ebf5fb; border: 1px solid #3498db; color: #3498db;
-  border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 12px;
-}
-.view-btn:hover { background: #3498db; color: white; }
-
-.side-panel {
-  width: 380px; background: white; border-radius: 8px; border: 1px solid #ddd;
-  box-shadow: -5px 0 15px rgba(0,0,0,0.05); position: sticky; top: 10px; min-height: 400px;
-  display: flex; flex-direction: column; animation: slideIn 0.3s ease;
-}
-@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-.panel-header {
-  padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
-  background: #f8f9fa; border-radius: 8px 8px 0 0;
-}
-.panel-header h4 { margin: 0; color: #2c3e50; }
-.close-panel { background: none; border: none; cursor: pointer; font-size: 16px; color: #95a5a6; }
-
-.panel-body { padding: 15px; flex: 1; overflow-y: auto; }
-.info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-.info-row span { color: #7f8c8d; }
-
-.mini-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.mini-table th { text-align: left; padding: 8px; background: #f1f3f5; border-bottom: 2px solid #dee2e6; }
-.mini-table td { padding: 8px; border-bottom: 1px solid #eee; }
 
 .row-selected { background-color: #f0f7ff !important; }
 
@@ -716,6 +630,11 @@ onUnmounted(() => {
   background-color: #eef7ff !important;
 }
 
+/* Sửa lỗi tooltip bị che bởi cột sticky */
+.scrollable-table td:hover {
+  z-index: 1001; /* Phải cao hơn z-index: 10 của các ô sticky */
+}
+
 /* Style cho Combobox tìm kiếm */
 .combobox-wrapper { position: relative; }
 .combobox-input-sm {
@@ -759,4 +678,73 @@ onUnmounted(() => {
 .booking-alert-banner .btn-go:hover { background: #e67e22; }
 
 @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Tooltip tự định nghĩa không dùng thư viện */
+.custom-tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltip-trigger {
+  cursor: help;
+  color: #2980b9;
+  border-bottom: 1px dashed #2980b9;
+  font-weight: 500;
+}
+.custom-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 320px;
+  background-color: #fff;
+  color: #2c3e50;
+  text-align: left;
+  border-radius: 6px;
+  padding: 12px;
+  position: absolute;
+  z-index: 9999;
+  bottom: 100%; /* Sát mép trên của chữ */
+  margin-bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap; /* Giữ định dạng xuống dòng từ backend */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  pointer-events: none;
+  border: 1px solid #455a64;
+}
+
+/* Xử lý cho 2 dòng đầu tiên của bảng: Hiển thị tooltip xuống dưới để không bị mép bảng/header che mất */
+tbody tr:nth-child(-n+3) .custom-tooltip .tooltip-text {
+  bottom: auto;
+  top: 100%;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+/* Đảo ngược mũi tên cho trường hợp tooltip hiển thị phía dưới */
+tbody tr:nth-child(-n+2) .custom-tooltip .tooltip-text::after {
+  top: auto;
+  bottom: 100%;
+  border-color: transparent transparent #2c3e50 transparent;
+}
+
+.custom-tooltip:hover {
+  z-index: 9999;
+}
+.custom-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Tạo mũi tên cho tooltip */
+.custom-tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #2c3e50 transparent transparent transparent;
+}
 </style>
