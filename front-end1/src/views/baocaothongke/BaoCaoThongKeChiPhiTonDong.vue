@@ -41,14 +41,25 @@
       </div>
     </div>
 
-    <div class="stats-cards" style="display: flex; gap: 20px; margin-bottom: 25px;">
-      <div class="card" style="border-left: 5px solid #27ae60;">
-        <div class="card-title">Tổng tiền cần THU từ khách:</div>
-        <div class="card-value" style="color: #27ae60;">{{ formatCurrency(stats.tong_phai_thu) }}</div>
+    <div class="stats-cards" style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+      <div class="card" style="border-left: 5px solid #2ecc71; flex: 1; min-width: 200px;">
+        <div class="card-title">💰 Tổng Doanh Thu:</div>
+        <div class="card-value" style="color: #2ecc71;">{{ formatCurrency(stats.tong_doanh_thu) }}</div>
       </div>
-      <div class="card" style="border-left: 5px solid #e74c3c;">
-        <div class="card-title">Tổng tiền cần CHI trả đối tác:</div>
-        <div class="card-value" style="color: #e74c3c;">{{ formatCurrency(stats.tong_phai_tra) }}</div>
+      <div class="card" style="border-left: 5px solid #e74c3c; flex: 1; min-width: 200px;">
+        <div class="card-title">💸 Tổng Chi Phí:</div>
+        <div class="card-value" style="color: #e74c3c;">{{ formatCurrency(stats.tong_chi_phi) }}</div>
+      </div>
+      <div class="card" style="border-left: 5px solid #3498db; flex: 1; min-width: 200px; background: #f0f8ff;">
+        <div class="card-title">📈 Lợi Nhuận:</div>
+        <div class="card-value" style="color: #3498db;">{{ formatCurrency(stats.loi_nhuan) }}</div>
+      </div>
+      <div class="card" style="border-left: 5px solid #9b59b6; flex: 1.5; min-width: 250px; background: #fdfaef;">
+        <div class="card-title">🏆 Top Nhân Viên (Doanh thu):</div>
+        <div class="card-value" style="color: #9b59b6; font-size: 22px;">
+          {{ stats.top_nv }} 
+          <div style="font-size: 14px; color: #555; margin-top: 5px;">{{ formatCurrency(stats.max_doanh_thu) }}</div>
+        </div>
       </div>
     </div>
 
@@ -62,6 +73,7 @@
             <th style="padding: 12px; border-right: 1px solid #eee;">Tên chi phí</th>
             <th style="padding: 12px; border-right: 1px solid #eee; text-align: center;">Loại giao dịch</th>
             <th style="padding: 12px; border-right: 1px solid #eee; text-align: right;">Tổng tiền</th>
+            <th style="padding: 12px; border-right: 1px solid #eee; text-align: center;">Người xử lý</th>
             <th style="padding: 12px; text-align: center;">Trạng thái</th>
           </tr>
         </thead>
@@ -79,8 +91,11 @@
                 {{ item.loai_giao_dich === 'THU' ? 'KHOẢN THU 📥' : 'KHOẢN CHI 📤' }}
               </span>
             </td>
-            <td style="padding: 12px; border-right: 1px solid #eee; text-align: right; font-weight: bold; font-size: 15px;">
+           <td style="padding: 12px; border-right: 1px solid #eee; text-align: right; font-weight: bold; font-size: 15px;">
               {{ formatCurrency(item.tong_tien) }}
+            </td>
+            <td style="padding: 12px; border-right: 1px solid #eee; text-align: center; color: #7f8c8d; font-size: 13px;">
+              👤 {{ item.nguoi_xu_ly || '---' }}
             </td>
             <td style="padding: 12px; text-align: center;">
               <span class="badge" :class="{
@@ -103,7 +118,15 @@
 import { ref, onMounted } from 'vue';
 
 const listData = ref([]);
-const stats = ref({ tong_phai_thu: 0, tong_phai_tra: 0 });
+const stats = ref({ 
+  tong_phai_thu: 0, 
+  tong_phai_tra: 0,
+  tong_doanh_thu: 0,
+  tong_chi_phi: 0,
+  loi_nhuan: 0,
+  top_nv: '---',
+  max_doanh_thu: 0
+});
 const isLoading = ref(false);
 
 const filters = ref({
@@ -144,7 +167,7 @@ const exportExcel = () => {
   }
   
   let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-  csvContent += "Mã lô hàng,Mã chi phí,Tên chi phí,Loại giao dịch,Tổng tiền,Trạng thái\r\n";
+  csvContent += "Mã lô hàng,Mã chi phí,Tên chi phí,Loại giao dịch,Tổng tiền,Người Xử Lý,Trạng thái\r\n";
 
   listData.value.forEach(row => {
     let tr = [
@@ -153,6 +176,7 @@ const exportExcel = () => {
       `"${row.ten_chi_phi}"`,
       row.loai_giao_dich,
       row.tong_tien,
+      `"${row.nguoi_xu_ly || '---'}"`,
       row.trang_thai_thanh_toan
     ];
     csvContent += tr.join(",") + "\r\n";

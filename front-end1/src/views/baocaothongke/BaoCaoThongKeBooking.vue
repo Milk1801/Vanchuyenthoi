@@ -32,18 +32,38 @@
       </div>
     </div>
 
-    <div class="stats-cards" style="display: flex; gap: 20px; margin-bottom: 25px;">
-      <div class="card" style="border-left: 5px solid #8e44ad;">
-        <div class="card-title">Tổng số booking trong kỳ:</div>
+    <div class="stats-cards" style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+      <div class="card" style="border-left: 5px solid #8e44ad; flex: 1; min-width: 150px;">
+        <div class="card-title">Tổng số booking:</div>
         <div class="card-value" style="color: #8e44ad;">{{ stats.tong_so }}</div>
       </div>
-      <div class="card" style="border-left: 5px solid #e74c3c;">
+      <div class="card" style="border-left: 5px solid #e74c3c; flex: 1; min-width: 150px;">
         <div class="card-title">Chưa hoàn thành:</div>
         <div class="card-value" style="color: #e74c3c;">{{ stats.chua_hoan_thanh }}</div>
       </div>
-      <div class="card" style="border-left: 5px solid #2ecc71;">
+      <div class="card" style="border-left: 5px solid #2ecc71; flex: 1; min-width: 150px;">
         <div class="card-title">Đã hoàn tất:</div>
         <div class="card-value" style="color: #2ecc71;">{{ stats.da_hoan_tat }}</div>
+      </div>
+      
+      <div class="card" style="border-left: 5px solid #2980b9; flex: 1.5; min-width: 250px; background: #fdfaef;">
+        <div class="card-title">🚢 Hãng Tàu Thường Book:</div>
+        <div class="card-value" style="color: #2980b9; font-size: 22px;">
+          {{ stats.top_hang_tau }}
+          <div style="font-size: 14px; color: #555; margin-top: 5px;">
+            {{ stats.max_hang_tau }} chuyến (Chiếm {{ stats.phan_tram_ht }}%)
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 5px solid #d35400; flex: 1.5; min-width: 250px; background: #fdfaef;">
+        <div class="card-title">🏆 Top Nhân Viên (Booking):</div>
+        <div class="card-value" style="color: #d35400; font-size: 22px;">
+          {{ stats.top_nv }}
+          <div style="font-size: 14px; color: #555; margin-top: 5px;">
+            {{ stats.max_nv }} booking
+          </div>
+        </div>
       </div>
     </div>
 
@@ -57,7 +77,8 @@
             <th style="padding: 12px; border-right: 1px solid #2c3e50;">Tên tàu</th>
             <th style="padding: 12px; border-right: 1px solid #2c3e50;">Cảng đi ➔ Đến</th>
             <th style="padding: 12px; border-right: 1px solid #2c3e50;">Ngày đi (ETD)</th>
-            <th style="padding: 12px; text-align: center; color: #f1c40f;">Giờ cut-off</th>
+            <th style="padding: 12px; border-right: 1px solid #2c3e50; text-align: center; color: #f1c40f;">Giờ cut-off</th>
+            <th style="padding: 12px; text-align: center;">Người xử lý</th>
           </tr>
         </thead>
         <tbody>
@@ -78,8 +99,11 @@
             <td style="padding: 12px; border-right: 1px solid #eee; font-weight: bold;">
               {{ formatDate(item.etd) }}
             </td>
-            <td style="padding: 12px; text-align: center; font-weight: bold; color: #e74c3c;">
+            <td style="padding: 12px; border-right: 1px solid #eee; text-align: center; font-weight: bold; color: #e74c3c;">
               {{ formatDateTime(item.gio_cat_mang) }}
+            </td>
+            <td style="padding: 12px; text-align: center; color: #7f8c8d; font-size: 13px;">
+              👤 {{ item.nguoi_xu_ly || '---' }}
             </td>
           </tr>
         </tbody>
@@ -94,7 +118,11 @@ import { ref, onMounted } from 'vue';
 
 const listData = ref([]);
 const listHangTau = ref([]); // Danh sách đổ vào Combobox
-const stats = ref({ tong_so: 0, chua_hoan_thanh: 0, da_hoan_tat: 0 });
+const stats = ref({ 
+  tong_so: 0, chua_hoan_thanh: 0, da_hoan_tat: 0,
+  top_hang_tau: '---', max_hang_tau: 0, phan_tram_ht: 0,
+  top_nv: '---', max_nv: 0
+});
 const isLoading = ref(false);
 
 const filters = ref({
@@ -140,7 +168,7 @@ const exportExcel = () => {
   }
   
   let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-  csvContent += "Số booking,Hãng tàu,Tên tàu,Cảng đi,Cảng đến,Ngày đi (ETD),Giờ cut-off,Trạng thái\r\n";
+  csvContent += "Số booking,Hãng tàu,Tên tàu,Cảng đi,Cảng đến,Ngày đi (ETD),Giờ cut-off,Trạng thái,Người xử lý\r\n";
 
   listData.value.forEach(row => {
     let tr = [
@@ -151,7 +179,8 @@ const exportExcel = () => {
       `"${row.cang_den || ''}"`,
       formatDate(row.etd),
       formatDateTime(row.gio_cat_mang),
-      row.trang_thai
+      row.trang_thai,
+      `"${row.nguoi_xu_ly || '---'}"`
     ];
     csvContent += tr.join(",") + "\r\n";
   });

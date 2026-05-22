@@ -32,18 +32,30 @@
       </div>
     </div>
 
-    <div class="stats-cards" style="display: flex; gap: 20px; margin-bottom: 25px;">
-      <div class="card" style="border-left: 5px solid #3498db;">
-        <div class="card-title">Tổng số lô hàng trong kỳ:</div>
+    <div class="stats-cards" style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+      <div class="card" style="border-left: 5px solid #3498db; flex: 1; min-width: 150px;">
+        <div class="card-title">Tổng số lô:</div>
         <div class="card-value" style="color: #3498db;">{{ stats.tong_so }}</div>
       </div>
-      <div class="card" style="border-left: 5px solid #f39c12;">
-        <div class="card-title">Đang vận chuyển:</div>
+      <div class="card" style="border-left: 5px solid #f39c12; flex: 1; min-width: 150px;">
+        <div class="card-title">Đang chạy:</div>
         <div class="card-value" style="color: #f39c12;">{{ stats.dang_van_chuyen }}</div>
       </div>
-      <div class="card" style="border-left: 5px solid #2ecc71;">
-        <div class="card-title">Đã hoàn thành:</div>
+      <div class="card" style="border-left: 5px solid #2ecc71; flex: 1; min-width: 150px;">
+        <div class="card-title">Hoàn thành:</div>
         <div class="card-value" style="color: #2ecc71;">{{ stats.hoan_thanh }}</div>
+      </div>
+      
+      <div class="card" style="border-left: 5px solid #9b59b6; flex: 1.5; min-width: 220px; background: #fdfaef;">
+        <div class="card-title">🏆 Top Nhân Viên:</div>
+        <div class="card-value" style="color: #9b59b6; font-size: 22px;">
+          {{ stats.top_nhan_vien }} <span style="font-size: 14px; color: #555;">({{ stats.max_don }} đơn)</span>
+        </div>
+      </div>
+      
+      <div class="card" style="border-left: 5px solid #34495e; flex: 1; min-width: 150px; background: #fdfaef;">
+        <div class="card-title">TB (Đơn/NV):</div>
+        <div class="card-value" style="color: #34495e;">{{ stats.don_trung_binh }}</div>
       </div>
     </div>
 
@@ -58,6 +70,7 @@
             <th style="padding: 12px; border-right: 1px solid #2c3e50;">Cảng đi ➔ Đến</th>
             <th style="padding: 12px; border-right: 1px solid #2c3e50;">Ngày đi (ETD) / Đến (ETA)</th>
             <th style="padding: 12px; border-right: 1px solid #2c3e50; text-align: center;">Trạng thái</th>
+            <th style="padding: 12px; border-right: 1px solid #2c3e50; text-align: center;">Người xử lý</th>
             <th style="padding: 12px; text-align: center;">Thao tác</th>
           </tr>
         </thead>
@@ -81,6 +94,9 @@
               <span class="badge" :class="getBadgeClass(item.trang_thai_lo_hang)">
                 {{ item.trang_thai_lo_hang }}
               </span>
+            </td>
+            <td style="padding: 12px; border-right: 1px solid #eee; text-align: center; font-size: 13px; color: #555;">
+              👤 {{ item.nguoi_xu_ly || '---' }}
             </td>
             <td style="padding: 12px; text-align: center;">
               <button @click="openModal(item)" class="btn-xem">👁️ Xem</button>
@@ -131,7 +147,14 @@
 import { ref, onMounted } from 'vue';
 
 const listData = ref([]);
-const stats = ref({ tong_so: 0, dang_van_chuyen: 0, hoan_thanh: 0 });
+const stats = ref({ 
+  tong_so: 0, 
+  dang_van_chuyen: 0, 
+  hoan_thanh: 0,
+  top_nhan_vien: '---',
+  max_don: 0,
+  don_trung_binh: 0
+});
 const isLoading = ref(false);
 const isModalOpen = ref(false);
 const selectedItem = ref({});
@@ -191,7 +214,7 @@ const exportExcel = () => {
   }
   
   let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-  csvContent += "Mã lô hàng,Số Booking,Tên hàng,Cảng đi,Cảng đến,ETD,ETA,Trạng thái\r\n"; 
+  csvContent += "Mã lô hàng,Số Booking,Tên hàng,Cảng đi,Cảng đến,ETD,ETA,Trạng thái,Người Xử Lý\r\n"; 
 
   listData.value.forEach(row => {
     let tr = [
@@ -202,7 +225,8 @@ const exportExcel = () => {
       `"${row.cang_den || ''}"`,
       formatDate(row.etd),
       formatDate(row.eta),
-      row.trang_thai_lo_hang
+      row.trang_thai_lo_hang,
+      `"${row.nguoi_xu_ly || '---'}"`
     ];
     csvContent += tr.join(",") + "\r\n";
   });
