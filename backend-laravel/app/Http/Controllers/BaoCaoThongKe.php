@@ -26,8 +26,10 @@ class BaoCaoThongKe extends Controller
                 ->leftJoin('hang_tau', 'booking.ma_hang_tau', '=', 'hang_tau.ma_hang_tau')
                 ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
                 ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(ten_hang SEPARATOR ", ") as ten_hang_hoa, SUM(so_luong) as tong_so_luong, SUM(trong_luong) as tong_trong_luong, SUM(the_tich) as tong_the_tich FROM chi_tiet_lo_hang GROUP BY ma_lo_hang) as ctlh'), 'lo_hang.ma_lo_hang', '=', 'ctlh.ma_lo_hang')
+                ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan') /* JOIN ĐỂ LẤY TÊN NHÂN VIÊN */
                 ->select(
                     'lo_hang.ma_lo_hang', 'lo_hang.trang_thai_lo_hang',
+                    'tai_khoan.ho_ten as nguoi_xu_ly', /* LẤY TÊN ĐỂ THỐNG KÊ KPI */
                     'booking.so_booking', 'booking.etd', 'booking.eta',
                     'pol.ten_cang as cang_di', 'pod.ten_cang as cang_den',
                     'khach_hang.ten_khach_hang',
@@ -50,13 +52,51 @@ class BaoCaoThongKe extends Controller
 
             $danhSach = $query->orderBy('lo_hang.ma_lo_hang', 'desc')->get();
 
+            // --- XỬ LÝ LOGIC KPI NHÂN VIÊN (GROUP BY, COUNT) ---
+            // 1. Nhóm các lô hàng theo tên người xử lý và đếm số lượng
+            // --- XỬ LÝ LOGIC KPI NHÂN VIÊN BẰNG PHP THUẦN (KHÔNG BÁO LỖI VÀNG) ---
+            $kpiNhanVien = [];
+            
+            // 1. Đếm số đơn cho từng nhân viên
+            foreach ($danhSach as $item) {
+                if (!empty($item->nguoi_xu_ly)) {
+                    $ten = $item->nguoi_xu_ly;
+                    if (!isset($kpiNhanVien[$ten])) {
+                        $kpiNhanVien[$ten] = 0;
+                    }
+                    $kpiNhanVien[$ten]++;
+                }
+            }
+
+            $topNhanVien = 'Chưa xác định';
+            $maxDon = 0;
+            $tongSoNhanVien = count($kpiNhanVien);
+
+            // 2. Tìm ra nhân viên có nhiều đơn nhất (Top 1)
+            if ($tongSoNhanVien > 0) {
+                foreach ($kpiNhanVien as $tenNV => $soDon) {
+                    if ($soDon > $maxDon) {
+                        $maxDon = $soDon;
+                        $topNhanVien = $tenNV;
+                    }
+                }
+            }
+
+            // 3. Tính trung bình số đơn / nhân viên
+            $tongSoDon = count($danhSach);
+            $trungBinhDon = $tongSoNhanVien > 0 ? round($tongSoDon / $tongSoNhanVien, 1) : 0;
+
             return response()->json([
                 'success' => true,
                 'data' => $danhSach,
                 'thong_ke' => [
                     'tong_so' => $danhSach->count(),
                     'dang_van_chuyen' => $danhSach->where('trang_thai_lo_hang', 'Đang vận chuyển')->count(),
-                    'hoan_thanh' => $danhSach->where('trang_thai_lo_hang', 'Hoàn tất')->count()
+                    'hoan_thanh' => $danhSach->where('trang_thai_lo_hang', 'Hoàn tất')->count(),
+                    // TRẢ VỀ DỮ LIỆU KPI CHO VUE.JS
+                    'top_nhan_vien' => $topNhanVien,
+                    'max_don' => $maxDon,
+                    'don_trung_binh' => $trungBinhDon
                 ]
             ]);
         } catch (\Exception $e) { return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]); }
@@ -135,9 +175,36 @@ class BaoCaoThongKe extends Controller
             }
 
             // Ép kiểu mảng liên hợp về mảng tuần tự cho Vue dễ xử lý
+           // Ép kiểu mảng liên hợp về mảng tuần tự cho Vue dễ xử lý
             $result = array_values($grouped);
 
-            return response()->json(['success' => true, 'data' => $result]);
+            // --- TÍNH TOÁN THỐNG KÊ TỔNG VÀ TÌM KHÁCH HÀNG VIP ---
+            $tongTheTich = 0;
+            $tongTrongLuong = 0;
+            $topKhachHang = 'Chưa xác định';
+            $maxCBM = 0;
+
+            foreach ($result as $kh) {
+                $tongTheTich += $kh['tong_the_tich'];
+                $tongTrongLuong += $kh['tong_trong_luong'];
+
+                // Tìm Khách hàng có tổng thể tích lớn nhất (Theo CBM)
+                if ($kh['tong_the_tich'] > $maxCBM) {
+                    $maxCBM = $kh['tong_the_tich'];
+                    $topKhachHang = $kh['ten_khach_hang'];
+                }
+            }
+
+            return response()->json([
+                'success' => true, 
+                'data' => $result,
+                'thong_ke' => [
+                    'tong_the_tich' => $tongTheTich,
+                    'tong_trong_luong' => $tongTrongLuong,
+                    'top_khach_hang' => $topKhachHang,
+                    'max_cbm' => $maxCBM
+                ]
+            ]);
 
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Lỗi DB: ' . $e->getMessage()]);
@@ -160,6 +227,7 @@ class BaoCaoThongKe extends Controller
                 ->leftJoin('cang_bien as pol', 'booking.ma_cang_di', '=', 'pol.ma_cang')
                 ->leftJoin('cang_bien as pod', 'booking.ma_cang_den', '=', 'pod.ma_cang')
                 ->leftJoin('lo_hang', 'booking.ma_booking', '=', 'lo_hang.ma_booking')
+                ->leftJoin('tai_khoan', 'booking.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan') // Lấy người làm Booking
                 ->select(
                     'booking.ma_booking',
                     'booking.so_booking',
@@ -169,7 +237,8 @@ class BaoCaoThongKe extends Controller
                     'hang_tau.ten_hang_tau',
                     'pol.ten_cang as cang_di',
                     'pod.ten_cang as cang_den',
-                    'lo_hang.trang_thai_lo_hang'
+                    'lo_hang.trang_thai_lo_hang',
+                    'tai_khoan.ho_ten as nguoi_xu_ly' // Cột hiển thị Nhân viên
                 )
                 ->where('booking.thoi_gian_xoa', '<=', '2000-01-01 00:00:00');
 
@@ -223,6 +292,48 @@ class BaoCaoThongKe extends Controller
                 ->orderBy('ten_hang_tau', 'asc')
                 ->get();
 
+            // --- XỬ LÝ LOGIC ĐẾM HÃNG TÀU & NHÂN VIÊN ---
+            $countHangTau = [];
+            $countNV = [];
+
+            foreach ($danhSachUnique as $item) {
+                // Đếm số lượng Booking theo Hãng tàu
+                $ht = $item->ten_hang_tau;
+                if (!empty($ht)) {
+                    if (!isset($countHangTau[$ht])) $countHangTau[$ht] = 0;
+                    $countHangTau[$ht]++;
+                }
+
+                // Đếm số lượng Booking theo Nhân viên
+                $nv = $item->nguoi_xu_ly;
+                if (!empty($nv)) {
+                    if (!isset($countNV[$nv])) $countNV[$nv] = 0;
+                    $countNV[$nv]++;
+                }
+            }
+
+            // Tìm Hãng tàu được book nhiều nhất
+            $topHangTau = 'Chưa có dữ liệu';
+            $maxHangTau = 0;
+            foreach ($countHangTau as $ht => $count) {
+                if ($count > $maxHangTau) {
+                    $maxHangTau = $count;
+                    $topHangTau = $ht;
+                }
+            }
+            // Tính phần trăm chiếm tỷ trọng
+            $phanTramHT = $tongSo > 0 ? round(($maxHangTau / $tongSo) * 100, 1) : 0;
+
+            // Tìm Nhân viên book nhiều nhất
+            $topNV = 'Chưa có dữ liệu';
+            $maxNV = 0;
+            foreach ($countNV as $nv => $count) {
+                if ($count > $maxNV) {
+                    $maxNV = $count;
+                    $topNV = $nv;
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => array_values($danhSachUnique),
@@ -230,7 +341,12 @@ class BaoCaoThongKe extends Controller
                 'thong_ke' => [
                     'tong_so' => $tongSo,
                     'chua_hoan_thanh' => $chuaHoanThanh,
-                    'da_hoan_tat' => $hoanTat
+                    'da_hoan_tat' => $hoanTat,
+                    'top_hang_tau' => $topHangTau,
+                    'max_hang_tau' => $maxHangTau,
+                    'phan_tram_ht' => $phanTramHT,
+                    'top_nv' => $topNV,
+                    'max_nv' => $maxNV
                 ]
             ]);
 
@@ -255,6 +371,7 @@ class BaoCaoThongKe extends Controller
             $query = DB::table('chi_phi')
                 ->join('lo_hang', 'chi_phi.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
                 ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
+                ->leftJoin('tai_khoan', 'chi_phi.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan') // KẾT NỐI LẤY NHÂN VIÊN
                 ->select(
                     'chi_phi.ma_chi_phi',
                     'chi_phi.ten_chi_phi',
@@ -262,7 +379,8 @@ class BaoCaoThongKe extends Controller
                     'chi_phi.loai_giao_dich',
                     'chi_phi.trang_thai_thanh_toan',
                     'lo_hang.ma_lo_hang',
-                    'booking.etd'
+                    'booking.etd',
+                    'tai_khoan.ho_ten as nguoi_xu_ly' // LẤY TÊN ĐỂ THỐNG KÊ DOANH THU
                 )
                 ->where('chi_phi.thoi_gian_xoa', '<=', '2000-01-01 00:00:00');
 
@@ -289,26 +407,58 @@ class BaoCaoThongKe extends Controller
 
             $danhSach = $query->orderBy('chi_phi.ma_chi_phi', 'desc')->get();
 
-            // --- TÍNH TỔNG TIỀN TỒN ĐỌNG CHO 2 THẺ THỐNG KÊ ---
-            $phaiThu = 0;
-            $phaiTra = 0;
+            // --- TÍNH TOÁN DOANH THU, LỢI NHUẬN VÀ CÔNG NỢ ---
+            $phaiThu = 0; $phaiTra = 0;
+            $tongDoanhThu = 0; $tongChiPhi = 0;
+            
+            $doanhThuNV = []; // Mảng chứa doanh thu theo nhân viên (Chức năng GROUP BY)
 
             foreach ($danhSach as $cp) {
-                // CHỈ CỘNG TIỀN VÀO TỔNG NẾU CHƯA THANH TOÁN XONG
                 if ($cp->trang_thai_thanh_toan !== 'Đã thanh toán') {
+                    // 1. Tính công nợ tồn đọng
+                    if ($cp->loai_giao_dich === 'THU') $phaiThu += $cp->tong_tien;
+                    else if ($cp->loai_giao_dich === 'CHI') $phaiTra += $cp->tong_tien;
+                } else {
+                    // 2. Tính Doanh thu & Chi phí thực tế (Chỉ tính khi Đã thanh toán)
                     if ($cp->loai_giao_dich === 'THU') {
-                        $phaiThu += $cp->tong_tien;
+                        $tongDoanhThu += $cp->tong_tien;
+                        // Cộng dồn doanh thu cho Nhân viên (GROUP BY & SUM)
+                        if (!empty($cp->nguoi_xu_ly)) {
+                            $ten = $cp->nguoi_xu_ly;
+                            if(!isset($doanhThuNV[$ten])) $doanhThuNV[$ten] = 0;
+                            $doanhThuNV[$ten] += $cp->tong_tien;
+                        }
                     } else if ($cp->loai_giao_dich === 'CHI') {
-                        $phaiTra += $cp->tong_tien;
+                        $tongChiPhi += $cp->tong_tien;
                     }
                 }
             }
+
+            // 3. Tìm ra Nhân viên kiếm nhiều doanh thu nhất (MAX)
+            $topNV = 'Chưa xác định';
+            $maxDoanhThu = 0;
+            if (count($doanhThuNV) > 0) {
+                foreach($doanhThuNV as $ten => $tien) {
+                    if ($tien > $maxDoanhThu) {
+                        $maxDoanhThu = $tien;
+                        $topNV = $ten;
+                    }
+                }
+            }
+
+            $loiNhuan = $tongDoanhThu - $tongChiPhi; // Lợi nhuận = Thu - Chi
+
             return response()->json([
                 'success' => true,
                 'data' => $danhSach,
                 'thong_ke' => [
                     'tong_phai_thu' => $phaiThu,
-                    'tong_phai_tra' => $phaiTra
+                    'tong_phai_tra' => $phaiTra,
+                    'tong_doanh_thu' => $tongDoanhThu,
+                    'tong_chi_phi' => $tongChiPhi,
+                    'loi_nhuan' => $loiNhuan,
+                    'top_nv' => $topNV,
+                    'max_doanh_thu' => $maxDoanhThu
                 ]
             ]);
 

@@ -21,6 +21,24 @@
       </div>
     </div>
 
+    <div class="stats-cards" style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+      <div class="card" style="border-left: 5px solid #3498db; flex: 1; min-width: 200px;">
+        <div class="card-title">📦 Tổng Thể Tích (CBM):</div>
+        <div class="card-value" style="color: #3498db;">{{ formatNumber(stats.tong_the_tich) }}</div>
+      </div>
+      <div class="card" style="border-left: 5px solid #e67e22; flex: 1; min-width: 200px;">
+        <div class="card-title">⚖️ Tổng Trọng Lượng (KGS):</div>
+        <div class="card-value" style="color: #e67e22;">{{ formatNumber(stats.tong_trong_luong) }}</div>
+      </div>
+      <div class="card" style="border-left: 5px solid #9b59b6; flex: 1.5; min-width: 250px; background: #fdfaef;">
+        <div class="card-title">👑 Khách Hàng VIP (Theo CBM):</div>
+        <div class="card-value" style="color: #9b59b6; font-size: 24px;">
+          {{ stats.top_khach_hang }}
+          <div style="font-size: 14px; color: #555; margin-top: 5px;">{{ formatNumber(stats.max_cbm) }} CBM</div>
+        </div>
+      </div>
+    </div>
+
     <div class="table-container" style="background: white; border: 1px solid #ddd; border-radius: 8px; overflow-x: auto;">
       <table style="width: 100%; border-collapse: collapse; text-align: center;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #ccc;">
@@ -108,6 +126,12 @@
 import { ref, onMounted, computed } from 'vue';
 
 const listData = ref([]);
+const stats = ref({
+  tong_the_tich: 0,
+  tong_trong_luong: 0,
+  top_khach_hang: '---',
+  max_cbm: 0
+});
 const isLoading = ref(false);
 const isModalOpen = ref(false);
 const selectedCustomer = ref({});
@@ -148,6 +172,7 @@ const fetchData = async () => {
     const data = await res.json();
     if (data.success) {
       listData.value = data.data;
+      stats.value = data.thong_ke;
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -201,6 +226,12 @@ onMounted(fetchData);
 .btn { padding: 9px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 .btn-primary { background: #3498db; color: white; }
 .btn-success { background: #27ae60; color: white; }
+
+/* CSS CHO CARD THỐNG KÊ */
+.stats-cards .card { flex: 1; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+.card-title { font-size: 14px; font-weight: bold; color: #34495e; margin-bottom: 10px; text-transform: uppercase; }
+.card-value { font-size: 32px; font-weight: bold; }
+
 .btn-close { background: #fff; border: 1px solid #ccc; color: #333; padding: 8px 35px;}
 .btn-xem { background: #f1f2f6; border: 1px solid #dcdde1; border-radius: 4px; padding: 5px 10px; cursor: pointer; transition: 0.2s; }
 .btn-xem:hover { background: #eccc68; }
