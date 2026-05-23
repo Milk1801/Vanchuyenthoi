@@ -34,7 +34,7 @@
       </div>
 
       <button @click="clearFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s;" title="Xóa lọc">🧹 Xóa lọc</button>
-      <button class="btn btn-success" @click="router.push('/van-tai/luu-bai/add')" style="border-radius: 6px;">+ THÊM LƯU BÃI</button>
+      <button v-if="canModify" class="btn btn-success" @click="router.push('/van-tai/luu-bai/add')" style="border-radius: 6px;">+ THÊM LƯU BÃI</button>
     </div>
 
     <!-- Ẩn hiện cột -->
@@ -108,8 +108,8 @@
                 <td v-if="columnVisibility.ten_nguoi_sua.visible">{{ item.ten_nguoi_sua || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: flex; gap: 2px; justify-content: center;">
-                    <button class="action-btn-no-mg text-primary" @click="router.push('/van-tai/luu-bai/edit/' + item.ma_luu_bai)" title="Sửa">✏️</button>
-                    <button class="action-btn-no-mg text-danger" @click="handleDelete(item.ma_luu_bai)" title="Xóa">🗑️</button>
+                    <button v-if="canModify" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/luu-bai/edit/' + item.ma_luu_bai)" title="Sửa">✏️</button>
+                    <button v-if="canModify" class="action-btn-no-mg text-danger" @click="handleDelete(item.ma_luu_bai)" title="Xóa">🗑️</button>
                   </div>
                 </td>
               </tr>
@@ -166,6 +166,18 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 const sortConfig = ref({ key: null, direction: 'asc' });
+
+// Kiểm tra quyền thao tác (Thêm/Sửa/Xóa): Chỉ cho phép mã quyền 4 hoặc 5
+const canModify = computed(() => {
+  try {
+    const user = JSON.parse(localStorage.getItem('sincere_user'));
+    if (!user) return false;
+    // Kiểm tra mã quyền trong danh sách ds_quyen hoặc ds_ma_quyen
+    const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
+                 (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
+    return perms.includes(4) || perms.includes(5);
+  } catch (e) { return false; }
+});
 
 // Column Visibility State
 const columnVisibility = ref({
