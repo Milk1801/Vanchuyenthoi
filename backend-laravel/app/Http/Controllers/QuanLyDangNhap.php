@@ -29,11 +29,11 @@ class QuanLyDangNhap extends Controller
                 }
 
 
-                $list_quyen = DB::table('chi_tiet_quyen')
+                $ds_quyen = DB::table('chi_tiet_quyen')
                     ->join('quyen', 'chi_tiet_quyen.ma_quyen', '=', 'quyen.ma_quyen')
                     ->where('chi_tiet_quyen.ma_tai_khoan', $user->ma_tai_khoan)
-                    ->pluck('quyen.ten_quyen')
-                    ->toArray();
+                    ->select('quyen.ma_quyen', 'quyen.ten_quyen')
+                    ->get();
 
                 return response()->json([
                     'success' => true,
@@ -41,7 +41,8 @@ class QuanLyDangNhap extends Controller
                     'user' => [
                         'ma_tai_khoan' => $user->ma_tai_khoan,
                         'ho_ten' => $user->ho_ten,
-                        'chuc_vu' => implode(', ', $list_quyen),
+                        'chuc_vu' => $ds_quyen->pluck('ten_quyen')->implode(', '),
+                        'ds_quyen' => $ds_quyen,
                         'email' => $user->email
                     ]
                 ]);
