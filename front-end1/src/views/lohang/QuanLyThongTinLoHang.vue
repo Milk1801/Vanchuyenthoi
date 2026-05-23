@@ -181,7 +181,7 @@
                   </td>
                   <td v-if="columnVisibility.ten_khach_hang">{{ lh.ten_khach_hang || '---' }}</td>
                   <td v-if="columnVisibility.dieu_kien_thuong_mai"><span class="badge" style="background-color: #9b59b6; color: white;">{{ lh.dieu_kien_thuong_mai }}</span></td>
-                  <td v-if="columnVisibility.so_booking">
+                  <td v-if="columnVisibility.so_booking" @click="lh.ma_booking && router.push('/lo-hang/booking/edit/' + lh.ma_booking)" :style="lh.ma_booking ? 'cursor: pointer;' : ''">
                     <div style="display: flex; align-items: center; gap: 5px;">
                       <div class="custom-tooltip" v-if="lh.so_booking">
                         <span class="tooltip-trigger">{{ lh.so_booking }}</span>
@@ -190,35 +190,35 @@
                       <span v-else>Chưa gắn</span>
                     </div>
                   </td>
-                  <td v-if="columnVisibility.so_van_don">
+                  <td v-if="columnVisibility.so_van_don" @click="lh.ds_ma_van_don && router.push('/van-tai/Quan-ly-van-don/edit/' + lh.ds_ma_van_don.split(',')[0].trim())" :style="lh.ds_ma_van_don ? 'cursor: pointer;' : ''">
                     <div class="custom-tooltip" v-if="lh.so_van_don">
                       <span class="tooltip-trigger">{{ lh.so_van_don }}</span>
                       <span v-if="lh.van_don_tooltip" class="tooltip-text">{{ lh.van_don_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_thong_bao_hang_den">
+                  <td v-if="columnVisibility.ma_thong_bao_hang_den" @click="lh.ma_thong_bao_hang_den && router.push('/van-tai/thong-bao-hang-den')" :style="lh.ma_thong_bao_hang_den ? 'cursor: pointer;' : ''">
                     <div class="custom-tooltip" v-if="lh.ma_thong_bao_hang_den">
                       <span class="tooltip-trigger">{{ lh.ma_thong_bao_hang_den }}</span>
                       <span v-if="lh.an_tooltip" class="tooltip-text">{{ lh.an_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_lenh_giao_hang">
+                  <td v-if="columnVisibility.ma_lenh_giao_hang" @click="lh.ma_lenh_giao_hang && router.push('/van-tai/lenh-giao-hang')" :style="lh.ma_lenh_giao_hang ? 'cursor: pointer;' : ''">
                     <div class="custom-tooltip" v-if="lh.ma_lenh_giao_hang">
                       <span class="tooltip-trigger">{{ lh.ma_lenh_giao_hang }}</span>
                       <span v-if="lh.do_tooltip" class="tooltip-text">{{ lh.do_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_bien_ban_giao_nhan">
+                  <td v-if="columnVisibility.ma_bien_ban_giao_nhan" @click="lh.ma_bien_ban_giao_nhan && router.push('/van-tai/bien-ban-giao-nhan')" :style="lh.ma_bien_ban_giao_nhan ? 'cursor: pointer;' : ''">
                     <div class="custom-tooltip" v-if="lh.ma_bien_ban_giao_nhan">
                       <span class="tooltip-trigger">{{ lh.ma_bien_ban_giao_nhan }}</span>
                       <span v-if="lh.bbgn_tooltip" class="tooltip-text">{{ lh.bbgn_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_to_khai_hai_quan">
+                  <td v-if="columnVisibility.ma_to_khai_hai_quan" @click="lh.ma_to_khai_hai_quan && router.push('/van-tai/to-khai-hai-quan/edit/' + lh.ma_to_khai_hai_quan.split(',')[0].trim())" :style="lh.ma_to_khai_hai_quan ? 'cursor: pointer;' : ''">
                     <div class="custom-tooltip" v-if="lh.ma_to_khai_hai_quan">
                       <span class="tooltip-trigger">{{ lh.ma_to_khai_hai_quan }}</span>
                       <span v-if="lh.to_khai_tooltip" class="tooltip-text">{{ lh.to_khai_tooltip }}</span>
