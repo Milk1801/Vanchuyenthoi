@@ -54,6 +54,9 @@ class QuanLyLoHang extends Controller
             ->addSelect([
 
                 // vận đơn
+                'ds_ma_van_don' => DB::table('van_don')
+                    ->selectRaw("GROUP_CONCAT(DISTINCT ma_van_don SEPARATOR ', ')")
+                    ->whereColumn('van_don.ma_lo_hang', 'lo_hang.ma_lo_hang'),
                 'so_van_don' => DB::table('van_don')
                     ->selectRaw("GROUP_CONCAT(DISTINCT so_van_don SEPARATOR ', ')")
                     ->whereColumn('van_don.ma_lo_hang', 'lo_hang.ma_lo_hang'),
