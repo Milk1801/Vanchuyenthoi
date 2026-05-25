@@ -103,7 +103,7 @@
             
             <td style="padding: 12px 15px; text-align: center;">
               <button 
-                v-if="hasRole(2)"
+                v-if="hasRole([2, 5])"
                 @click="openPaymentModal(item)" 
                 class="btn-action"
                 title="Cập nhật Trạng thái Thanh toán"
