@@ -43,7 +43,7 @@
         <div v-if="showColumnMenu" @click="showColumnMenu = false" class="invisible-backdrop"></div>
 
         <button @click="clearFilters()" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;" title="Xóa bộ lọc">❌</button>
-        <button class="btn btn-success" @click="openModal()" style="height: 40px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
+        <button v-if="hasRole([3, 5])" class="btn btn-success" @click="openModal()" style="height: 40px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
           ➕ THÊM MỚI
         </button>
       </div>
@@ -123,8 +123,8 @@
             
             <td style="padding: 12px 15px; text-align: center; white-space: nowrap;">
               <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">📄</button>
-              <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
-              <button @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
+              <button v-if="hasRole([3, 5])" @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
+              <button v-if="hasRole([3, 5])" @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -276,6 +276,28 @@ const checkIsHoanTat = (item) => {
   const strStatus = String(status).trim().toLowerCase();
   if (strStatus.includes('hoàn tất') || strStatus === '1' || strStatus === 'true') return true;
   return false;
+};
+
+// --- LOGIC PHÂN QUYỀN (Mã quyền: 3 = Giao nhận, 5 = Admin) ---
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen && !currentUser.ds_ma_quyen) return false;
+  
+  // Xử lý lấy danh sách mã quyền (Tương thích với cả 2 cách lưu của Backend)
+  let roles = [];
+  if (currentUser.ds_quyen) {
+      roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
+  } else if (currentUser.ds_ma_quyen) {
+      roles = currentUser.ds_ma_quyen.split(',').map(id => Number(id.trim()));
+  }
+
+  // Nếu là Admin (Quyền 5) thì auto pass mọi chốt kiểm duyệt
+  if (roles.includes(5)) return true; 
+  
+  // Kiểm tra các quyền được truyền vào
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
 };
 
 // --- HÀM XỬ LÝ HOVER TOOLTIP ---
