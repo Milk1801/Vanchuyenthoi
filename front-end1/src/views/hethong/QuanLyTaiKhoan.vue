@@ -6,7 +6,7 @@
       <div class="search-box">
         <input type="text" v-model="searchQuery" placeholder="Tìm kiếm tên, mã tài khoản...">
       </div>
-      <button class="btn btn-success" @click="goToAdd">+ TẠO TÀI KHOẢN MỚI</button>
+      <button v-if="hasRole(1)" class="btn btn-success" @click="goToAdd">+ TẠO TÀI KHOẢN MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -54,8 +54,8 @@
               </span>
             </td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa">✏️</button>
-              <button class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa">🗑️</button>
+              <button v-if="hasRole(1)" class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa">✏️</button>
+              <button v-if="hasRole(1)" class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -72,6 +72,17 @@ const router = useRouter();
 const listAccounts = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // Phân trang
 const currentPage = ref(1);

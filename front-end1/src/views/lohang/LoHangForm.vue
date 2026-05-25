@@ -294,7 +294,7 @@
 
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button class="btn-cancel" @click="activeTab = 'info'" type="button" style="background: #95a5a6; color: white; border: none;">⬅ Quay lại</button>
-          <button class="btn-save" @click="handleSaveAll" :disabled="isSaving" style="margin-left: 10px;">
+          <button class="btn-save" @click="handleSaveAll" :disabled="isSaving || !hasRole([1, 5])" style="margin-left: 10px;">
             {{ isSaving ? 'Đang xử lý...' : 'HOÀN TẤT & ĐÓNG 💾' }}
           </button>
         </div>
@@ -398,6 +398,17 @@ const showUserFilterDropdown = ref(false);
 const isBookingPickerOpen = ref(false);
 const previewBooking = ref(null);
 const showBookingPanel = ref(false);
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 const formatDateTime = (dateString) => {
   if (!dateString || dateString.startsWith('1970') || dateString.startsWith('0000')) return "--";
@@ -735,7 +746,7 @@ const handleSaveStep1 = async () => {
     return;
   }
 
-  isSaving.value = true;
+  if (!hasRole([1, 5])) return; // Prevent saving if user doesn't have permission
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   formData.value.nguoi_sua_cuoi = user ? (user.id || user.ma_tai_khoan) : null;
   try {
@@ -772,6 +783,7 @@ const handleSaveAll = async () => {
     return;
   }
 
+  if (!hasRole([1, 5])) return; // Prevent saving if user doesn't have permission
   isSaving.value = true;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   const userId = user ? (user.id || user.ma_tai_khoan) : null;
