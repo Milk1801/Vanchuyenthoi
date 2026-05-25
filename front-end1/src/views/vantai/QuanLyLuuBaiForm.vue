@@ -61,7 +61,7 @@
 
           <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
             <button type="button" class="btn-cancel" @click="router.back()">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving">
+            <button v-if="canModify" type="submit" class="btn-save" :disabled="isSaving">
               {{ isSaving ? 'Đang lưu...' : 'Lưu Thông Tin' }}
             </button>
           </div>
@@ -170,6 +170,18 @@ const formData = ref({
   ma_luu_bai: null, ma_lo_hang: null, ngay_bat_dau_luu_bai: '',
   ngay_luu_bai_mien_phi: 0, trang_thai_luu_bai: 'Đang lưu bãi', cuoc_vo: 'Không',
   nguoi_sua_cuoi: null
+});
+
+// Kiểm tra quyền thao tác: Chỉ cho phép mã quyền 4 hoặc 5
+const canModify = computed(() => {
+  try {
+    const user = JSON.parse(localStorage.getItem('sincere_user'));
+    if (!user) return false;
+    // Kiểm tra mã quyền trong danh sách ds_quyen hoặc ds_ma_quyen (đồng bộ với logic trang danh sách)
+    const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
+                 (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
+    return perms.includes(4) || perms.includes(5);
+  } catch (e) { return false; }
 });
 
 const selectedLoHang = computed(() => {
