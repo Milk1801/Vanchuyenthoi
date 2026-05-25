@@ -100,7 +100,7 @@
 
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button type="button" class="btn-cancel" @click="handleCancel">Hủy bỏ</button>
-          <button type="submit" class="btn-save" :disabled="isSaving">
+          <button v-if="hasRole(3)" type="submit" class="btn-save" :disabled="isSaving">
             {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu Booking Note 💾' }}
           </button>
         </div>
@@ -119,6 +119,17 @@ const route = useRoute();
 const listCangBien = ref([]);
 const listHangTau = ref([]);
 const isSaving = ref(false);
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // State cho Combobox Tìm kiếm
 const polSearchText = ref('');
