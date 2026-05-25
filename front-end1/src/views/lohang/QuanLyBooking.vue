@@ -50,7 +50,7 @@
         🧹 Xóa lọc
       </button>
 
-      <button class="btn btn-success" @click="router.push('/lo-hang/booking/add')" style="padding: 10px 20px;">+ TẠO BOOKING NOTE MỚI</button>
+      <button v-if="hasRole(3)" class="btn btn-success" @click="router.push('/lo-hang/booking/add')" style="padding: 10px 20px;">+ TẠO BOOKING NOTE MỚI</button>
     </div>
 
     <!-- Bộ lọc thời gian nâng cao -->
@@ -147,10 +147,11 @@
             </td>
             <td v-if="columnVisibility.nguoi_sua_doi">{{ bk.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
-              <div style="display: flex; gap: 8px; justify-content: center;">
-              <button class="action-btn text-primary" @click="router.push('/lo-hang/booking/edit/' + bk.ma_booking)" title="Cập nhật">✏️</button>
-              <button class="action-btn text-danger" @click="handleDelete(bk.ma_booking)" title="Xóa">🗑️</button>
+              <div v-if="hasRole(3)" style="display: flex; gap: 8px; justify-content: center;">
+                <button class="action-btn text-primary" @click="router.push('/lo-hang/booking/edit/' + bk.ma_booking)" title="Cập nhật">✏️</button>
+                <button class="action-btn text-danger" @click="handleDelete(bk.ma_booking)" title="Xóa">🗑️</button>
               </div>
+              <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td>
           </tr>
           <tr v-if="filteredBookings.length === 0">
@@ -180,6 +181,17 @@ const searchQuery = ref('');
 const filterHangTau = ref('ALL');
 const filterCangDi = ref(null);
 const filterCangDen = ref(null);
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // State cho Combobox tìm kiếm
 const htSearchText = ref('');
