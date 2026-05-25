@@ -103,12 +103,16 @@
             
             <td style="padding: 12px 15px; text-align: center;">
               <button 
+                v-if="hasRole(2)"
                 @click="openPaymentModal(item)" 
                 class="btn-action"
                 title="Cập nhật Trạng thái Thanh toán"
               >
                 Cập nhật
-              </button>
+              </button>      
+              <span v-else style="color: #95a5a6; font-size: 13px; font-style: italic; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; border: 1px solid #eee;">
+                 Chỉ xem
+              </span>
             </td>
           </tr>
         </tbody>
@@ -242,6 +246,28 @@ const dashboardStats = computed(() => {
 
   return { tong_chua_thanh_toan, tong_da_thanh_toan };
 });
+
+// --- LOGIC PHÂN QUYỀN (Mã quyền: 2 = Kế toán, 5 = Admin) ---
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen && !currentUser.ds_ma_quyen) return false;
+  
+  // Xử lý lấy danh sách mã quyền (Tương thích với cả 2 cách lưu của Backend)
+  let roles = [];
+  if (currentUser.ds_quyen) {
+      roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
+  } else if (currentUser.ds_ma_quyen) {
+      roles = currentUser.ds_ma_quyen.split(',').map(id => Number(id.trim()));
+  }
+
+  // Nếu là Admin (Quyền 5) thì auto pass mọi chốt kiểm duyệt
+  if (roles.includes(5)) return true; 
+  
+  // Kiểm tra các quyền được truyền vào
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // HÀM LỌC DỮ LIỆU ĐÃ ĐƯỢC FIX LỖI "TÌM THEO NGÀY"
 const filteredList = computed(() => {

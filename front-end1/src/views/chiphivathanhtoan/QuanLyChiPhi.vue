@@ -26,34 +26,38 @@
       </button>
     </div>
 
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
+    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
       <div class="search-box" style="flex: 1; min-width: 200px;">
-        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Tên chi phí, Lô hàng..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+        <input type="text" v-model="searchQuery" placeholder="🔍 Tìm theo Tên chi phí, Lô hàng..." style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; height: 40px; box-sizing: border-box;">
       </div>
       
-      <select v-model="filterStatus" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: white;">
-        <option value="">Tất cả trạng thái</option>
-        <option value="Chưa thanh toán">🔴 Chưa thanh toán</option>
-        <option value="Thanh toán một phần">🟡 Thanh toán một phần</option>
-        <option value="Đã thanh toán">🟢 Đã thanh toán</option>
-      </select>
+      <div class="filter-box" style="min-width: 160px; flex-shrink: 0;">
+        <select v-model="filterStatus" style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; background: white; height: 40px; box-sizing: border-box;">
+          <option value="">Tất cả trạng thái</option>
+          <option value="Chưa thanh toán">🔴 Chưa thanh toán</option>
+          <option value="Thanh toán một phần">🟡 Thanh toán một phần</option>
+          <option value="Đã thanh toán">🟢 Đã thanh toán</option>
+        </select>
+      </div>
 
-      <div style="display: flex; align-items: center; gap: 5px;">
+      <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;">
         <label style="font-size: 13px; font-weight: bold; color: #555;">Từ:</label>
-        <input type="date" v-model="fromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="date" v-model="fromDate" style="padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
       </div>
-      <div style="display: flex; align-items: center; gap: 5px;">
+      <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;">
         <label style="font-size: 13px; font-weight: bold; color: #555;">Đến:</label>
-        <input type="date" v-model="toDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+        <input type="date" v-model="toDate" style="padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; height: 40px; box-sizing: border-box;">
       </div>
 
-      <button class="btn-success" @click="openModal()" style="border-radius: 6px; padding: 10px 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold;">
-        ➕ THÊM CHI PHÍ
-      </button>
+      <div style="display: flex; flex-shrink: 0;">
+        <button class="btn-success" @click="openModal()" style="border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; height: 40px; white-space: nowrap;">
+          ➕ THÊM CHI PHÍ
+        </button>
+      </div>
     </div>
 
     <div class="table-container" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;">
-      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <table class="zebra-table" style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
           <tr>
             <th style="padding: 12px 15px;">Mã CP</th>
@@ -67,19 +71,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="isLoading">
-            <td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td>
-          </tr>
-          <tr v-else-if="filteredList.length === 0">
-            <td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu!</td>
-          </tr>
-          <tr v-for="item in filteredList" :key="item.ma_chi_phi" style="border-bottom: 1px solid #eee;">
+          <tr v-if="isLoading"><td colspan="8" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          <tr v-else-if="filteredList.length === 0"><td colspan="8" style="text-align: center; padding: 20px;">Không có dữ liệu!</td></tr>
+          
+          <tr v-for="item in filteredList" :key="item.ma_chi_phi" class="table-row">
             <td style="padding: 12px 15px; font-weight: bold; color: #7f8c8d;">CP-{{ item.ma_chi_phi }}</td>
             <td style="padding: 12px 15px; font-weight: bold;">{{ item.ten_chi_phi }}</td>
             
             <td style="padding: 12px 15px;">
-              {{ item.ten_lo_hang || 'N/A' }}
-              <button v-if="item.ten_lo_hang" @click="viewDetail(item)" class="btn-eye" title="Xem chi tiết Lô hàng">👁️</button>
+              <span v-if="item.ten_lo_hang" class="hover-trigger" @mousemove="showTooltip($event, item)" @mouseleave="hideTooltip">
+                {{ item.ten_lo_hang }}
+              </span>
+              <span v-else>N/A</span>
             </td>
             
             <td style="padding: 12px 15px; text-align: right; font-weight: bold; color: #2c3e50;">
@@ -97,31 +100,39 @@
             </td>
 
             <td style="padding: 12px 15px; color: #7f8c8d; font-size: 13px;">
-            👤 {{ item.nguoi_cap_nhat || '---' }}
+              👤 {{ item.nguoi_cap_nhat || '---' }}
             </td>
             
-            <td style="padding: 12px 15px; text-align: center;">
-              <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
-              <button @click="handleDelete(item.ma_chi_phi)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
+            <td style="padding: 12px 15px; text-align: center; white-space: nowrap;">
+              <template v-if="hasRole([2, 5])">
+                <button @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
+                <button @click="handleDelete(item.ma_chi_phi)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
+              </template>
+              <span v-else style="color: #95a5a6; font-size: 13px; font-style: italic; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; border: 1px solid #eee;">
+                Chỉ xem
+              </span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="detailPanel.show" class="side-panel">
-      <div class="panel-header">
+    <div v-if="hoverPanel.show" class="hover-tooltip" :style="{ top: hoverPanel.y + 'px', left: hoverPanel.x + 'px' }">
+      <div class="tooltip-header">
         <h4>📦 Thông tin Lô hàng</h4>
-        <button @click="detailPanel.show = false" class="close-btn">✖</button>
       </div>
-      <div class="panel-body">
+      <div class="tooltip-body">
         <table class="detail-table">
           <tbody>
-            <tr><td>Tên Lô hàng:</td><td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></td></tr>
-            <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking || '---' }}</strong></td></tr>
-            <tr><td>Khách hàng:</td><td><strong>{{ detailPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
-            <tr><td>Điều kiện TM:</td><td><strong>{{ detailPanel.data.dieu_kien_thuong_mai || '---' }}</strong></td></tr>
-            <tr><td>Trạng thái lô:</td><td><strong style="color: #f39c12;">{{ detailPanel.data.trang_thai_lo_hang || '---' }}</strong></td></tr>
+            <tr><td>Tên Lô hàng:</td><td><strong>{{ hoverPanel.data.ten_lo_hang }}</strong></td></tr>
+            <tr><td>Số Booking:</td><td><strong>{{ hoverPanel.data.so_booking || '---' }}</strong></td></tr>
+            <tr><td>Khách hàng:</td><td><strong>{{ hoverPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
+            <tr><td>Điều kiện TM:</td><td><strong style="color: #8e44ad;">{{ hoverPanel.data.dieu_kien_thuong_mai || '---' }}</strong></td></tr>
+            <tr><td>Trạng thái lô:</td><td>
+              <strong :style="{ color: hoverPanel.data.trang_thai_lo_hang === 'Hoàn tất' ? '#27ae60' : '#f39c12' }">
+                {{ hoverPanel.data.trang_thai_lo_hang || '---' }}
+              </strong>
+            </td></tr>
           </tbody>
         </table>
       </div>
@@ -181,6 +192,25 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
+// --- LOGIC PHÂN QUYỀN (Mã quyền: 2 = Kế toán, 5 = Admin) ---
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen && !currentUser.ds_ma_quyen) return false;
+  
+  let roles = [];
+  if (currentUser.ds_quyen) {
+      roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
+  } else if (currentUser.ds_ma_quyen) {
+      roles = currentUser.ds_ma_quyen.split(',').map(id => Number(id.trim()));
+  }
+
+  if (roles.includes(5)) return true; // Admin có toàn quyền
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
+
 const currentTab = ref('THU'); 
 const listChiPhi = ref([]);
 const listLoHang = ref([]);
@@ -195,7 +225,13 @@ const toDate = ref('');
 
 const dashboardStats = ref({ tong_thu: 0, tong_chi: 0, ton_dong: 0 });
 
-const detailPanel = ref({ show: false, data: {} });
+// --- BIẾN CHO HOVER TOOLTIP ---
+const hoverPanel = ref({
+  show: false,
+  data: {},
+  x: 0,
+  y: 0
+});
 
 const searchLoHangInput = ref('');
 const isDropdownOpen = ref(false);
@@ -205,18 +241,17 @@ const formData = ref({
   ma_lo_hang: null,
   ten_chi_phi: '',
   tong_tien: 0,
-  trang_thai_thanh_toan: 'Chưa thanh toán', // Luôn gán cứng mặc định khi tạo mới
+  trang_thai_thanh_toan: 'Chưa thanh toán', 
   ngay_thanh_toan: null,
   loai_giao_dich: 'THU'
 });
 
-// Format Tiền tệ
+// Format Tiền tệ & Ngày
 const formatCurrency = (val) => {
   if (!val) return '0 ₫';
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
 };
 
-// Format Ngày
 const formatDate = (dateStr) => {
   if (!dateStr) return '---';
   return new Date(dateStr).toLocaleDateString('vi-VN');
@@ -228,33 +263,50 @@ const tabStyle = (isActive) => ({
   color: isActive ? '#3498db' : '#7f8c8d'
 });
 
-// Lấy class CSS cho Badge Trạng Thái
 const getStatusClass = (status) => {
   if (status === 'Đã thanh toán') return 'badge-success';
   if (status === 'Thanh toán một phần') return 'badge-warning';
   return 'badge-danger';
 };
 
-// Logic lọc dữ liệu (Đã bổ sung bộ lọc Ngày)
+// --- HÀM XỬ LÝ HOVER TOOLTIP ---
+const showTooltip = (event, item) => {
+  // Vì item trong danh sách Chi Phí không chứa sẵn trạng thái lô hàng (trang_thai_lo_hang)
+  // Ta sẽ tìm nó trong listLoHang
+  const foundLoHang = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
+  hoverPanel.value.data = foundLoHang ? { ...item, ...foundLoHang } : item;
+  
+  let x = event.clientX + 15;
+  let y = event.clientY + 15;
+  const tooltipWidth = 380; 
+  const tooltipHeight = 220; 
+
+  if (x + tooltipWidth > window.innerWidth) x = event.clientX - tooltipWidth - 10;
+  if (y + tooltipHeight > window.innerHeight) y = event.clientY - tooltipHeight - 10;
+
+  hoverPanel.value.x = x;
+  hoverPanel.value.y = y;
+  hoverPanel.value.show = true;
+};
+
+const hideTooltip = () => { hoverPanel.value.show = false; };
+
+// Logic lọc dữ liệu
 const filteredList = computed(() => {
   return listChiPhi.value.filter(item => {
-    // 1. Lọc theo Tab (THU / CHI)
     const matchTab = item.loai_giao_dich === currentTab.value;
     
-    // 2. Lọc theo Ô tìm kiếm
     const search = searchQuery.value.toLowerCase();
     const matchSearch = !search || 
       (item.ten_chi_phi && item.ten_chi_phi.toLowerCase().includes(search)) || 
       (item.ten_lo_hang && item.ten_lo_hang.toLowerCase().includes(search));
 
-    // 3. Lọc theo Combo Box Trạng Thái
     const matchStatus = !filterStatus.value || item.trang_thai_thanh_toan === filterStatus.value;
 
-    // 4. Lọc theo Ngày Thanh Toán
     let matchDate = true;
     if (fromDate.value || toDate.value) {
       if (!item.ngay_thanh_toan) {
-        matchDate = false; // Phiếu chưa có ngày thanh toán sẽ không hiện lên khi đang lọc ngày
+        matchDate = false; 
       } else {
         const itemDate = new Date(item.ngay_thanh_toan).getTime();
         const start = fromDate.value ? new Date(fromDate.value).setHours(0, 0, 0, 0) : 0;
@@ -284,13 +336,6 @@ const selectLoHang = (lo) => {
 
 watch(searchLoHangInput, (newVal) => { if (newVal === '') formData.value.ma_lo_hang = null; });
 
-// Mở Side Panel Xem Lô Hàng
-const viewDetail = (item) => {
-  detailPanel.value.data = item;
-  detailPanel.value.show = true;
-};
-
-// Gọi API lấy dữ liệu
 const fetchData = async () => {
   isLoading.value = true;
   try {
@@ -305,15 +350,12 @@ const fetchData = async () => {
   finally { isLoading.value = false; }
 };
 
-// Modal Logic
 const openModal = (item = null) => {
   if (item) {
     formData.value = { ...item };
-    // Tìm lô hàng để map lên text combobox
     const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === item.ma_lo_hang);
     searchLoHangInput.value = selectedLo ? `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}` : '';
   } else {
-    // Khi thêm mới, mặc định là Chưa thanh toán
     formData.value = { ma_chi_phi: null, ma_lo_hang: null, ten_chi_phi: '', tong_tien: 0, trang_thai_thanh_toan: 'Chưa thanh toán', ngay_thanh_toan: null, loai_giao_dich: currentTab.value };
     searchLoHangInput.value = '';
   }
@@ -321,18 +363,14 @@ const openModal = (item = null) => {
   isModalOpen.value = true;
 };
 
-// Lưu Dữ Liệu
 const saveData = async () => {
   if (!formData.value.ma_lo_hang) { alert("Vui lòng chọn Lô hàng!"); return; }
   
-  // Đảm bảo nếu chưa thanh toán thì ngày = null
   if (formData.value.trang_thai_thanh_toan === 'Chưa thanh toán') {
       formData.value.ngay_thanh_toan = null;
   }
 
-  // Lấy ID người dùng đang đăng nhập
-  const currentUser = JSON.parse(localStorage.getItem('sincere_user'));
-  const userId = currentUser ? currentUser.ma_tai_khoan : null;
+  const userId = currentUser ? (currentUser.id || currentUser.ma_tai_khoan) : null;
 
   isSaving.value = true;
   try {
@@ -347,7 +385,6 @@ const saveData = async () => {
   finally { isSaving.value = false; }
 };
 
-// Xóa Dữ Liệu
 const handleDelete = async (id) => {
   if (!confirm(`Bạn có chắc muốn xóa khoản chi phí này?`)) return;
   try {
@@ -372,22 +409,32 @@ onMounted(fetchData);
 .card-ton { background: linear-gradient(135deg, #f1c40f, #f39c12); }
 
 /* BADGES TRẠNG THÁI */
-.badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; white-space: nowrap;}
 .badge-success { background: #d4efdf; color: #27ae60; }
 .badge-danger { background: #fadbd8; color: #c0392b; }
 .badge-warning { background: #fcf3cf; color: #d35400; }
 
-/* CSS Modal & Panel Tái Sử Dụng */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 3px 6px; font-size: 12px; margin-left: 8px; }
-.side-panel { position: fixed; top: 90px; right: 20px; width: 350px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 100; animation: slideIn 0.3s ease-out; }
-.panel-header { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #f1f2f6; background: #fafbfc; border-radius: 8px 8px 0 0; }
-.panel-header h4 { margin: 0; color: #2c3e50; font-size: 16px; }
-.close-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #7f8c8d; }
-.panel-body { padding: 15px; }
+/* CSS HIỆU ỨNG HOVER CHỮ */
+.hover-trigger { cursor: pointer; color: #2980b9; border-bottom: 1px dashed #2980b9; transition: all 0.2s; padding-bottom: 1px; }
+.hover-trigger:hover { color: #e74c3c; border-bottom-color: #e74c3c; }
+
+/* CSS BẢNG TOOLTIP NỔI BẬT */
+.hover-tooltip { position: fixed; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 1px solid #dcdde1; z-index: 9999; width: 380px; pointer-events: none; }
+.tooltip-header { background: #f8f9fa; padding: 12px 15px; border-bottom: 1px solid #eee; border-radius: 8px 8px 0 0; }
+.tooltip-header h4 { margin: 0; font-size: 15px; color: #2c3e50; }
+.tooltip-body { padding: 15px; }
+
+/* CSS Bảng chi tiết */
 .detail-table { width: 100%; border-collapse: collapse; }
 .detail-table tr { border-bottom: 1px dashed #ecf0f1; }
 .detail-table td { padding: 10px 0; color: #7f8c8d; font-size: 13px; width: 40%;}
 .detail-table strong { font-size: 13px; color: #2c3e50; padding-left: 10px;}
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* CSS Modal */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+
+/* CSS SO LE MÀU BẢNG CHÍNH */
+.zebra-table .table-row { border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+.zebra-table .table-row:nth-child(even) { background-color: #f8f9fa; }
+.zebra-table .table-row:hover { background-color: #e9ecef; }
 </style>
