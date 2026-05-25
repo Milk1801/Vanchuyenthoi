@@ -50,7 +50,7 @@
       </div>
 
       <div style="display: flex; flex-shrink: 0;">
-        <button class="btn-success" @click="openModal()" style="border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; height: 40px; white-space: nowrap;">
+        <button v-if="hasRole([2, 5])" class="btn-success" @click="openModal()" style="border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; height: 40px; white-space: nowrap;">
           ➕ THÊM CHI PHÍ
         </button>
       </div>
