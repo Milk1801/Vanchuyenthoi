@@ -81,7 +81,6 @@
             <th v-if="visibleColumns.vanDon" style="padding: 12px 15px;">Số Vận Đơn</th>
             <th v-if="visibleColumns.container" style="padding: 12px 15px;">Số Container</th>
             <th v-if="visibleColumns.ngayPhatHanh" style="padding: 12px 15px;">Ngày Phát Hành</th>
-            
             <th style="padding: 12px 15px; text-align: center; width: 150px;">Hành động</th>
           </tr>
         </thead>
@@ -93,8 +92,10 @@
             <td style="padding: 12px 15px; font-weight: bold; color: #2980b9;">DO-{{ item.ma_phieu }}</td>
             
             <td v-if="visibleColumns.loHang" style="padding: 12px 15px;">
-              {{ item.ten_lo_hang || 'N/A' }}
-              <button v-if="item.ten_lo_hang" @click="viewDetail('lo_hang', item)" class="btn-eye" title="Xem chi tiết Lô hàng">👁️</button>
+              <span v-if="item.ten_lo_hang" class="hover-trigger" @mousemove="showTooltip($event, 'lo_hang', item)" @mouseleave="hideTooltip">
+                {{ item.ten_lo_hang }}
+              </span>
+              <span v-else>N/A</span>
             </td>
             
             <td v-if="visibleColumns.trangThai" style="padding: 12px 15px; text-align: center;">
@@ -104,16 +105,22 @@
             </td>
 
             <td v-if="visibleColumns.booking" style="padding: 12px 15px;">
-              {{ item.so_booking || 'N/A' }}
-              <button v-if="item.so_booking" @click="viewDetail('booking', item)" class="btn-eye" title="Xem chi tiết Booking">👁️</button>
+              <span v-if="item.so_booking" class="hover-trigger" @mousemove="showTooltip($event, 'booking', item)" @mouseleave="hideTooltip">
+                {{ item.so_booking }}
+              </span>
+              <span v-else>N/A</span>
             </td>
             <td v-if="visibleColumns.vanDon" style="padding: 12px 15px; font-weight: bold;">
-              {{ item.so_van_don || '---' }}
-              <button v-if="item.so_van_don" @click="viewDetail('van_don', item)" class="btn-eye" title="Xem chi tiết Vận đơn">👁️</button>
+              <span v-if="item.so_van_don" class="hover-trigger" @mousemove="showTooltip($event, 'van_don', item)" @mouseleave="hideTooltip">
+                {{ item.so_van_don }}
+              </span>
+              <span v-else>---</span>
             </td>
             <td v-if="visibleColumns.container" style="padding: 12px 15px;">
-              {{ item.so_cont || 'N/A' }}
-              <button v-if="item.so_cont" @click="viewDetail('container', item)" class="btn-eye" title="Xem chi tiết Container">👁️</button>
+              <span v-if="item.so_cont" class="hover-trigger" @mousemove="showTooltip($event, 'container', item)" @mouseleave="hideTooltip">
+                {{ item.so_cont }}
+              </span>
+              <span v-else>N/A</span>
             </td>
             <td v-if="visibleColumns.ngayPhatHanh" style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             
@@ -127,52 +134,51 @@
       </table>
     </div>
 
-    <div v-if="detailPanel.show" class="side-panel">
-      <div class="panel-header">
-        <h4>{{ detailPanel.title }}</h4>
-        <button @click="detailPanel.show = false" class="close-btn">✖</button>
+    <div v-if="hoverPanel.show" class="hover-tooltip" :style="{ top: hoverPanel.y + 'px', left: hoverPanel.x + 'px' }">
+      <div class="tooltip-header">
+        <h4>{{ hoverPanel.title }}</h4>
       </div>
-      <div class="panel-body">
+      <div class="tooltip-body">
         
-        <table v-if="detailPanel.type === 'booking'" class="detail-table">
+        <table v-if="hoverPanel.type === 'booking'" class="detail-table">
           <tbody>
-            <tr><td>Số Booking:</td><td><strong>{{ detailPanel.data.so_booking }}</strong></td></tr>
-            <tr><td>Tên tàu:</td><td><strong>{{ detailPanel.data.ten_con_tau || '---' }}</strong></td></tr>
-            <tr><td>Số chuyến:</td><td><strong>{{ detailPanel.data.so_chuyen || '---' }}</strong></td></tr>
-            <tr><td>Giờ cắt máng:</td><td style="color: #e74c3c;"><strong>{{ formatDateTime(detailPanel.data.gio_cat_mang) }}</strong></td></tr>
-            <tr><td>Ngày đi (ETD):</td><td><strong>{{ formatDateTime(detailPanel.data.etd) }}</strong></td></tr>
-            <tr><td>Ngày đến (ETA):</td><td><strong>{{ formatDateTime(detailPanel.data.eta) }}</strong></td></tr>
+            <tr><td>Số Booking:</td><td><strong>{{ hoverPanel.data.so_booking }}</strong></td></tr>
+            <tr><td>Tên tàu:</td><td><strong>{{ hoverPanel.data.ten_con_tau || '---' }}</strong></td></tr>
+            <tr><td>Số chuyến:</td><td><strong>{{ hoverPanel.data.so_chuyen || '---' }}</strong></td></tr>
+            <tr><td>Giờ cắt máng:</td><td style="color: #e74c3c;"><strong>{{ formatDateTime(hoverPanel.data.gio_cat_mang) }}</strong></td></tr>
+            <tr><td>Ngày đi (ETD):</td><td><strong>{{ formatDateTime(hoverPanel.data.etd) }}</strong></td></tr>
+            <tr><td>Ngày đến (ETA):</td><td><strong>{{ formatDateTime(hoverPanel.data.eta) }}</strong></td></tr>
           </tbody>
         </table>
 
-        <table v-if="detailPanel.type === 'lo_hang'" class="detail-table">
+        <table v-if="hoverPanel.type === 'lo_hang'" class="detail-table">
           <tbody>
-            <tr><td>Tên Lô hàng:</td><td><strong>{{ detailPanel.data.ten_lo_hang }}</strong></td></tr>
-            <tr><td>Khách hàng:</td><td><strong>{{ detailPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
-            <tr><td>ĐK Thương mại:</td><td><strong style="color: #8e44ad;">{{ detailPanel.data.dieu_kien_thuong_mai || '---' }}</strong></td></tr>
+            <tr><td>Tên Lô hàng:</td><td><strong>{{ hoverPanel.data.ten_lo_hang }}</strong></td></tr>
+            <tr><td>Khách hàng:</td><td><strong>{{ hoverPanel.data.ten_khach_hang || '---' }}</strong></td></tr>
+            <tr><td>ĐK Thương mại:</td><td><strong style="color: #8e44ad;">{{ hoverPanel.data.dieu_kien_thuong_mai || '---' }}</strong></td></tr>
             <tr><td>Trạng thái:</td><td>
-              <span class="badge" :class="checkIsHoanTat(detailPanel.data) ? 'badge-success' : 'badge-warning'">
-                {{ checkIsHoanTat(detailPanel.data) ? 'Đã hoàn tất' : 'Đang xử lý' }}
+              <span class="badge" :class="checkIsHoanTat(hoverPanel.data) ? 'badge-success' : 'badge-warning'">
+                {{ checkIsHoanTat(hoverPanel.data) ? 'Đã hoàn tất' : 'Đang xử lý' }}
               </span>
             </td></tr>
           </tbody>
         </table>
 
-        <table v-if="detailPanel.type === 'van_don' || detailPanel.type === 'container'" class="detail-table">
+        <table v-if="hoverPanel.type === 'van_don' || hoverPanel.type === 'container'" class="detail-table">
           <tbody>
-            <tr><td>Số House Bill:</td><td><strong style="color: #2980b9;">{{ detailPanel.data.so_van_don || '---' }}</strong></td></tr>
-            <tr><td>Số Master Bill:</td><td><strong>{{ detailPanel.data.so_van_don_goc || '---' }}</strong></td></tr>
-            <tr><td>Loại vận đơn:</td><td><strong>{{ detailPanel.data.loai_van_don || '---' }}</strong></td></tr>
-            <tr><td>PT Đóng hàng:</td><td><strong>{{ detailPanel.data.phuong_thuc_dong_cont || '---' }}</strong></td></tr>
-            <tr><td>Số Container:</td><td><strong>{{ detailPanel.data.so_cont || '---' }}</strong></td></tr>
-            <tr><td>Số Chì (Seal):</td><td><strong>{{ detailPanel.data.so_chi || '---' }}</strong></td></tr>
+            <tr><td>Số House Bill:</td><td><strong style="color: #2980b9;">{{ hoverPanel.data.so_van_don || '---' }}</strong></td></tr>
+            <tr><td>Số Master Bill:</td><td><strong>{{ hoverPanel.data.so_van_don_goc || '---' }}</strong></td></tr>
+            <tr><td>Loại vận đơn:</td><td><strong>{{ hoverPanel.data.loai_van_don || '---' }}</strong></td></tr>
+            <tr><td>PT Đóng hàng:</td><td><strong>{{ hoverPanel.data.phuong_thuc_dong_cont || '---' }}</strong></td></tr>
+            <tr><td>Số Container:</td><td><strong>{{ hoverPanel.data.so_cont || '---' }}</strong></td></tr>
+            <tr><td>Số Chì (Seal):</td><td><strong>{{ hoverPanel.data.so_chi || '---' }}</strong></td></tr>
           </tbody>
         </table>
 
       </div>
     </div>
 
-    <div v-if="isModalOpen" class="modal-overlay">
+    <div v-if="isModalOpen" class="modal-overlay" style="z-index: 10000;">
       <div class="modal-content" style="max-width: 500px; padding: 20px; background: white; border-radius: 8px; width: 100%;">
         <h3 style="margin-top: 0;">{{ formData.ma_phieu ? 'Cập Nhật' : 'Thêm Mới' }} Lệnh Giao Hàng D/O</h3>
         <form @submit.prevent="saveData">
@@ -213,15 +219,22 @@ const isLoading = ref(true);
 const isSaving = ref(false);
 const isModalOpen = ref(false);
 
-// BIẾN CHO TÌM KIẾM VÀ LỌC NÂNG CẤP
 const searchQuery = ref(''); 
 const filterStatus = ref(''); 
 const fromDate = ref(''); 
 const toDate = ref('');   
 
-// --- LOGIC ẨN/HIỆN CỘT ---
+// BIẾN CHO TOOLTIP HOVER (MỚI)
+const hoverPanel = ref({
+  show: false,
+  type: '',
+  title: '',
+  data: {},
+  x: 0,
+  y: 0
+});
+
 const showColumnMenu = ref(false);
-// Kiểm tra xem có cấu hình cột đã lưu trong máy chưa, nếu chưa thì mặc định bật hết
 const savedColumns = JSON.parse(localStorage.getItem('do_visible_columns'));
 const visibleColumns = ref(savedColumns || {
   loHang: true,
@@ -232,21 +245,17 @@ const visibleColumns = ref(savedColumns || {
   ngayPhatHanh: true
 });
 
-// Lắng nghe thay đổi, nếu người dùng tick/bỏ tick thì tự động lưu vào trình duyệt
 watch(visibleColumns, (newVal) => {
   localStorage.setItem('do_visible_columns', JSON.stringify(newVal));
 }, { deep: true });
 
-// Tính toán động số lượng cột hiển thị để gộp dòng (colspan) lúc báo lỗi hoặc loading
 const activeColumnCount = computed(() => {
   return 2 + Object.values(visibleColumns.value).filter(v => v === true).length;
 });
 
-// BIẾN PHÂN TRANG
 const itemsPerPage = ref(10);
 const currentPage = ref(1);
 
-const detailPanel = ref({ show: false, type: '', title: '', data: {} });
 const searchLoHangInput = ref('');
 const isDropdownOpen = ref(false);
 const formData = ref({ ma_phieu: null, ma_lo_hang: null, ngay_phat_hanh: '' });
@@ -276,7 +285,37 @@ const checkIsHoanTat = (item) => {
   return false;
 };
 
-// --- LOGIC LỌC DỮ LIỆU TỔNG HỢP ---
+// --- HÀM XỬ LÝ HOVER TOOLTIP (MỚI) ---
+const showTooltip = (event, type, item) => {
+  hoverPanel.value.type = type;
+  hoverPanel.value.data = item;
+  
+  if (type === 'booking') hoverPanel.value.title = '🚢 Chi tiết Booking';
+  if (type === 'lo_hang') hoverPanel.value.title = '📦 Chi tiết Lô hàng';
+  if (type === 'van_don' || type === 'container') hoverPanel.value.title = '📑 Chi tiết Vận đơn & Cont';
+
+  // Tính toán tọa độ và chống tràn màn hình
+  let x = event.clientX + 15;
+  let y = event.clientY + 15;
+  const tooltipWidth = 380; 
+  const tooltipHeight = 250; 
+
+  if (x + tooltipWidth > window.innerWidth) {
+    x = event.clientX - tooltipWidth - 10;
+  }
+  if (y + tooltipHeight > window.innerHeight) {
+    y = event.clientY - tooltipHeight - 10;
+  }
+
+  hoverPanel.value.x = x;
+  hoverPanel.value.y = y;
+  hoverPanel.value.show = true;
+};
+
+const hideTooltip = () => {
+  hoverPanel.value.show = false;
+};
+
 const filteredList = computed(() => {
   return listDO.value.filter(item => {
     const search = searchQuery.value.toLowerCase();
@@ -341,13 +380,6 @@ const selectLoHang = (lo) => {
 
 watch(searchLoHangInput, (newVal) => { if (newVal === '') formData.value.ma_lo_hang = null; });
 
-const viewDetail = (type, item) => {
-  detailPanel.value.type = type; detailPanel.value.data = item; detailPanel.value.show = true;
-  if (type === 'booking') detailPanel.value.title = '🚢 Chi tiết Booking';
-  if (type === 'lo_hang') detailPanel.value.title = '📦 Chi tiết Lô hàng';
-  if (type === 'van_don' || type === 'container') detailPanel.value.title = '📑 Chi tiết Vận đơn & Cont';
-};
-
 const fetchData = async () => {
   isLoading.value = true;
   try {
@@ -410,45 +442,62 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
-/* CSS NÚT ẨN/HIỆN CỘT MỚI */
-.column-dropdown { position: absolute; top: 100%; right: 0; background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); z-index: 50; width: 220px; margin-top: 8px; animation: fadeIn 0.2s ease-out; }
-.dropdown-title { font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #f1f2f6; padding-bottom: 8px; color: #2c3e50; font-size: 14px; }
-.dropdown-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; color: #495057; font-size: 14px; transition: color 0.2s; }
-.dropdown-item:hover { color: #3498db; }
-.dropdown-item input { cursor: pointer; width: 16px; height: 16px; accent-color: #3498db; }
-.invisible-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 49; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+/* CSS HIỆU ỨNG HOVER CHỮ (MỚI) */
+.hover-trigger {
+  cursor: pointer;
+  color: #2980b9;
+  border-bottom: 1px dashed #2980b9;
+  transition: all 0.2s;
+  padding-bottom: 1px;
+}
+.hover-trigger:hover {
+  color: #e74c3c;
+  border-bottom-color: #e74c3c;
+}
 
-/* CSS CHUNG */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.btn-eye { background: #f0f4f8; border: 1px solid #dcdde1; border-radius: 4px; cursor: pointer; padding: 4px 8px; font-size: 13px; margin-left: 8px; transition: all 0.2s; }
-.btn-eye:hover { background: #3498db; border-color: #3498db; color: white; transform: scale(1.1); }
-.side-panel { position: fixed; top: 90px; right: 20px; width: 380px; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #eee; z-index: 100; animation: slideIn 0.3s ease-out; }
-.panel-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f2f6; background: #fafbfc; border-radius: 8px 8px 0 0; }
-.panel-header h4 { margin: 0; color: #2c3e50; font-size: 16px; }
-.close-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: #7f8c8d; transition: 0.2s;}
-.close-btn:hover { color: #e74c3c; transform: rotate(90deg); }
-.panel-body { padding: 15px; }
+/* CSS BẢNG TOOLTIP NỔI BẬT (MỚI) */
+.hover-tooltip {
+  position: fixed;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  border: 1px solid #dcdde1;
+  z-index: 9999;
+  width: 380px;
+  pointer-events: none; /* RẤT QUAN TRỌNG: Ngăn tooltip bị nhấp nháy khi chuột đè lên */
+}
+.tooltip-header {
+  background: #f8f9fa;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  border-radius: 8px 8px 0 0;
+}
+.tooltip-header h4 { margin: 0; font-size: 15px; color: #2c3e50; }
+.tooltip-body { padding: 15px; }
 
-/* Nâng cấp bảng chi tiết */
+/* Các cấu hình bảng chi tiết tái sử dụng */
 .detail-table { width: 100%; border-collapse: collapse; }
 .detail-table tr { border-bottom: 1px solid #f1f2f6; }
 .detail-table td { padding: 12px 0; color: #555; font-size: 14px; width: 40%; vertical-align: top;}
 .detail-table strong { font-size: 14px; color: #2c3e50; display: table-cell; padding-left: 10px;}
 
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+/* CSS NÚT ẨN/HIỆN CỘT */
+.column-dropdown { position: absolute; top: 100%; right: 0; background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); z-index: 50; width: 220px; margin-top: 8px; }
+.dropdown-title { font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #f1f2f6; padding-bottom: 8px; color: #2c3e50; font-size: 14px; }
+.dropdown-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; color: #495057; font-size: 14px; transition: color 0.2s; }
+.dropdown-item:hover { color: #3498db; }
+.dropdown-item input { cursor: pointer; width: 16px; height: 16px; accent-color: #3498db; }
+.invisible-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 49; }
 
-/* Màu nền chẵn lẻ */
+/* CSS CHUNG */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; }
 .zebra-table .table-row { border-bottom: 1px solid #eee; transition: background-color 0.2s; }
 .zebra-table .table-row:nth-child(even) { background-color: #f8f9fa; }
 .zebra-table .table-row:hover { background-color: #e9ecef; }
-
-/* Nút bấm phân trang */
 .btn-page { background: white; border: 1px solid #ced4da; padding: 6px 12px; border-radius: 4px; cursor: pointer; color: #495057; font-size: 14px; transition: all 0.2s; }
 .btn-page:hover:not(:disabled) { background: #f1f3f5; border-color: #adb5bd; }
 .btn-page:disabled { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
 
-/* Badge Trạng Thái */
 .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; white-space: nowrap; }
 .badge-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
 .badge-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
