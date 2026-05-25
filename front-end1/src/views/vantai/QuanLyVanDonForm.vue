@@ -178,7 +178,7 @@
 
           <div style="grid-column: span 2; margin-top: 10px; display: flex; gap: 10px; justify-content: flex-end;">
             <button type="button" class="btn-cancel" @click="router.back()" style="padding: 10px 25px;">Hủy</button>
-            <button type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
+            <button v-if="canModify" type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
                {{ isSaving ? 'Đang lưu...' : 'Lưu Vận Đơn' }}
             </button>
             <button v-if="formData.ma_van_don" type="button" @click="handleExportPdf(formData.ma_van_don, formData.so_van_don)" class="btn-cancel" style="background: #17a2b8; color: white; border: none; padding: 10px 25px;">
@@ -309,6 +309,18 @@ const formData = ref({
   phuong_thuc_dong_cont: 'FCL', dieu_kien_cuoc: 'Freight Prepaid',
   ma_nguoi_gui_hang: null, ma_nguoi_nhan_hang: null, ma_ben_duoc_thong_bao: null,
   ma_cang_di: null, ma_cang_den: null, ma_lo_hang: null, nguoi_sua_cuoi: null
+});
+
+// Kiểm tra quyền thao tác (Thêm/Sửa): Chỉ cho phép mã quyền 1 hoặc 5
+const canModify = computed(() => {
+  try {
+    const user = JSON.parse(localStorage.getItem('sincere_user'));
+    if (!user) return false;
+    // Kiểm tra mã quyền trong danh sách ds_quyen hoặc ds_ma_quyen (đồng bộ với QuanLyVanDon.vue)
+    const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
+                 (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
+    return perms.includes(1) || perms.includes(5);
+  } catch (e) { return false; }
 });
 
 const selectedLoHang = computed(() => {

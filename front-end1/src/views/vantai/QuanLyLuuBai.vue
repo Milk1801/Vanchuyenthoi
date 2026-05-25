@@ -37,6 +37,18 @@
       <button v-if="canModify" class="btn btn-success" @click="router.push('/van-tai/luu-bai/add')" style="border-radius: 6px;">+ THÊM LƯU BÃI</button>
     </div>
 
+    <!-- Khung cảnh báo lưu bãi -->
+    <div class="warning-cards" style="display: flex; gap: 20px; margin-bottom: 20px;">
+      <div class="stat-card" style="flex: 1; padding: 15px; background: #fff; border-left: 5px solid #e74c3c; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 5px;">
+        <span style="font-size: 13px; font-weight: 500; color: #7f8c8d;">Lô hàng quá hạn lưu bãi</span>
+        <span style="font-size: 24px; font-weight: bold; color: #e74c3c;">{{ warnings.overdue }}</span>
+      </div>
+      <div class="stat-card" style="flex: 1; padding: 15px; background: #fff; border-left: 5px solid #f39c12; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 5px;">
+        <span style="font-size: 13px; font-weight: 500; color: #7f8c8d;">Lô hàng sắp đến hạn (≤ 2 ngày)</span>
+        <span style="font-size: 24px; font-weight: bold; color: #f39c12;">{{ warnings.nearing }}</span>
+      </div>
+    </div>
+
     <!-- Ẩn hiện cột -->
     <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
       <h5 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">Hiển thị cột dữ liệu:</h5>
@@ -86,8 +98,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in paginatedData" :key="item.ma_luu_bai" 
-                  :class="{ 'row-even': (index % 2 !== 0), 'row-odd': (index % 2 === 0) }">
+              <tr v-for="(item, index) in paginatedData" :key="item.ma_luu_bai"
+                  :class="{ 
+                    'row-even': (index % 2 !== 0), 
+                    'row-odd': (index % 2 === 0),
+                    'row-overdue': getWarningStatus(item) === 'overdue',
+                    'row-nearing': getWarningStatus(item) === 'nearing'
+                  }">
                 <td class="sticky-col-left" style="text-align: center; color: #7f8c8d;">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td v-if="columnVisibility.ten_lo_hang.visible"
                     @mouseenter="handleMouseEnter($event, item)" 
@@ -189,6 +206,50 @@ const columnVisibility = ref({
   ten_nguoi_sua: { label: 'Người sửa cuối', visible: true },
 });
 
+// Hàm kiểm tra trạng thái cảnh báo của từng dòng
+const getWarningStatus = (item) => {
+  if (item.trang_thai_luu_bai !== 'Đang lưu bãi') return 'none';
+  
+  const loHang = listAllLoHang.value.find(lh => lh.ma_lo_hang === item.ma_lo_hang);
+  // Không cảnh báo nếu lô hàng đã Hoàn tất hoặc bị Hủy
+  if (loHang && (loHang.trang_thai_lo_hang === 'Hủy' || loHang.trang_thai_lo_hang === 'Hoàn tất')) return 'none';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = item.ngay_bat_dau_luu_bai ? new Date(item.ngay_bat_dau_luu_bai) : null;
+  if (!start) return 'none';
+  
+  start.setHours(0, 0, 0, 0);
+  const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  const remainingDays = (item.ngay_luu_bai_mien_phi || 0) - diffDays;
+
+  if (remainingDays < 0) return 'overdue';
+  if (remainingDays <= 2) return 'nearing';
+  return 'none';
+};
+
+const warnings = computed(() => {
+  let overdueCount = 0;
+  let nearingCount = 0;
+  // Sử dụng Set để lưu các mã lô hàng đã xử lý, tránh lặp lại nếu 1 lô hàng có nhiều vận đơn
+  const processedShipments = new Set();
+
+  listLuuBai.value.forEach(item => {
+    if (processedShipments.has(item.ma_lo_hang)) return;
+    
+    const status = getWarningStatus(item);
+    if (status === 'overdue') {
+      overdueCount++;
+      processedShipments.add(item.ma_lo_hang);
+    } else if (status === 'nearing') {
+      nearingCount++;
+      processedShipments.add(item.ma_lo_hang);
+    }
+  });
+
+  return { overdue: overdueCount, nearing: nearingCount };
+});
+
 const visibleColumnsCount = computed(() => {
   // Mặc định có STT và Thao tác (2) + các cột được chọn
   return Object.values(columnVisibility.value).filter(col => col.visible).length + 2;
@@ -271,16 +332,27 @@ const goToLoHangEdit = (ma_lo_hang) => {
   router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
 };
 
+const updateTooltipPosition = (event) => {
+  let x = event.clientX + 15;
+  let y = event.clientY + 15;
+  const tooltipHeight = 260; // Chiều cao ước tính của khung tooltip
+  // Nếu vị trí hiển thị dự kiến vượt quá cạnh dưới màn hình
+  if (event.clientY + tooltipHeight > window.innerHeight) {
+    y = event.clientY - tooltipHeight - 10; // Hiển thị phía trên con trỏ chuột
+  }
+  tooltipPos.value = { x, y };
+};
+
 const handleMouseEnter = (event, item) => {
   const found = listAllLoHang.value.find(lh => lh.ma_lo_hang === item.ma_lo_hang);
   if (found) {
     tooltipShipment.value = found;
-    tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+    updateTooltipPosition(event);
   }
 };
 
 const handleMouseMove = (event) => {
-  tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+  updateTooltipPosition(event);
 };
 
 const handleMouseLeave = () => {
@@ -420,6 +492,22 @@ tr.row-even .sticky-col-left, tr.row-even .sticky-col-right { background-color: 
 tr.row-odd .sticky-col-left, tr.row-odd .sticky-col-right { background-color: #ffffff !important; }
 tr.row-selected .sticky-col-left, tr.row-selected .sticky-col-right { background-color: #f0f7ff !important; }
 thead th.sticky-col-left, thead th.sticky-col-right { background-color: #f8f9fa !important; z-index: 11; }
+
+/* Màu sắc cho hàng quá hạn/sắp quá hạn */
+/* Quá hạn - Đỏ nhạt */
+.row-overdue.row-odd td, .row-overdue.row-odd .sticky-col-left, .row-overdue.row-odd .sticky-col-right { background-color: #ffdcdc !important; }
+.row-overdue.row-even td, .row-overdue.row-even .sticky-col-left, .row-overdue.row-even .sticky-col-right { background-color: #ffc1c1 !important; }
+
+/* Sắp đến hạn - Vàng/Cam nhạt */
+.row-nearing.row-odd td, .row-nearing.row-odd .sticky-col-left, .row-nearing.row-odd .sticky-col-right { background-color: #fff3cd !important; }
+.row-nearing.row-even td, .row-nearing.row-even .sticky-col-left, .row-nearing.row-even .sticky-col-right { background-color: #ffe69c !important; }
+
+/* Hiệu ứng hover để hàng nổi bật hơn khi di chuột qua */
+.row-overdue:hover td, .row-overdue:hover .sticky-col-left, .row-overdue:hover .sticky-col-right { background-color: #fbcbcb !important; }
+.row-nearing:hover td, .row-nearing:hover .sticky-col-left, .row-nearing:hover .sticky-col-right { background-color: #fbeaba !important; }
+
+/* Tăng độ đậm cho chữ ở các hàng cảnh báo để dễ đọc trên nền màu */
+.row-overdue td, .row-nearing td { color: #2c3e50; }
 
 .table-card table th, .table-card table td { 
   white-space: nowrap; 

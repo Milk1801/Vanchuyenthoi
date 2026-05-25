@@ -288,16 +288,27 @@ const goToLoHangEdit = (ma_lo_hang) => {
   router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
 };
 
+const updateTooltipPosition = (event) => {
+  let x = event.clientX + 15;
+  let y = event.clientY + 15;
+  const tooltipHeight = 260; // Chiều cao ước tính của khung tooltip
+  // Nếu vị trí hiển thị dự kiến vượt quá cạnh dưới màn hình
+  if (event.clientY + tooltipHeight > window.innerHeight) {
+    y = event.clientY - tooltipHeight - 10; // Hiển thị phía trên con trỏ chuột
+  }
+  tooltipPos.value = { x, y };
+};
+
 const handleMouseEnter = (event, tk) => {
   const found = listAllLoHang.value.find(lh => lh.ma_lo_hang === tk.ma_lo_hang);
   if (found) {
     tooltipShipment.value = found;
-    tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+    updateTooltipPosition(event);
   }
 };
 
 const handleMouseMove = (event) => {
-  tooltipPos.value = { x: event.clientX + 15, y: event.clientY + 15 };
+  updateTooltipPosition(event);
 };
 
 const handleMouseLeave = () => {
