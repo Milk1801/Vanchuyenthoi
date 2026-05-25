@@ -8,7 +8,7 @@
         </h3>
       </div>
       <div>
-        <button class="btn-success" @click="openModal()">
+        <button v-if="hasRole(1)" class="btn-success" @click="openModal()">
         TẢI LÊN CHỨNG TỪ
       </button>
       <button @click="router.back" class=" btn-cancel">Quay lại</button>
@@ -42,13 +42,13 @@
         </div>
         
         <div class="doc-actions" style="display: flex; justify-content: space-between; align-items: center;">
-          <button class="btn-icon text-warning" @click="openModal(doc)" title="Sửa loại chứng từ">
+          <button v-if="hasRole(1)" class="btn-icon text-warning" @click="openModal(doc)" title="Sửa loại chứng từ">
             ✏️ Sửa
           </button>
           <button class="btn-icon text-primary download-btn" @click="downloadFile(doc.ma_chung_tu)" title="Tải xuống">
             ⬇️ Tải về
           </button>
-          <button class="btn-icon text-danger" @click="handleDelete(doc.ma_chung_tu)" title="Xóa tài liệu">
+          <button v-if="hasRole(1)" class="btn-icon text-danger" @click="handleDelete(doc.ma_chung_tu)" title="Xóa tài liệu">
             🗑️
           </button>
         </div>
@@ -114,6 +114,17 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 const maLoHang = route.params.id;
+
+// Logic phân quyền giống QuanLyThongTinLoHang.vue
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 const listDocs = ref([]);
 const shipmentInfo = ref(null);
