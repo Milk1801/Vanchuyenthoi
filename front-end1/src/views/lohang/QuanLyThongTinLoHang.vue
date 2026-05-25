@@ -110,7 +110,7 @@
         🧹 Xóa lọc
       </button>
 
-      <button class="btn btn-success" @click="router.push('/lo-hang/thong-tin-lo-hang/add')">+ TẠO LÔ HÀNG MỚI</button>
+      <button v-if="hasRole(1)" class="btn btn-success" @click="router.push('/lo-hang/thong-tin-lo-hang/add')">+ TẠO LÔ HÀNG MỚI</button>
     </div>
 
     <!-- New section for column visibility checkboxes -->
@@ -181,7 +181,11 @@
                   </td>
                   <td v-if="columnVisibility.ten_khach_hang">{{ lh.ten_khach_hang || '---' }}</td>
                   <td v-if="columnVisibility.dieu_kien_thuong_mai"><span class="badge" style="background-color: #9b59b6; color: white;">{{ lh.dieu_kien_thuong_mai }}</span></td>
-                  <td v-if="columnVisibility.so_booking" @click="lh.ma_booking && router.push('/lo-hang/booking/edit/' + lh.ma_booking)" :style="lh.ma_booking ? 'cursor: pointer;' : ''">
+                  <td 
+                    v-if="columnVisibility.so_booking" 
+                    @click="lh.ma_booking && hasRole(3) && router.push('/lo-hang/booking/edit/' + lh.ma_booking)" 
+                    :style="lh.ma_booking && hasRole(3) ? 'cursor: pointer;' : 'cursor: default;'"
+                  >
                     <div style="display: flex; align-items: center; gap: 5px;">
                       <div class="custom-tooltip" v-if="lh.so_booking">
                         <span class="tooltip-trigger">{{ lh.so_booking }}</span>
@@ -190,35 +194,55 @@
                       <span v-else>Chưa gắn</span>
                     </div>
                   </td>
-                  <td v-if="columnVisibility.so_van_don" @click="lh.ds_ma_van_don && router.push('/van-tai/Quan-ly-van-don/edit/' + lh.ds_ma_van_don.split(',')[0].trim())" :style="lh.ds_ma_van_don ? 'cursor: pointer;' : ''">
+                  <td 
+                    v-if="columnVisibility.so_van_don" 
+                    @click="lh.ds_ma_van_don && hasRole(1) && router.push('/van-tai/Quan-ly-van-don/edit/' + lh.ds_ma_van_don.split(',')[0].trim())" 
+                    :style="lh.ds_ma_van_don && hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
+                  >
                     <div class="custom-tooltip" v-if="lh.so_van_don">
                       <span class="tooltip-trigger">{{ lh.so_van_don }}</span>
                       <span v-if="lh.van_don_tooltip" class="tooltip-text">{{ lh.van_don_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_thong_bao_hang_den" @click="lh.ma_thong_bao_hang_den && router.push('/van-tai/thong-bao-hang-den')" :style="lh.ma_thong_bao_hang_den ? 'cursor: pointer;' : ''">
+                  <td 
+                    v-if="columnVisibility.ma_thong_bao_hang_den" 
+                    @click="lh.ma_thong_bao_hang_den && hasRole(1) && router.push('/van-tai/thong-bao-hang-den')" 
+                    :style="lh.ma_thong_bao_hang_den && hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
+                  >
                     <div class="custom-tooltip" v-if="lh.ma_thong_bao_hang_den">
                       <span class="tooltip-trigger">{{ lh.ma_thong_bao_hang_den }}</span>
                       <span v-if="lh.an_tooltip" class="tooltip-text">{{ lh.an_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_lenh_giao_hang" @click="lh.ma_lenh_giao_hang && router.push('/van-tai/lenh-giao-hang')" :style="lh.ma_lenh_giao_hang ? 'cursor: pointer;' : ''">
+                  <td 
+                    v-if="columnVisibility.ma_lenh_giao_hang" 
+                    @click="lh.ma_lenh_giao_hang && hasRole(1) && router.push('/van-tai/lenh-giao-hang')" 
+                    :style="lh.ma_lenh_giao_hang && hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
+                  >
                     <div class="custom-tooltip" v-if="lh.ma_lenh_giao_hang">
                       <span class="tooltip-trigger">{{ lh.ma_lenh_giao_hang }}</span>
                       <span v-if="lh.do_tooltip" class="tooltip-text">{{ lh.do_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_bien_ban_giao_nhan" @click="lh.ma_bien_ban_giao_nhan && router.push('/van-tai/bien-ban-giao-nhan')" :style="lh.ma_bien_ban_giao_nhan ? 'cursor: pointer;' : ''">
+                  <td 
+                    v-if="columnVisibility.ma_bien_ban_giao_nhan" 
+                    @click="lh.ma_bien_ban_giao_nhan && hasRole(3) && router.push('/van-tai/bien-ban-giao-nhan')" 
+                    :style="lh.ma_bien_ban_giao_nhan && hasRole(3) ? 'cursor: pointer;' : 'cursor: default;'"
+                  >
                     <div class="custom-tooltip" v-if="lh.ma_bien_ban_giao_nhan">
                       <span class="tooltip-trigger">{{ lh.ma_bien_ban_giao_nhan }}</span>
                       <span v-if="lh.bbgn_tooltip" class="tooltip-text">{{ lh.bbgn_tooltip }}</span>
                     </div>
                     <span v-else>---</span>
                   </td>
-                  <td v-if="columnVisibility.ma_to_khai_hai_quan" @click="lh.ma_to_khai_hai_quan && router.push('/van-tai/to-khai-hai-quan/edit/' + lh.ma_to_khai_hai_quan.split(',')[0].trim())" :style="lh.ma_to_khai_hai_quan ? 'cursor: pointer;' : ''">
+                  <td 
+                    v-if="columnVisibility.ma_to_khai_hai_quan" 
+                    @click="lh.ma_to_khai_hai_quan && hasRole(4) && router.push('/van-tai/to-khai-hai-quan/edit/' + lh.ma_to_khai_hai_quan.split(',')[0].trim())" 
+                    :style="lh.ma_to_khai_hai_quan && hasRole(4) ? 'cursor: pointer;' : 'cursor: default;'"
+                  >
                     <div class="custom-tooltip" v-if="lh.ma_to_khai_hai_quan">
                       <span class="tooltip-trigger">{{ lh.ma_to_khai_hai_quan }}</span>
                       <span v-if="lh.to_khai_tooltip" class="tooltip-text">{{ lh.to_khai_tooltip }}</span>
@@ -233,11 +257,13 @@
                   </td>
                   <td v-if="columnVisibility.nguoi_sua_doi">{{ lh.nguoi_sua_doi || 'N/A' }}</td>
                   <td style="text-align: center;">
-                    <div style="display: flex; gap: 8px; justify-content: center;">
+                    <div v-if="hasRole(1)" style="display: flex; gap: 8px; justify-content: center;">
                       <button class="action-btn text-primary" @click="router.push('/lo-hang/thong-tin-lo-hang/edit/' + lh.ma_lo_hang)" title="Sửa">✏️</button>
                       <button class="action-btn text-danger" @click="handleDelete(lh.ma_lo_hang)" title="Xóa">🗑️</button>
                       <button class="action-btn" @click="router.push(`/lo-hang/chung-tu/chi-tiet/${lh.ma_lo_hang}`)" title="Quản lý chứng từ cho lô hàng này">📂</button>
                     </div>
+                    <!-- Mã quyền 2 hoặc các quyền khác không có số 1 chỉ có thể xem, không có nút thao tác -->
+                    <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
                   </td>
                 </tr>
                 <tr v-if="paginatedLoHang.length === 0">
@@ -313,6 +339,17 @@ const columnDefinitions = ref([
   { key: 'trang_thai_lo_hang', label: 'Trạng thái' },
   { key: 'nguoi_sua_doi', label: 'Người sửa cuối' },
 ]);
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 const columnVisibility = reactive({});
 columnDefinitions.value.forEach(col => {
