@@ -196,58 +196,53 @@
                   </td>
                   <td 
                     v-if="columnVisibility.so_van_don" 
-                    @click="lh.ds_ma_van_don && hasRole(1) && router.push('/van-tai/Quan-ly-van-don/edit/' + lh.ds_ma_van_don.split(',')[0].trim())" 
-                    :style="lh.ds_ma_van_don && hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
+                    @click="handleVanDonClick(lh)" 
+                    :style="hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
                   >
                     <div class="custom-tooltip" v-if="lh.so_van_don">
                       <span class="tooltip-trigger">{{ lh.so_van_don }}</span>
                       <span v-if="lh.van_don_tooltip" class="tooltip-text">{{ lh.van_don_tooltip }}</span>
                     </div>
-                    <span v-else>---</span>
                   </td>
                   <td 
                     v-if="columnVisibility.ma_thong_bao_hang_den" 
-                    @click="lh.ma_thong_bao_hang_den && hasRole(1) && router.push('/van-tai/thong-bao-hang-den')" 
-                    :style="lh.ma_thong_bao_hang_den && hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
+                    @click="handleAnClick(lh)" 
+                    :style="hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
                   >
                     <div class="custom-tooltip" v-if="lh.ma_thong_bao_hang_den">
                       <span class="tooltip-trigger">{{ lh.ma_thong_bao_hang_den }}</span>
                       <span v-if="lh.an_tooltip" class="tooltip-text">{{ lh.an_tooltip }}</span>
                     </div>
-                    <span v-else>---</span>
                   </td>
                   <td 
                     v-if="columnVisibility.ma_lenh_giao_hang" 
-                    @click="lh.ma_lenh_giao_hang && hasRole(1) && router.push('/van-tai/lenh-giao-hang')" 
-                    :style="lh.ma_lenh_giao_hang && hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
+                    @click="handleDoClick(lh)" 
+                    :style="hasRole(1) ? 'cursor: pointer;' : 'cursor: default;'"
                   >
                     <div class="custom-tooltip" v-if="lh.ma_lenh_giao_hang">
                       <span class="tooltip-trigger">{{ lh.ma_lenh_giao_hang }}</span>
                       <span v-if="lh.do_tooltip" class="tooltip-text">{{ lh.do_tooltip }}</span>
                     </div>
-                    <span v-else>---</span>
                   </td>
                   <td 
                     v-if="columnVisibility.ma_bien_ban_giao_nhan" 
-                    @click="lh.ma_bien_ban_giao_nhan && hasRole(3) && router.push('/van-tai/bien-ban-giao-nhan')" 
-                    :style="lh.ma_bien_ban_giao_nhan && hasRole(3) ? 'cursor: pointer;' : 'cursor: default;'"
+                    @click="handleBbgnClick(lh)" 
+                    :style="hasRole(3) ? 'cursor: pointer;' : 'cursor: default;'"
                   >
                     <div class="custom-tooltip" v-if="lh.ma_bien_ban_giao_nhan">
                       <span class="tooltip-trigger">{{ lh.ma_bien_ban_giao_nhan }}</span>
                       <span v-if="lh.bbgn_tooltip" class="tooltip-text">{{ lh.bbgn_tooltip }}</span>
                     </div>
-                    <span v-else>---</span>
                   </td>
                   <td 
                     v-if="columnVisibility.ma_to_khai_hai_quan" 
-                    @click="lh.ma_to_khai_hai_quan && hasRole(4) && router.push('/van-tai/to-khai-hai-quan/edit/' + lh.ma_to_khai_hai_quan.split(',')[0].trim())" 
-                    :style="lh.ma_to_khai_hai_quan && hasRole(4) ? 'cursor: pointer;' : 'cursor: default;'"
+                    @click="handleTkClick(lh)" 
+                    :style="hasRole(4) ? 'cursor: pointer;' : 'cursor: default;'"
                   >
                     <div class="custom-tooltip" v-if="lh.ma_to_khai_hai_quan">
                       <span class="tooltip-trigger">{{ lh.ma_to_khai_hai_quan }}</span>
                       <span v-if="lh.to_khai_tooltip" class="tooltip-text">{{ lh.to_khai_tooltip }}</span>
                     </div>
-                    <span v-else>---</span>
                   </td>
                   <td v-if="columnVisibility.nguon_goc">{{ lh.nguon_goc || '---' }}</td>
                   <td v-if="columnVisibility.trang_thai_lo_hang">
@@ -570,6 +565,44 @@ const handleDelete = async (id) => {
     if (data.success) { alert("Đã xóa lô hàng!"); fetchData(); }
     else { alert("Lỗi: " + data.message); }
   } catch (e) { alert("Lỗi kết nối!"); }
+};
+
+const handleVanDonClick = (lh) => {
+  if (hasRole(1)) {
+    if (lh.ds_ma_van_don) {
+      router.push('/van-tai/Quan-ly-van-don/edit/' + lh.ds_ma_van_don.split(',')[0].trim());
+    } else {
+      router.push('/van-tai/Quan-ly-van-don/add');
+    }
+  }
+};
+
+const handleAnClick = (lh) => {
+  if (hasRole(1)) {
+    router.push('/van-tai/thong-bao-hang-den');
+  }
+};
+
+const handleDoClick = (lh) => {
+  if (hasRole(1)) {
+    router.push('/van-tai/lenh-giao-hang');
+  }
+};
+
+const handleBbgnClick = (lh) => {
+  if (hasRole(3)) {
+    router.push('/van-tai/bien-ban-giao-nhan');
+  }
+};
+
+const handleTkClick = (lh) => {
+  if (hasRole(4)) {
+    if (lh.ma_to_khai_hai_quan) {
+      router.push('/van-tai/to-khai-hai-quan/edit/' + lh.ma_to_khai_hai_quan.split(',')[0].trim());
+    } else {
+      router.push('/van-tai/to-khai-hai-quan/add');
+    }
+  }
 };
 
 onMounted(() => { 
