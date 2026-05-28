@@ -203,7 +203,10 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router'; // THÊM DÒNG NÀY
 
+const route = useRoute();
+const router = useRouter();
 const listAN = ref([]);
 const listLoHang = ref([]);
 const isLoading = ref(true);
@@ -362,7 +365,26 @@ const fetchData = async () => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/lenh-giao-hang`);
     const data = await res.json();
-    if (data.success) { listAN.value = data.data_an; listLoHang.value = data.lo_hang; }
+    if (data.success) { 
+      listAN.value = data.data_an; 
+      listLoHang.value = data.lo_hang; 
+
+      // --- TỰ ĐỘNG MỞ FORM NẾU ĐƯỢC CLICK TỪ TRANG LÔ HÀNG ---
+      if (route.query.auto_create_lo_hang) {
+        const maLoHang = Number(route.query.auto_create_lo_hang);
+        const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === maLoHang);
+        
+        if (selectedLo) {
+          formData.value = { ma_phieu: null, ma_lo_hang: maLoHang, ngay_phat_hanh: '' };
+          searchLoHangInput.value = `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}`;
+          isDropdownOpen.value = false; 
+          isModalOpen.value = true; // Bật form lên
+        }
+        
+        // Xóa tham số trên URL
+        router.replace('/van-tai/thong-bao-hang-den');
+      }
+    }
   } catch (error) { console.error("Lỗi!"); } finally { isLoading.value = false; }
 };
 

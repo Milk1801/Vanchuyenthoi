@@ -223,7 +223,10 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router'; // THÊM DÒNG NÀY
 
+const route = useRoute();
+const router = useRouter();
 const listBBGN = ref([]); 
 const listLoHang = ref([]);
 const listHangVanTai = ref([]); 
@@ -394,7 +397,28 @@ const fetchData = async () => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/lenh-giao-hang`);
     const data = await res.json();
-    if (data.success) { listBBGN.value = data.data_bbgn; listLoHang.value = data.lo_hang; listHangVanTai.value = data.hang_van_tai; }
+    if (data.success) { 
+      listBBGN.value = data.data_bbgn; 
+      listLoHang.value = data.lo_hang; 
+      listHangVanTai.value = data.hang_van_tai; 
+
+      // --- TỰ ĐỘNG MỞ FORM NẾU ĐƯỢC CLICK TỪ TRANG LÔ HÀNG ---
+      if (route.query.auto_create_lo_hang) {
+        const maLoHang = Number(route.query.auto_create_lo_hang);
+        const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === maLoHang);
+        
+        if (selectedLo) {
+          formData.value = { ma_phieu: null, ma_lo_hang: maLoHang, ma_hang_van_tai: '', ngay_phat_hanh: '' };
+          searchLoHangInput.value = `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}`;
+          isDropdownOpen.value = false; 
+          isDropdownHangVanTaiOpen.value = false;
+          isModalOpen.value = true; // Bật form lên
+        }
+        
+        // Xóa tham số trên URL
+        router.replace('/van-tai/bien-ban-giao-nhan');
+      }
+    }
   } catch (error) { console.error("Lỗi!"); } finally { isLoading.value = false; }
 };
 
