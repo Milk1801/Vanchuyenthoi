@@ -278,8 +278,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
+const route = useRoute();
 const router = useRouter();
 const listLoHang = ref([]);
 const listKhachHang = ref([]);
@@ -579,19 +580,42 @@ const handleVanDonClick = (lh) => {
 
 const handleAnClick = (lh) => {
   if (hasRole(1)) {
-    router.push('/van-tai/thong-bao-hang-den');
+    if (!lh.ma_thong_bao_hang_den) { // Nếu ô trống -> Truyền tín hiệu mở Form
+      router.push({
+        path: '/van-tai/thong-bao-hang-den',
+        query: { auto_create_lo_hang: lh.ma_lo_hang }
+      });
+    } else { // Đã có rồi thì sang xem danh sách bình thường
+      router.push('/van-tai/thong-bao-hang-den');
+    }
   }
 };
 
 const handleDoClick = (lh) => {
   if (hasRole(1)) {
-    router.push('/van-tai/lenh-giao-hang');
+    // CHỈ kích hoạt liên kết tạo mới nếu ô này đang trống (chưa có mã D/O)
+    if (!lh.ma_lenh_giao_hang) {
+      router.push({
+        path: '/van-tai/lenh-giao-hang',
+        query: { auto_create_lo_hang: lh.ma_lo_hang } // Đã sửa thành lh.ma_lo_hang
+      });
+    } else {
+      // Nếu đã có mã D/O rồi thì click vào chỉ chuyển sang trang danh sách lệnh giao hàng bình thường
+      router.push('/van-tai/lenh-giao-hang');
+    }
   }
 };
 
 const handleBbgnClick = (lh) => {
   if (hasRole(3)) {
-    router.push('/van-tai/bien-ban-giao-nhan');
+    if (!lh.ma_bien_ban_giao_nhan) {
+      router.push({
+        path: '/van-tai/bien-ban-giao-nhan',
+        query: { auto_create_lo_hang: lh.ma_lo_hang }
+      });
+    } else {
+      router.push('/van-tai/bien-ban-giao-nhan');
+    }
   }
 };
 

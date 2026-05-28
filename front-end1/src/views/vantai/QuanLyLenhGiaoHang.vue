@@ -212,7 +212,10 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router'; // Đảm bảo có dòng này
 
+const route = useRoute();
+const router = useRouter();
 const listDO = ref([]);
 const listLoHang = ref([]);
 const isLoading = ref(true);
@@ -410,6 +413,23 @@ const fetchData = async () => {
     if (data.success) {
       listDO.value = data.data_do; 
       listLoHang.value = data.lo_hang;
+
+      // --- radar tự động bắt tín hiệu từ trang lô hàng truyền sang ---
+      if (route.query.auto_create_lo_hang) {
+        const maLoHang = Number(route.query.auto_create_lo_hang);
+        const selectedLo = listLoHang.value.find(l => l.ma_lo_hang === maLoHang);
+        
+        if (selectedLo) {
+          // Tự động nạp dữ liệu và bật mở Modal thêm mới lên
+          formData.value = { ma_phieu: null, ma_lo_hang: maLoHang, ngay_phat_hanh: '' };
+          searchLoHangInput.value = `[${selectedLo.so_booking}] - ${selectedLo.ten_lo_hang}`;
+          isDropdownOpen.value = false; 
+          isModalOpen.value = true; // Bật mở Form luôn
+        }
+        
+        // Xóa tham số trên URL đi để tránh bị lặp lại khi f5
+        router.replace('/van-tai/lenh-giao-hang');
+      }
     }
   } catch (error) { console.error("Lỗi!"); } finally { isLoading.value = false; }
 };
