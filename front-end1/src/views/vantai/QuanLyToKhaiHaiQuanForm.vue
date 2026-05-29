@@ -301,6 +301,9 @@ onMounted(async () => {
   await fetchReferences(id);
   if (id) {
     fetchDetail(id);
+  } else if (route.query.auto_create_lo_hang) {
+    formData.value.ma_lo_hang = Number(route.query.auto_create_lo_hang);
+    showLoHangPanel.value = true;
   }
 });
 </script>
