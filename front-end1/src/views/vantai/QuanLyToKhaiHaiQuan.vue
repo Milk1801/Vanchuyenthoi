@@ -41,6 +41,17 @@
         </ul>
       </div>
 
+      <div style="flex: 1;"></div>
+      <div class="combobox-wrapper" style="width: auto;">
+        <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s; height: 36px; font-size: 13px;" title="Tùy chỉnh hiển thị cột">⚙️ Cột</button>
+        <ul v-if="showColumnDropdown" class="combobox-list" style="width: 220px; right: 0; left: auto; padding: 10px 0; display: flex; flex-direction: column;">
+          <li v-for="(col, key) in columnVisibility" :key="key" style="display: flex; align-items: center; gap: 10px; cursor: default; border-bottom: none; padding: 5px 15px;" @click.stop>
+            <input type="checkbox" v-model="col.visible" :id="'col-pop-' + key" style="cursor: pointer; width: 16px; height: 16px;">
+            <label :for="'col-pop-' + key" style="cursor: pointer; flex: 1; font-size: 13px; color: #2c3e50;">{{ col.label }}</label>
+          </li>
+        </ul>
+      </div>
+
       <button @click="clearFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s;" title="Xóa lọc">🧹 Xóa lọc</button>
       <button v-if="canModify" class="btn btn-success" @click="router.push('/van-tai/to-khai-hai-quan/add')" style="border-radius: 6px;">+ TẠO TỜ KHAI MỚI</button>
     </div>
@@ -48,17 +59,6 @@
     <div v-if="isLoadingData" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu Tờ khai...</div>
 
     <div v-else>
-      <!-- Ẩn hiện cột -->
-      <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
-        <h5 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">Hiển thị cột dữ liệu:</h5>
-        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
-          <div v-for="(col, key) in columnVisibility" :key="key" class="checkbox-item">
-            <input type="checkbox" :id="'col-' + key" v-model="col.visible" style="margin-right: 5px;">
-            <label :for="'col-' + key" style="font-size: 13px; color: #555;">{{ col.label }}</label>
-          </div>
-        </div>
-      </div>
-
       <!-- BÊN TRÁI: DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
@@ -193,6 +193,7 @@ const userSearchText = ref('');
 const showPhanLuongDropdown = ref(false);
 const showKetQuaDropdown = ref(false);
 const showUserDropdown = ref(false);
+const showColumnDropdown = ref(false);
 
 const searchFilters = ref({
   ma_to_khai: '',
@@ -337,7 +338,7 @@ watch([searchFilters, pageSize], () => {
 onMounted(() => {
   window.addEventListener('click', (e) => {
     if (!e.target.closest('.combobox-wrapper')) {
-      showPhanLuongDropdown.value = showKetQuaDropdown.value = showUserDropdown.value = false;
+      showPhanLuongDropdown.value = showKetQuaDropdown.value = showUserDropdown.value = showColumnDropdown.value = false;
     }
   });
 });
