@@ -11,7 +11,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="router.push('/danh-muc/don-vi-tinh/add')">+ TẠO ĐƠN VỊ TÍNH MỚI</button>
+      <button v-if="hasRole(4)" class="btn btn-success" @click="router.push('/danh-muc/don-vi-tinh/add')">+ TẠO ĐƠN VỊ TÍNH MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -49,8 +49,8 @@
             <td>{{ d.ma_don_vi_tinh }}</td>
             <td>{{ d.ten_don_vi_tinh }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="router.push('/danh-muc/don-vi-tinh/edit/' + d.ma_don_vi_tinh)" title="Sửa">✏️</button>
-              <button class="action-btn text-danger" @click="handleDelete(d.ma_don_vi_tinh)" title="Xóa">🗑️</button>
+              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/don-vi-tinh/edit/' + d.ma_don_vi_tinh)" title="Sửa">✏️</button>
+              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(d.ma_don_vi_tinh)" title="Xóa">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -66,6 +66,17 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const listData = ref([]);
 const isLoading = ref(true);
+
+// Logic phân quyền đồng nhất với các danh mục khác
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Super Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // Phân trang
 const currentPage = ref(1);

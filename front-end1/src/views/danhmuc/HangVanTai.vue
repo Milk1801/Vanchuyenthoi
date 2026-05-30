@@ -17,7 +17,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="router.push('/danh-muc/hang-van-tai/add')">+ TẠO HÃNG VẬN TẢI MỚI</button>
+      <button v-if="hasRole(3)" class="btn btn-success" @click="router.push('/danh-muc/hang-van-tai/add')">+ TẠO HÃNG VẬN TẢI MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -61,8 +61,11 @@
             <td>{{ h.cac_loai_xe || 'Chưa cập nhật' }}</td>
             <td>{{ h.ghi_chu || 'Không có' }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-van-tai/edit/' + h.ma_hang_van_tai)" title="Sửa">✏️</button>
-              <button class="action-btn text-danger" @click="handleDelete(h.ma_hang_van_tai)" title="Xóa">🗑️</button>
+              <div v-if="hasRole(3)" style="display: flex; gap: 8px; justify-content: center;">
+                <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-van-tai/edit/' + h.ma_hang_van_tai)" title="Sửa">✏️</button>
+                <button class="action-btn text-danger" @click="handleDelete(h.ma_hang_van_tai)" title="Xóa">🗑️</button>
+              </div>
+              <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td>
           </tr>
         </tbody>
@@ -78,6 +81,17 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const listData = ref([]);
 const isLoading = ref(true);
+
+// Logic phân quyền đồng nhất
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Super Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // Phân trang
 const currentPage = ref(1);
