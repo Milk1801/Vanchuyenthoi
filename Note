@@ -1,5 +1,12 @@
-Minh -08/05/2026
+Minh - 30/05/22026
 
-Sau khi ngồi tìm hiểu và test thử thì bị rối quá nên
-lại để như ban đầu, câc file khác thì vẫn để đấy vì kiểu gì sẽ sử dụng
-nên nếu anh em tìm hiểu ok rồi thì test làm thử luôn.
+Trong quá trình cập nhật chức năng báo cáo và biểu đồ, t đã cài đặt thêm các thư viện:
+chart.js
+vue-chartjs
+html2pdf.js
+chartjs-plugin-datalabels
+
+Do lỡ cài đặt thực hiện ở thư mục gốc của dự án thay vì thư mục frontend nên hệ thống đã tự động 
+tạo thêm một thư mục node_modules ở cấp project và thư mục này đã được đưa lên repository. 
+Các chức năng của dự án hiện vẫn hoạt động bình thường và không ảnh hưởng đến mã nguồn frontend/backend. Và nó ko ảnh hưởng nếu bị thiếu đâu
+nên ko sao.
