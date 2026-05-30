@@ -156,7 +156,10 @@
                         <span class="label">For delivery please apply to</span>
                         <div class="content">
                             SINCERE LOGISTICS AND TRADING CO., LTD<br>
-                            NO.35 BINH KIEU 1, DONG HAI, HAIPHONG, VIET NAM
+                            NO.35 BINH KIEU 1, DONG HAI, HAIPHONG, VIET NAM<br>
+                            Add: No. 22/32/258 Da Nang, Cau Tre, Ngo Quyen, Hai Phong, Viet Nam<br>
+                            Tel & Fax: + (84-31) 650 2826<br>
+                            E-Mail: mng@sincerelogistics.com
                         </div>
                     </div>
                 </td>
