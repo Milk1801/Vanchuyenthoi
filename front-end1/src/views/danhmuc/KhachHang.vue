@@ -27,7 +27,7 @@
           <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
-      <button class="btn btn-success" @click="router.push('/danh-muc/khach-hang/add')">+ TẠO KHÁCH HÀNG MỚI</button>
+      <button v-if="hasRole(1)" class="btn btn-success" @click="router.push('/danh-muc/khach-hang/add')">+ TẠO KHÁCH HÀNG MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -75,8 +75,11 @@
             <td>{{ kh.ghi_chu || 'Không có' }}</td>
             <td>{{ kh.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
-              <button class="action-btn text-primary" @click="router.push('/danh-muc/khach-hang/edit/' + kh.ma_khach_hang)" title="Sửa">✏️</button>
-              <button class="action-btn text-danger" @click="handleDelete(kh.ma_khach_hang)" title="Xóa">🗑️</button>
+              <div v-if="hasRole(1)" style="display: flex; gap: 8px; justify-content: center;">
+                <button class="action-btn text-primary" @click="router.push('/danh-muc/khach-hang/edit/' + kh.ma_khach_hang)" title="Sửa">✏️</button>
+                <button class="action-btn text-danger" @click="handleDelete(kh.ma_khach_hang)" title="Xóa">🗑️</button>
+              </div>
+              <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td>
           </tr>
         </tbody>
@@ -93,6 +96,17 @@ const router = useRouter();
 const listCustomers = ref([]);
 const accountOptions = ref([]);
 const isLoading = ref(true);
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 // Phân trang
 const currentPage = ref(1);

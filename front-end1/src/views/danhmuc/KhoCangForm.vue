@@ -23,7 +23,7 @@
         </div>
         <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
           <button type="button" class="btn-cancel" @click="router.back()" style="padding: 10px 25px;">Hủy</button>
-          <button type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
+          <button v-if="hasRole(4)" type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
              {{ isSaving ? 'Đang lưu...' : 'Lưu lại' }}
           </button>
         </div>
@@ -40,6 +40,17 @@ const router = useRouter();
 const route = useRoute();
 const isSaving = ref(false);
 const isLoadingData = ref(false);
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 const formData = ref({
   ma_cang: null,
