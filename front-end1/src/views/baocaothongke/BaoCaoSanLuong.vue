@@ -17,7 +17,10 @@
       </div>
       <div>
         <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success">📊 Excel</button>
+        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;">📊 Excel</button>
+        <button @click="printPDF" class="btn btn-warning" :disabled="isPrinting" style="background: #f39c12; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+          {{ isPrinting ? '⏳ Đang tạo PDF...' : '⬇️ Tải xuống PDF' }}
+</button>
       </div>
     </div>
 
@@ -119,11 +122,14 @@
       </div>
     </div>
 
+    <PDFtksanluong :listData="listData" :filters="filters" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import PDFtksanluong from './PDFtksanluong.vue'
+import html2pdf from 'html2pdf.js';
 
 const listData = ref([]);
 const stats = ref({
@@ -133,6 +139,7 @@ const stats = ref({
   max_cbm: 0
 });
 const isLoading = ref(false);
+const isPrinting = ref(false);
 const isModalOpen = ref(false);
 const selectedCustomer = ref({});
 
@@ -141,6 +148,40 @@ const filters = ref({
   den_ky: '',
   tim_kiem: ''
 });
+
+// Hàm xuất file PDF tải thẳng xuống máy
+const printPDF = () => {
+  if (listData.value.length === 0) {
+    alert("Không có dữ liệu để xuất PDF!");
+    return;
+  }
+  
+  isPrinting.value = true;
+  
+  setTimeout(() => {
+    const element = document.getElementById('pdf-dashboard-content');
+    
+    const opt = {
+      margin:       [10, 5, 10, 5], 
+      filename:     `Bao_Cao_San_Luong_${new Date().getTime()}.pdf`,
+      image:        { type: 'jpeg', quality: 1 },
+      html2canvas:  { 
+        scale: 2, 
+        useCORS: true, 
+        width: 1000,       // QUAN TRỌNG NHẤT: Bắt máy ảnh phải mở góc rộng 1000px
+        windowWidth: 1000, 
+        scrollY: 0,
+        x: 0,
+        y: 0
+      },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      isPrinting.value = false;
+    });
+  }, 1000); 
+};
 
 // Format hiển thị ngày và số
 const formatDate = (dateStr) => {
