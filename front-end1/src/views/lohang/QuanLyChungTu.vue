@@ -53,15 +53,16 @@
       >
         🧹 Xóa lọc
       </button>
-    </div>
 
-    <!-- New section for column visibility checkboxes -->
-    <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 10px; border: 1px solid #e1e4e8; border-radius: 8px; background: #f8f9fa;">
-      <strong style="margin-right: 10px;">Hiển thị cột:</strong>
-      <label v-for="col in columnDefinitions" :key="col.key" style="margin-right: 15px; font-size: 14px; cursor: pointer;">
-        <input type="checkbox" v-model="columnVisibility[col.key]" style="margin-right: 5px;">
-        {{ col.label }}
-      </label>
+      <div class="combobox-wrapper" style="width: auto;">
+        <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; transition: 0.2s; height: 38px; font-size: 13px;" title="Tùy chỉnh hiển thị cột">⚙️ Cột</button>
+        <ul v-if="showColumnDropdown" class="combobox-list column-dropdown-list" style="width: 220px; padding: 10px 0; display: flex; flex-direction: column;">
+          <li v-for="col in columnDefinitions" :key="col.key" style="display: flex; align-items: center; gap: 10px; cursor: default; border-bottom: none; padding: 5px 15px;" @click.stop>
+            <input type="checkbox" v-model="columnVisibility[col.key]" :id="'col-pop-' + col.key" style="cursor: pointer; width: 16px; height: 16px;">
+            <label :for="'col-pop-' + col.key" style="cursor: pointer; flex: 1; font-size: 13px; color: #2c3e50;">{{ col.label }}</label>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -169,6 +170,7 @@ const filterUser = ref(null);
 // Combobox search texts and dropdown visibility
 const khSearchText = ref('');
 const showKhDropdown = ref(false);
+const showColumnDropdown = ref(false);
 
 // Column visibility feature
 const columnDefinitions = ref([
@@ -276,7 +278,10 @@ const fetchReferences = async () => {
     console.error("Lỗi lấy dữ liệu tham chiếu");
   }
   window.addEventListener('click', (e) => {
-    if (!e.target.closest('.combobox-wrapper')) { showKhDropdown.value = false; }
+    if (!e.target.closest('.combobox-wrapper')) { 
+      showKhDropdown.value = false; 
+      showColumnDropdown.value = false;
+    }
   });
 };
 
@@ -418,6 +423,8 @@ tbody tr:nth-child(-n+2) .custom-tooltip .tooltip-text::after {
   bottom: 100%;
   border-color: transparent transparent #2c3e50 transparent;
 }
+
+.column-dropdown-list { right: 0; left: auto; }
 
 .custom-tooltip:hover {
   z-index: 9999;

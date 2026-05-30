@@ -50,6 +50,16 @@
         🧹 Xóa lọc
       </button>
 
+      <div class="combobox-wrapper" style="width: auto;">
+        <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; transition: 0.2s; height: 40px; font-size: 13px;" title="Tùy chỉnh hiển thị cột">⚙️ Cột</button>
+        <ul v-if="showColumnDropdown" class="combobox-list" style="width: 220px; right: 0; left: auto; padding: 10px 0; display: flex; flex-direction: column;">
+          <li v-for="col in columnDefinitions" :key="col.key" style="display: flex; align-items: center; gap: 10px; cursor: default; border-bottom: none; padding: 5px 15px;" @click.stop>
+            <input type="checkbox" v-model="columnVisibility[col.key]" :id="'col-pop-' + col.key" style="cursor: pointer; width: 16px; height: 16px;">
+            <label :for="'col-pop-' + col.key" style="cursor: pointer; flex: 1; font-size: 13px; color: #2c3e50;">{{ col.label }}</label>
+          </li>
+        </ul>
+      </div>
+
       <button v-if="hasRole(3)" class="btn btn-success" @click="router.push('/lo-hang/booking/add')" style="padding: 10px 20px;">+ TẠO BOOKING NOTE MỚI</button>
     </div>
 
@@ -76,15 +86,6 @@
           <input type="date" v-model="dateFilters.etaEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
         </div>
       </div>
-    </div>
-
-    <!-- Bộ lọc ẩn hiện cột -->
-    <div class="column-visibility-controls" style="margin-bottom: 15px; padding: 10px; border: 1px solid #e1e4e8; border-radius: 8px; background: #f8f9fa;">
-      <strong style="margin-right: 10px;">Hiển thị cột:</strong>
-      <label v-for="col in columnDefinitions" :key="col.key" style="margin-right: 15px; font-size: 14px; cursor: pointer;">
-        <input type="checkbox" v-model="columnVisibility[col.key]" style="margin-right: 5px;">
-        {{ col.label }}
-      </label>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -200,6 +201,7 @@ const polSearchText = ref('');
 const showPolDropdown = ref(false);
 const podSearchText = ref('');
 const showPodDropdown = ref(false);
+const showColumnDropdown = ref(false);
 
 // Cấu hình ẩn hiện cột
 const columnDefinitions = ref([
@@ -382,7 +384,7 @@ onMounted(async () => {
   fetchBookings();
   window.addEventListener('click', (e) => {
     if (!e.target.closest('.combobox-wrapper')) {
-      showHtDropdown.value = showPolDropdown.value = showPodDropdown.value = false;
+      showHtDropdown.value = showPolDropdown.value = showPodDropdown.value = showColumnDropdown.value = false;
     }
   });
 });

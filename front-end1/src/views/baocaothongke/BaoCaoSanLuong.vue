@@ -128,8 +128,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import PDFtksanluong from './PDFtksanluong.vue'
-import html2pdf from 'html2pdf.js';
+// import PDFtksanluong from './PDFtksanluong.vue'
+// import html2pdf from 'html2pdf.js';
 
 const listData = ref([]);
 const stats = ref({
