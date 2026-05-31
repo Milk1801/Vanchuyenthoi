@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <div class="table-section page-break-avoid">
+      <div class="table-section">
         <h3 class="section-title">📊 BẢNG XẾP HẠNG SẢN LƯỢNG CHI TIẾT</h3>
         <table class="excel-table">
           <thead>
@@ -93,32 +93,37 @@
         </table>
       </div>
 
-      <div class="summary-section page-break-avoid" v-if="vipCustomer">
-        <h3 class="section-title">📌 NHẬN XÉT KẾT QUẢ HOẠT ĐỘNG</h3>
-        <ul class="summary-list">
-          <li><strong>Tổng quan:</strong> Xử lý thành công <strong>{{ kpiStats.tong_lo }} lô hàng</strong> từ <strong>{{ listData.length }} khách hàng</strong>.</li>
-          <li><strong>Sản lượng:</strong> Đạt <strong>{{ formatNumber(kpiStats.tong_trong_luong) }} KGS</strong> và <strong>{{ formatNumber(kpiStats.tong_the_tich) }} CBM</strong>.</li>
-          <li><strong>Khách hàng trọng điểm:</strong> <strong>{{ vipCustomer.ten_khach_hang }}</strong> là đối tác lớn nhất kỳ này.</li>
-        </ul>
-      </div>
+      <div class="footer-wrapper page-break-avoid">
+        
+        <div class="summary-section" v-if="vipCustomer">
+          <h3 class="section-title">📌 NHẬN XÉT KẾT QUẢ HOẠT ĐỘNG</h3>
+          <ul class="summary-list">
+            <li><strong>Tổng quan:</strong> Xử lý thành công <strong>{{ kpiStats.tong_lo }} lô hàng</strong> từ <strong>{{ listData.length }} khách hàng</strong> đối tác.</li>
+            <li><strong>Sản lượng:</strong> Đạt <strong>{{ formatNumber(kpiStats.tong_trong_luong) }} KGS</strong> và <strong>{{ formatNumber(kpiStats.tong_the_tich) }} CBM</strong> trong kỳ báo cáo.</li>
+            <li>
+              <strong>Khách hàng trọng điểm:</strong> <strong>{{ vipCustomer.ten_khach_hang }}</strong> là khách hàng lớn nhất, 
+              chiếm <strong>{{ vipCustomer.phan_tram_cbm }}%</strong> tổng CBM và đóng góp <strong>{{ vipCustomer.phan_tram_kgs }}%</strong> tổng trọng lượng toàn hệ thống.
+            </li>
+          </ul>
+        </div>
 
-      <div class="print-signatures page-break-avoid">
-        <div class="sign-box">
-          <p><strong>Người lập biểu</strong></p>
-          <p class="sign-note">(Ký, ghi rõ họ tên)</p>
+        <div class="print-signatures">
+          <div class="sign-box">
+            <p><strong>Người lập biểu</strong></p>
+            <p class="sign-note">(Ký, ghi rõ họ tên)</p>
+          </div>
+          <div class="sign-box">
+            <p><strong>Kế toán trưởng</strong></p>
+            <p class="sign-note">(Ký, ghi rõ họ tên)</p>
+          </div>
+          <div class="sign-box">
+            <p style="margin-bottom: 5px;"><em>Ngày ..... tháng ..... năm 20...</em></p>
+            <p><strong>Giám đốc</strong></p>
+            <p class="sign-note">(Ký, đóng dấu, ghi rõ họ tên)</p>
+          </div>
         </div>
-        <div class="sign-box">
-          <p><strong>Kế toán trưởng</strong></p>
-          <p class="sign-note">(Ký, ghi rõ họ tên)</p>
-        </div>
-        <div class="sign-box">
-          <p style="margin-bottom: 5px;"><em>Ngày ..... tháng ..... năm 20...</em></p>
-          <p><strong>Giám đốc</strong></p>
-          <p class="sign-note">(Ký, đóng dấu, ghi rõ họ tên)</p>
         </div>
       </div>
-
-    </div>
   </div>
 </template>
 
@@ -191,14 +196,32 @@ const pieChartData = computed(() => {
   };
 });
 
+// CẤU HÌNH BIỂU ĐỒ TRÒN
 const pieChartOptions = {
   responsive: true, 
   maintainAspectRatio: false, 
   cutout: '50%', 
   animation: { duration: 0 },
+  layout: { 
+    // THỦ THUẬT: Cắt bỏ khoảng trống bên trên, kê thêm đệm bên dưới để đẩy bánh lên
+    padding: { top: 0, bottom: 25, left: 10, right: 10 } 
+  },
   plugins: { 
     legend: { position: 'right', labels: { font: { size: 12, family: 'Arial' } } },
-    datalabels: { display: false } // Tắt hoàn toàn hiện số % trên bánh để tránh rối
+    datalabels: { 
+      display: true,
+      color: '#ffffff', 
+      font: { weight: 'bold', size: 14, family: 'Arial' },
+      anchor: 'center',
+      align: 'center',
+      formatter: (value, context) => {
+        let sum = 0;
+        let dataArr = context.chart.data.datasets[0].data;
+        dataArr.forEach(data => { sum += Number(data); });
+        let percentage = (Number(value) * 100 / sum).toFixed(1);
+        return percentage > 0 ? percentage + "%" : "";
+      }
+    } 
   }
 };
 
@@ -214,38 +237,44 @@ const barChartData = computed(() => {
   };
 });
 
+// CẤU HÌNH BIỂU ĐỒ CỘT 
 const barChartOptions = {
   responsive: true, 
   maintainAspectRatio: false, 
-  animation: { duration: 0 },
-  layout: { padding: { top: 10, right: 10 } }, 
+  animation: false, // QUAN TRỌNG: Tắt hẳn hoạt ảnh để chặn đứng lỗi rớt số xuống đáy
+  layout: { padding: { top: 30 } }, 
   plugins: { 
     legend: { display: false },
-    datalabels: { display: false } // Tắt hiện số trên đầu cột
+    datalabels: { 
+      display: true, // Bật lại hiển thị số
+      color: '#d35400',
+      anchor: 'end',
+      align: 'bottom', // Đặt số ngay sát bên trong đỉnh cột để cấm bị lẹm
+      font: { weight: 'bold', size: 13, family: 'Arial' },
+      formatter: (value) => formatNumber(value)
+    } 
   },
   scales: { 
     x: { grid: { display: false }, ticks: { font: { size: 11 } } },
     y: { 
       beginAtZero: true, 
-      ticks: { 
-        font: { size: 11 },
-        stepSize: 1 // Ép hiện số nguyên để dễ dóng hàng
-      },
-      grid: { color: '#eee' } // Hiện lưới mờ để dóng hàng dễ hơn
+      min: 0, // Khóa đáy ở 0
+      grace: '20%', 
+      ticks: { font: { size: 11 } }
     } 
   }
 };
 </script>
 
 <style scoped>
-/* FIX TRIỆT ĐỂ LỖI BỊ CẮT TRANG BẰNG CÁCH NÉM RA NGOÀI MÀN HÌNH */
+
 .pdf-export-wrapper { 
-  position: absolute; 
+  position: fixed; /* Ghim chết nó ở góc trên cùng, không cho đẩy trang web dài ra */
   top: 0; 
   left: 0; 
   width: 1000px;
-  z-index: -9999; 
-  opacity: 0.01; /* Vẫn tồn tại vật lý nhưng không nhìn thấy */
+  z-index: -9999; /* Dìm nó xuống 9999 lớp dưới cùng của trang web */
+  opacity: 0.001; /* Tàng hình 99.9%, mắt người không thấy nhưng máy ảnh vẫn chụp được */
   pointer-events: none;
 }
 
@@ -288,9 +317,17 @@ const barChartOptions = {
 .pie-box { width: 42%; } /* Thu nhỏ Pie lại một chút */
 .bar-box { width: 58%; } 
 .box-title { margin: -15px -15px 15px -15px; padding: 10px 15px; font-size: 11pt; font-weight: bold; background: #fdfdfd; border-bottom: 1px solid #eee; border-radius: 6px 6px 0 0;}
-.chart-container { position: relative; width: 100%; height: 260px; display: flex; justify-content: center; }
+.chart-container { 
+  position: relative; 
+  width: 100%; 
+  height: 260px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
 
 /* BẢNG XẾP HẠNG */
+.table-section { margin-bottom: 50px; } /* Tạo khoảng thở rộng dưới bảng */
 .section-title { margin: 0 0 15px 0; font-size: 13pt; color: #2c3e50; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 8px;}
 .excel-table { width: 100%; border-collapse: collapse; font-size: 11pt; }
 .excel-table th, .excel-table td { border: 1px solid #dcdde1; padding: 12px; }
@@ -298,12 +335,30 @@ const barChartOptions = {
 .excel-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
 .excel-table tfoot td { font-weight: bold; background-color: #ecf0f1; font-size: 12pt;}
 
+/* Cấm cắt đứt dòng chữ của một hàng khi sang trang mới */
+.excel-table tr { 
+  page-break-inside: avoid; 
+  break-inside: avoid; 
+}
+
+/* KHỐI FOOTER (NHẬN XÉT & CHỮ KÝ) */
+.footer-wrapper {
+  display: block;
+  width: 100%;
+}
+
 /* NHẬN XÉT TỔNG HỢP */
-.summary-section { background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #e9ecef; }
+.summary-section { 
+  background: #f8f9fa; 
+  padding: 25px 20px; 
+  border-radius: 6px; 
+  border: 1px solid #e9ecef; 
+  margin-bottom: 50px; /* Đẩy chữ ký xuống một chút cho thoáng */
+}
 .summary-list { margin: 0; padding-left: 20px; font-size: 12pt; line-height: 1.8; color: #2c3e50;}
 
 /* CHỮ KÝ */
-.print-signatures { display: flex; justify-content: space-between; text-align: center; margin-top: 40px; }
+.print-signatures { display: flex; justify-content: space-between; text-align: center; margin-bottom: 40px; }
 .sign-box { width: 30%; font-size: 12pt; }
 .sign-note { font-style: italic; font-size: 11pt; font-weight: normal; margin-top: 5px; color: #7f8c8d;}
 </style>
