@@ -37,7 +37,10 @@
       </div>
       <div>
         <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success">📊 Excel</button>
+        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;">📊 Excel</button>
+        <button @click="printPDF" class="btn btn-warning" :disabled="isPrinting" style="background: #e67e22; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+          {{ isPrinting ? '⏳ Đang tạo PDF...' : '⬇️ Tải xuống PDF' }}
+        </button>
       </div>
     </div>
 
@@ -111,12 +114,16 @@
       </table>
     </div>
 
+    <PDFtkchiphitondong :listData="listData" :stats="stats" :filters="filters" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import PDFtkchiphitondong from './PDFtkchiphitondong.vue';
+import html2pdf from 'html2pdf.js';
 
+const isPrinting = ref(false);
 const listData = ref([]);
 const stats = ref({ 
   tong_phai_thu: 0, 
@@ -128,6 +135,38 @@ const stats = ref({
   max_doanh_thu: 0
 });
 const isLoading = ref(false);
+
+const printPDF = () => {
+  if (listData.value.length === 0) {
+    alert("Không có dữ liệu để xuất PDF!");
+    return;
+  }
+  
+  isPrinting.value = true;
+  
+  setTimeout(() => {
+    const element = document.getElementById('pdf-dashboard-content');
+    
+    const opt = {
+      margin:       [10, 5, 10, 5], 
+      filename:     `Bao_Cao_Chi_Phi_${new Date().getTime()}.pdf`,
+      image:        { type: 'jpeg', quality: 1 },
+      html2canvas:  { 
+        scale: 2, 
+        useCORS: true, 
+        width: 1000, 
+        windowWidth: 1000, 
+        scrollX: 0, scrollY: 0
+      },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['css', 'legacy'] } 
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      isPrinting.value = false;
+    });
+  }, 1000); 
+};
 
 const filters = ref({
   tu_ky: '',
