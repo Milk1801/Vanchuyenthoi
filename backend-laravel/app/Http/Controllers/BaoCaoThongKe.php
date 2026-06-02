@@ -24,17 +24,18 @@ class BaoCaoThongKe extends Controller
                 ->leftJoin('cang_bien as pod', 'booking.ma_cang_den', '=', 'pod.ma_cang')
                 ->leftJoin('khach_hang', 'lo_hang.ma_khach_hang', '=', 'khach_hang.ma_khach_hang')
                 ->leftJoin('hang_tau', 'booking.ma_hang_tau', '=', 'hang_tau.ma_hang_tau')
-                ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
+                // FIX: Dùng Subquery gom nhóm Số Vận Đơn
+                ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(so_van_don SEPARATOR ", ") as so_van_don FROM van_don GROUP BY ma_lo_hang) as vd'), 'lo_hang.ma_lo_hang', '=', 'vd.ma_lo_hang')
                 ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(ten_hang SEPARATOR ", ") as ten_hang_hoa, SUM(so_luong) as tong_so_luong, SUM(trong_luong) as tong_trong_luong, SUM(the_tich) as tong_the_tich FROM chi_tiet_lo_hang GROUP BY ma_lo_hang) as ctlh'), 'lo_hang.ma_lo_hang', '=', 'ctlh.ma_lo_hang')
-                ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan') /* JOIN ĐỂ LẤY TÊN NHÂN VIÊN */
+                ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
                 ->select(
                     'lo_hang.ma_lo_hang', 'lo_hang.trang_thai_lo_hang',
-                    'tai_khoan.ho_ten as nguoi_xu_ly', /* LẤY TÊN ĐỂ THỐNG KÊ KPI */
+                    'tai_khoan.ho_ten as nguoi_xu_ly',
                     'booking.so_booking', 'booking.etd', 'booking.eta',
                     'pol.ten_cang as cang_di', 'pod.ten_cang as cang_den',
                     'khach_hang.ten_khach_hang',
                     'hang_tau.ten_hang_tau',
-                    'van_don.so_van_don',
+                    'vd.so_van_don', // Lấy từ subquery
                     'ctlh.ten_hang_hoa', 'ctlh.tong_so_luong', 'ctlh.tong_trong_luong', 'ctlh.tong_the_tich'
                 )
                 ->where('lo_hang.thoi_gian_xoa', '<=', '2000-01-01 00:00:00');
@@ -481,10 +482,11 @@ class BaoCaoThongKe extends Controller
             $query = DB::table('thong_tin_luu_bai')
                 ->join('lo_hang', 'thong_tin_luu_bai.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
                 ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
-                ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
+                // FIX: Dùng Subquery gom nhóm
+                ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(DISTINCT so_cont SEPARATOR ", ") as so_cont FROM van_don GROUP BY ma_lo_hang) as vd'), 'lo_hang.ma_lo_hang', '=', 'vd.ma_lo_hang')
                 ->select(
                     'lo_hang.ma_lo_hang',
-                    'van_don.so_cont',
+                    'vd.so_cont', // Lấy từ subquery
                     'thong_tin_luu_bai.cuoc_vo',
                     'thong_tin_luu_bai.ngay_bat_dau_luu_bai',
                     'thong_tin_luu_bai.trang_thai_luu_bai',
@@ -543,21 +545,22 @@ class BaoCaoThongKe extends Controller
             // CHỈ LẤY CÁC CONT ĐANG CÒN NẰM TRONG BÃI
             $query = DB::table('thong_tin_luu_bai')
                 ->join('lo_hang', 'thong_tin_luu_bai.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
-                ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
+                // FIX: Dùng Subquery gom nhóm Container để chống nhân bản dữ liệu
+                ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(DISTINCT so_cont SEPARATOR ", ") as so_cont FROM van_don GROUP BY ma_lo_hang) as vd'), 'lo_hang.ma_lo_hang', '=', 'vd.ma_lo_hang')
                 ->select(
                     'thong_tin_luu_bai.ma_luu_bai',
                     'lo_hang.ma_lo_hang',
-                    'van_don.so_cont',
+                    'vd.so_cont', // Lấy từ subquery
                     'thong_tin_luu_bai.ngay_bat_dau_luu_bai',
                     'thong_tin_luu_bai.ngay_luu_bai_mien_phi',
                     'thong_tin_luu_bai.trang_thai_luu_bai'
                 )
                 ->where('lo_hang.thoi_gian_xoa', '<=', '2000-01-01 00:00:00')
-                ->where('thong_tin_luu_bai.trang_thai_luu_bai', 'Đang lưu bãi'); // Chốt chỉ lấy Đang lưu bãi
+                ->where('thong_tin_luu_bai.trang_thai_luu_bai', 'Đang lưu bãi');
 
             if ($timKiem) {
                 $query->where(function($q) use ($timKiem) {
-                    $q->where('van_don.so_cont', 'LIKE', "%{$timKiem}%")
+                    $q->where('vd.so_cont', 'LIKE', "%{$timKiem}%") // Tìm trên chuỗi đã gom nhóm
                       ->orWhere('lo_hang.ma_lo_hang', 'LIKE', "%{$timKiem}%");
                 });
             }
