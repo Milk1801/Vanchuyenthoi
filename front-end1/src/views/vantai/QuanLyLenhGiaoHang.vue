@@ -125,7 +125,7 @@
             <td v-if="visibleColumns.ngayPhatHanh" style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             
             <td style="padding: 12px 15px; text-align: center; white-space: nowrap;">
-              <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">📄</button>
+              <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">🖨️</button>
               <button  v-if="hasRole([3, 5])" @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
               <button  v-if="hasRole([3, 5])" @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
             </td>
