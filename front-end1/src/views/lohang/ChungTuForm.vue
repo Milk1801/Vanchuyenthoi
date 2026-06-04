@@ -8,7 +8,7 @@
         </h3>
       </div>
       <div>
-        <button v-if="hasRole(1)" class="btn-success" @click="openModal()">
+        <button v-if="canModifyDocs" class="btn-success" @click="openModal()">
         TẢI LÊN CHỨNG TỪ
       </button>
       <button @click="router.back" class=" btn-cancel">Quay lại</button>
@@ -42,13 +42,13 @@
         </div>
         
         <div class="doc-actions" style="display: flex; justify-content: space-between; align-items: center;">
-          <button v-if="hasRole(1)" class="btn-icon text-warning" @click="openModal(doc)" title="Sửa loại chứng từ">
+          <button v-if="canModifyDocs" class="btn-icon text-warning" @click="openModal(doc)" title="Sửa loại chứng từ">
             ✏️ Sửa
           </button>
           <button class="btn-icon text-primary download-btn" @click="downloadFile(doc.ma_chung_tu)" title="Tải xuống">
             ⬇️ Tải về
           </button>
-          <button v-if="hasRole(1)" class="btn-icon text-danger" @click="handleDelete(doc.ma_chung_tu)" title="Xóa tài liệu">
+          <button v-if="canModifyDocs" class="btn-icon text-danger" @click="handleDelete(doc.ma_chung_tu)" title="Xóa tài liệu">
             🗑️
           </button>
         </div>
@@ -108,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
@@ -125,6 +125,21 @@ const hasRole = (roleIdOrArray) => {
   const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
   return requiredRoles.some(r => roles.includes(r));
 };
+
+// Kiểm tra quyền thao tác dựa trên trạng thái lô hàng
+const canModifyDocs = computed(() => {
+  if (!shipmentInfo.value || !shipmentInfo.value.trang_thai_lo_hang) return false;
+
+  const finalizedStatuses = ['Hoàn tất', 'Hủy'];
+  const isFinalized = finalizedStatuses.includes(shipmentInfo.value.trang_thai_lo_hang);
+
+  if (isFinalized) {
+    // Nếu đã hoàn tất hoặc hủy: BẮT BUỘC phải có mã quyền 5 (Admin)
+    return hasRole(5);
+  }
+  // Trạng thái khác: Quyền 1 hoặc 5 đều được phép
+  return hasRole([1, 5]);
+});
 
 const listDocs = ref([]);
 const shipmentInfo = ref(null);
@@ -196,6 +211,11 @@ const openModal = (doc = null) => {
 };
 
 const saveDoc = async () => {
+  if (!canModifyDocs.value) {
+    alert("Bạn không có quyền thực hiện thao tác này khi lô hàng đã hoàn tất hoặc bị hủy.");
+    return;
+  }
+
   isSaving.value = true;
   const payload = new FormData();
   if (formData.value.ma_chung_tu) payload.append('ma_chung_tu', formData.value.ma_chung_tu);
@@ -215,6 +235,11 @@ const saveDoc = async () => {
 };
 
 const handleDelete = async (id) => {
+  if (!canModifyDocs.value) {
+    alert("Bạn không có quyền xóa chứng từ khi lô hàng đã hoàn tất hoặc bị hủy.");
+    return;
+  }
+
   if (!confirm("Xóa vĩnh viễn chứng từ này?")) return;
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/chung-tu/delete`, {

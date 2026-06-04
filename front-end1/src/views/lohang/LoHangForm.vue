@@ -78,7 +78,7 @@
               <div class="form-group" style="flex: 1;">
                 <label>Trạng thái</label>
                 <select v-model="formData.trang_thai_lo_hang">
-                  <option v-for="tt in ['Mới tạo', 'Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy']" :key="tt" :value="tt">{{ tt }}</option>
+                  <option v-for="tt in ['Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy']" :key="tt" :value="tt">{{ tt }}</option>
                 </select>
               </div>
             </div>
@@ -87,7 +87,7 @@
               <textarea v-model="formData.nguon_goc" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"></textarea>
             </div>
             <div style="text-align: right; margin-top: 20px;">
-              <button type="submit" class="btn-save">
+              <button type="submit" class="btn-save" :disabled="isSaving || !canPerformSave">
                 {{ isSaving ? 'Đang lưu...' : (formData.ma_lo_hang ? 'Cập nhật & Tiếp tục ➔' : 'Khởi tạo lô hàng & Tiếp tục ➔') }}
               </button>
             </div>
@@ -294,7 +294,7 @@
 
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button class="btn-cancel" @click="activeTab = 'info'" type="button" style="background: #95a5a6; color: white; border: none;">⬅ Quay lại</button>
-          <button class="btn-save" @click="handleSaveAll" :disabled="isSaving || !hasRole([1, 5])" style="margin-left: 10px;">
+          <button class="btn-save" @click="handleSaveAll" :disabled="isSaving || !canPerformSave" style="margin-left: 10px;">
             {{ isSaving ? 'Đang xử lý...' : 'HOÀN TẤT & ĐÓNG 💾' }}
           </button>
         </div>
@@ -367,6 +367,7 @@ const isSaving = ref(false);
 const isSavingDetail = ref(false);
 const isDetailFormVisible = ref(false);
 const editingIndex = ref(-1);
+const originalStatus = ref('');
 
 const listKhachHang = ref([]);
 const listBooking = ref([]);
@@ -441,6 +442,19 @@ const detailFormData = ref({
   ma_chi_tiet_lo_hang: null, ten_hang: '', so_luong: 1, so_kien: 0,
   the_tich: 0, trong_luong: 0, gia_ca: 0, ma_hang_hoa: null,
   ma_lo_hang: null, ma_don_vi_tinh: null, nguoi_sua_cuoi: null
+});
+
+// Kiểm tra quyền lưu dựa trên trạng thái lô hàng
+const canPerformSave = computed(() => {
+  const finalizedStatuses = ['Hoàn tất', 'Hủy'];
+  const isTargetFinal = finalizedStatuses.includes(formData.value.trang_thai_lo_hang);
+  const wasOriginalFinal = finalizedStatuses.includes(originalStatus.value);
+
+  // Nếu trạng thái đích hoặc trạng thái gốc là Hoàn tất/Hủy -> Chỉ Admin (5) được phép
+  if (isTargetFinal || wasOriginalFinal) {
+    return hasRole(5);
+  }
+  return hasRole([1, 5]);
 });
 
 // Ánh xạ tên từ ID để hiển thị bảng
@@ -733,6 +747,7 @@ const fetchData = async (id) => {
       const found = data.data.find(x => String(x.ma_lo_hang) === String(id));
       if (found) {
         formData.value = { ...found };
+        originalStatus.value = found.trang_thai_lo_hang; // Lưu trạng thái gốc
         khachHangSearchText.value = listKhachHang.value.find(kh => kh.ma_khach_hang === found.ma_khach_hang)?.ten_khach_hang || '';
         fetchDetails(found.ma_lo_hang);
       }
@@ -746,7 +761,12 @@ const handleSaveStep1 = async () => {
     return;
   }
 
-  if (!hasRole([1, 5])) return; // Prevent saving if user doesn't have permission
+  if (!canPerformSave.value) {
+    alert("Chỉ tài khoản Admin mới được phép thao tác với lô hàng đã hoàn tất/hủy hoặc chuyển sang các trạng thái này.");
+    return;
+  }
+
+  isSaving.value = true;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   formData.value.nguoi_sua_cuoi = user ? (user.id || user.ma_tai_khoan) : null;
   try {
@@ -783,7 +803,11 @@ const handleSaveAll = async () => {
     return;
   }
 
-  if (!hasRole([1, 5])) return; // Prevent saving if user doesn't have permission
+  if (!canPerformSave.value) {
+    alert("Chỉ tài khoản Admin mới được phép thao tác với lô hàng đã hoàn tất/hủy.");
+    return;
+  }
+
   isSaving.value = true;
   const user = JSON.parse(localStorage.getItem('sincere_user'));
   const userId = user ? (user.id || user.ma_tai_khoan) : null;

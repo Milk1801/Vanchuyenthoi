@@ -53,6 +53,7 @@
       </div>
 
       <select v-model="filterTrangThai" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
+        <option value="UNFINISHED">- Lô hàng chưa hoàn thành -</option>
         <option value="ALL">- Tất cả Trạng thái -</option>
         <option v-for="st in listTrangThai" :key="st" :value="st">{{ st }}</option>
       </select>
@@ -293,7 +294,7 @@ const selectedItem = ref(null);
 const isLoading = ref(true);
 const searchQuery = ref('');
 const searchItemQuery = ref(''); // Keep this for item search
-const filterTrangThai = ref('ALL');
+const filterTrangThai = ref('UNFINISHED');
 const filterKhachHang = ref(null);
 const filterIncoterms = ref(null);
 const filterUser = ref(null);
@@ -375,7 +376,7 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 
-const listTrangThai = ['Mới tạo', 'Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy'];
+const listTrangThai = ['Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy'];
 
 const statusClass = (status) => {
   if (['Hoàn tất', 'Đang vận chuyển', 'Đã thông quan'].includes(status)) return 'badge-active';
@@ -406,7 +407,15 @@ const filteredLoHang = computed(() => {
     const itemSearch = searchItemQuery.value.toLowerCase();
     const matchItemSearch = !itemSearch || (lh.ds_ten_hang && lh.ds_ten_hang.toLowerCase().includes(itemSearch));
 
-    const matchTrangThai = filterTrangThai.value === 'ALL' || lh.trang_thai_lo_hang === filterTrangThai.value;
+    let matchTrangThai = false;
+    if (filterTrangThai.value === 'ALL') {
+      matchTrangThai = true;
+    } else if (filterTrangThai.value === 'UNFINISHED') {
+      // Lọc các lô hàng không phải trạng thái Hoàn tất hoặc Hủy
+      matchTrangThai = lh.trang_thai_lo_hang !== 'Hoàn tất' && lh.trang_thai_lo_hang !== 'Hủy';
+    } else {
+      matchTrangThai = lh.trang_thai_lo_hang === filterTrangThai.value;
+    }
     const matchKhachHang = !filterKhachHang.value || lh.ma_khach_hang === filterKhachHang.value;
     const matchIncoterms = !filterIncoterms.value || lh.dieu_kien_thuong_mai === filterIncoterms.value;
     const matchUser = !filterUser.value || (lh.nguoi_sua_cuoi === filterUser.value || lh.nguoi_sua_doi === filterUser.value);
@@ -477,7 +486,7 @@ const uniqueUsers = computed(() => {
 
 const resetFilters = () => {
   searchQuery.value = '';
-  filterTrangThai.value = 'ALL';
+  filterTrangThai.value = 'UNFINISHED';
   filterKhachHang.value = null;
   filterIncoterms.value = null;
   filterUser.value = null;

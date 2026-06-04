@@ -360,7 +360,7 @@ CREATE TABLE `lo_hang` (
   `ma_lo_hang` int(11) NOT NULL,
   `ten_lo_hang` varchar(50) NOT NULL,
   `dieu_kien_thuong_mai` enum('FOB','CIF','EXW','DAP','DDP','CFR') DEFAULT NULL,
-  `trang_thai_lo_hang` enum('Mới tạo','Đang chờ xử lý','Đang vận chuyển','Đã thông quan','Hoàn tất','Hủy') DEFAULT NULL,
+  `trang_thai_lo_hang` enum('Đang chờ xử lý','Đang vận chuyển','Đã thông quan','Hoàn tất','Hủy') DEFAULT NULL,
   `nguon_goc` varchar(100) DEFAULT NULL,
   `ma_booking` int(11) DEFAULT NULL,
   `ma_khach_hang` int(11) DEFAULT NULL,
@@ -377,11 +377,11 @@ INSERT INTO `lo_hang` (`ma_lo_hang`, `ten_lo_hang`, `dieu_kien_thuong_mai`, `tra
 (2, 'Lô hàng thùng gỗ', 'CIF', 'Mới tạo', NULL, 1, 2, 2, '2026-04-10 06:58:40'),
 (3, 'Lô hàng thùng gỗ 2', 'FOB', 'Hoàn tất', NULL, 4, 2, 1, '0000-00-00 00:00:00'),
 (4, 'Thùng gỗ 2', 'FOB', 'Mới tạo', NULL, 1, 1, 2, '2026-04-10 07:23:13'),
-(5, 'Thùng gỗ vàng', 'FOB', 'Mới tạo', NULL, 1, 2, 2, '2026-04-10 08:20:42'),
-(6, 'Hàng nóng', 'FOB', 'Mới tạo', NULL, 7, 1, 1, '0000-00-00 00:00:00'),
+(5, 'Thùng gỗ vàng', 'FOB', 'Đang chờ xử lý', NULL, 1, 2, 2, '2026-04-10 08:20:42'),
+(6, 'Hàng nóng', 'FOB', 'Đang chờ xử lý', NULL, 7, 1, 1, '0000-00-00 00:00:00'),
 (7, '2', 'FOB', 'Mới tạo', NULL, NULL, NULL, 1, '2026-04-12 14:41:04'),
-(8, 'Lô hàng thùng nhựa', 'FOB', 'Mới tạo', NULL, NULL, NULL, 1, '2026-04-12 14:56:11'),
-(9, 'Lô thùng giấy', 'FOB', 'Mới tạo', 'Việt Nam', 3, 2, 1, '1970-01-01 00:00:01');
+(8, 'Lô hàng thùng nhựa', 'FOB', 'Đang chờ xử lý', NULL, NULL, NULL, 1, '2026-04-12 14:56:11'),
+(9, 'Lô thùng giấy', 'FOB', 'Đang chờ xử lý', 'Việt Nam', 3, 2, 1, '1970-01-01 00:00:01');
 
 -- --------------------------------------------------------
 
@@ -957,3 +957,14 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- Lệnh alter để cập nhật enum cho cột `trang_thai_lo_hang` trong bảng `lo_hang`
+-- -- Bước 1: Cập nhật dữ liệu cũ (nếu có)
+-- UPDATE `lo_hang` 
+-- SET `trang_thai_lo_hang` = 'Đang chờ xử lý' 
+-- WHERE `trang_thai_lo_hang` = 'Mới tạo';
+
+-- -- Bước 2: Chỉnh sửa cấu trúc cột
+-- ALTER TABLE `lo_hang` 
+-- MODIFY COLUMN `trang_thai_lo_hang` ENUM('Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy') DEFAULT NULL;
