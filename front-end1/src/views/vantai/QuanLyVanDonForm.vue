@@ -36,7 +36,7 @@
                   style="background: #f9f9f9; cursor: default; width: 100%; height: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"
                 >
                 <button 
-                  v-if="formData.ma_lo_hang" 
+                  v-if="formData.ma_lo_hang && canModify" 
                   type="button" 
                   @click="formData.ma_lo_hang = null; showLoHangPanel = false" 
                   style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #e74c3c; font-weight: bold;"
@@ -46,7 +46,7 @@
                 <button v-if="formData.ma_lo_hang" type="button" @click="showLoHangPanel = !showLoHangPanel" class="view-btn" style="padding: 2px 10px; font-size: 11px; flex: 1; min-height: 20px; width: 100%;">
                   {{ showLoHangPanel ? '✖ Đóng' : '👁️ Xem' }}
                 </button>
-                <button type="button" class="btn-picker" @click="isLoHangPickerOpen = true" style="padding: 2px 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 11px; flex: 1; min-height: 20px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                <button v-if="canModify" type="button" class="btn-picker" @click="isLoHangPickerOpen = true" style="padding: 2px 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 11px; flex: 1; min-height: 20px; width: 100%; display: flex; align-items: center; justify-content: center;">
                   🔍 Chọn
                 </button>
               </div>
@@ -311,26 +311,37 @@ const formData = ref({
   ma_cang_di: null, ma_cang_den: null, ma_lo_hang: null, nguoi_sua_cuoi: null
 });
 
+const selectedLoHang = computed(() => {
+  return listLoHang.value.find(lh => lh.ma_lo_hang === formData.value.ma_lo_hang);
+});
+
 // Kiểm tra quyền thao tác (Thêm/Sửa): Chỉ cho phép mã quyền 1 hoặc 5
 const canModify = computed(() => {
   try {
     const user = JSON.parse(localStorage.getItem('sincere_user'));
     if (!user) return false;
-    // Kiểm tra mã quyền trong danh sách ds_quyen hoặc ds_ma_quyen (đồng bộ với QuanLyVanDon.vue)
     const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
                  (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
-    return perms.includes(1) || perms.includes(5);
-  } catch (e) { return false; }
-});
 
-const selectedLoHang = computed(() => {
-  return listLoHang.value.find(lh => lh.ma_lo_hang === formData.value.ma_lo_hang);
+    if (perms.includes(5)) return true; // Quyền mã 5 (Toàn quyền) luôn được phép
+    
+    if (perms.includes(1)) {
+      // Nếu vận đơn liên kết với lô hàng đã Hoàn tất hoặc Hủy, chỉ quyền 5 mới được phép cập nhật
+      if (selectedLoHang.value && (selectedLoHang.value.trang_thai_lo_hang === 'Hoàn tất' || selectedLoHang.value.trang_thai_lo_hang === 'Hủy')) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  } catch (e) { return false; }
 });
 
 const filteredPickerLoHang = computed(() => {
   const q = shipmentSearchQuery.value.toLowerCase().trim();
-  if (!q) return listLoHang.value;
-  return listLoHang.value.filter(lh => 
+  // Chỉ cho phép chọn mới các lô hàng chưa hoàn tất hoặc bị hủy
+  const availableList = listLoHang.value.filter(lh => lh.trang_thai_lo_hang !== 'Hoàn tất' && lh.trang_thai_lo_hang !== 'Hủy');
+  if (!q) return availableList;
+  return availableList.filter(lh => 
     (lh.ten_lo_hang && lh.ten_lo_hang.toLowerCase().includes(q)) ||
     (lh.so_booking && lh.so_booking.toLowerCase().includes(q)) ||
     (lh.ten_khach_hang && lh.ten_khach_hang.toLowerCase().includes(q))
@@ -408,11 +419,8 @@ const fetchReferences = async () => {
       });
 
       const validIds = dataRef.lo_hang.map(lh => lh.ma_lo_hang);
-      // Lọc danh sách lô hàng đầy đủ thông tin dựa trên các ID hợp lệ từ references
-      listLoHang.value = allData.data.filter(lh => 
-        validIds.includes(lh.ma_lo_hang) &&
-        lh.trang_thai_lo_hang !== 'Hoàn tất' && lh.trang_thai_lo_hang !== 'Hủy'
-      );
+      // Giữ lại tất cả lô hàng hợp lệ (bao gồm cả đã hoàn tất/hủy) để hiển thị thông tin nếu BOL đã liên kết từ trước
+      listLoHang.value = allData.data.filter(lh => validIds.includes(lh.ma_lo_hang));
     }
   } catch (error) { console.error("Lỗi lấy dữ liệu tham chiếu"); }
 };
