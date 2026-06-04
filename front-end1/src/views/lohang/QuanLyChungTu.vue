@@ -123,13 +123,14 @@
             </td>
             <td v-if="columnVisibility.nguoi_sua_doi">{{ lh.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
-              <button 
+              <button v-if="hasRole(1)"
                 class="btn-manage" 
                 @click="router.push(`/lo-hang/chung-tu/chi-tiet/${lh.ma_lo_hang}`)"
                 title="Quản lý chứng từ cho lô hàng này"
               >
                 📂 Quản lý chứng từ
               </button>
+              <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td> 
           </tr>
           <tr v-if="paginatedLoHang.length === 0">
@@ -154,6 +155,17 @@ const listKhachHang = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref(''); 
 const searchItemQuery = ref('');
+
+// Logic phân quyền
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
 
 const selectedItem = ref(null);
 
@@ -194,7 +206,7 @@ const visibleColumnCount = computed(() => {
   return count;
 });
 
-const listTrangThai = ['Mới tạo', 'Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy'];
+const listTrangThai = ['Đang chờ xử lý', 'Đang vận chuyển', 'Đã thông quan', 'Hoàn tất', 'Hủy'];
 
 // Computed lọc danh sách cho dropdown
 const filteredKhList = computed(() => listKhachHang.value.filter(kh => kh.ten_khach_hang.toLowerCase().includes(khSearchText.value.toLowerCase())));
