@@ -6,7 +6,7 @@
       <div class="search-box">
         <input type="text" v-model="searchQuery" placeholder="Tìm kiếm tên, mã tài khoản...">
       </div>
-      <button v-if="hasRole(1)" class="btn btn-success" @click="goToAdd">+ TẠO TÀI KHOẢN MỚI</button>
+      <button v-if="hasRole(5)" class="btn btn-success" @click="goToAdd">+ TẠO TÀI KHOẢN MỚI</button>
     </div>
 
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">
@@ -54,8 +54,12 @@
               </span>
             </td>
             <td style="text-align: center;">
-              <button v-if="hasRole(1)" class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa">✏️</button>
-              <button v-if="hasRole(1)" class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa">🗑️</button>
+              <div v-if="hasRole(5)" style="display: flex; gap: 8px; justify-content: center;">
+                <button class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa">✏️</button>
+                <button class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa">🗑️</button>
+              </div>
+            
+              <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td>
           </tr>
         </tbody>
