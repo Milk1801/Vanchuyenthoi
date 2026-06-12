@@ -43,7 +43,7 @@
 
         <div class="modal-actions" style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
           <button type="button" class="btn-cancel" @click="handleCancel">Quay lại</button>
-          <button type="submit" class="btn-save" :disabled="isSaving">
+          <button v-if="hasRole(5)" type="submit" class="btn-save" :disabled="isSaving">
              {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu 💾' }}
           </button>
         </div>
@@ -59,6 +59,16 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 const isSaving = ref(false);
+
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+}
 
 const formData = ref({
   ma_tai_khoan: null,
