@@ -36,7 +36,7 @@
                   style="background: #f9f9f9; cursor: default; width: 100%; height: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"
                 >
                 <button 
-                  v-if="formData.ma_lo_hang && canModify" 
+                  v-if="formData.ma_lo_hang && (hasRole(5) || (hasRole(1) && !isShipmentFinalized))" 
                   type="button" 
                   @click="formData.ma_lo_hang = null; showLoHangPanel = false" 
                   style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #e74c3c; font-weight: bold;"
@@ -46,7 +46,7 @@
                 <button v-if="formData.ma_lo_hang" type="button" @click="showLoHangPanel = !showLoHangPanel" class="view-btn" style="padding: 2px 10px; font-size: 11px; flex: 1; min-height: 20px; width: 100%;">
                   {{ showLoHangPanel ? '✖ Đóng' : '👁️ Xem' }}
                 </button>
-                <button v-if="canModify" type="button" class="btn-picker" @click="isLoHangPickerOpen = true" style="padding: 2px 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 11px; flex: 1; min-height: 20px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                <button v-if="hasRole(5) || (hasRole(1) && !isShipmentFinalized)" type="button" class="btn-picker" @click="isLoHangPickerOpen = true" style="padding: 2px 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 11px; flex: 1; min-height: 20px; width: 100%; display: flex; align-items: center; justify-content: center;">
                   🔍 Chọn
                 </button>
               </div>
@@ -178,7 +178,7 @@
 
           <div style="grid-column: span 2; margin-top: 10px; display: flex; gap: 10px; justify-content: flex-end;">
             <button type="button" class="btn-cancel" @click="router.back()" style="padding: 10px 25px;">Hủy</button>
-            <button v-if="canModify" type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
+            <button v-if="hasRole(5) || (hasRole(1) && !isShipmentFinalized)" type="submit" class="btn-save" :disabled="isSaving" style="padding: 10px 25px;">
                {{ isSaving ? 'Đang lưu...' : 'Lưu Vận Đơn' }}
             </button>
             <button v-if="formData.ma_van_don" type="button" @click="handleExportPdf(formData.ma_van_don, formData.so_van_don)" class="btn-cancel" style="background: #17a2b8; color: white; border: none; padding: 10px 25px;">
@@ -315,25 +315,20 @@ const selectedLoHang = computed(() => {
   return listLoHang.value.find(lh => lh.ma_lo_hang === formData.value.ma_lo_hang);
 });
 
-// Kiểm tra quyền thao tác (Thêm/Sửa): Chỉ cho phép mã quyền 1 hoặc 5
-const canModify = computed(() => {
-  try {
-    const user = JSON.parse(localStorage.getItem('sincere_user'));
-    if (!user) return false;
-    const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
-                 (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
+// Logic phân quyền giống danh mục khách hàng
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(Number(r)));
+};
 
-    if (perms.includes(5)) return true; // Quyền mã 5 (Toàn quyền) luôn được phép
-    
-    if (perms.includes(1)) {
-      // Nếu vận đơn liên kết với lô hàng đã Hoàn tất hoặc Hủy, chỉ quyền 5 mới được phép cập nhật
-      if (selectedLoHang.value && (selectedLoHang.value.trang_thai_lo_hang === 'Hoàn tất' || selectedLoHang.value.trang_thai_lo_hang === 'Hủy')) {
-        return false;
-      }
-      return true;
-    }
-    return false;
-  } catch (e) { return false; }
+// Kiểm tra lô hàng đã hoàn tất hoặc hủy hay chưa
+const isShipmentFinalized = computed(() => {
+  return selectedLoHang.value && 
+    (selectedLoHang.value.trang_thai_lo_hang === 'Hoàn tất' || selectedLoHang.value.trang_thai_lo_hang === 'Hủy');
 });
 
 const filteredPickerLoHang = computed(() => {

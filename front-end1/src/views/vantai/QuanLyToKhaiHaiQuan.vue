@@ -53,7 +53,7 @@
       </div>
 
       <button @click="clearFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s;" title="Xóa lọc">🧹 Xóa lọc</button>
-      <button v-if="canModify" class="btn btn-success" @click="router.push('/van-tai/to-khai-hai-quan/add')" style="border-radius: 6px;">+ TẠO TỜ KHAI MỚI</button>
+      <button v-if="hasRole(4)" class="btn btn-success" @click="router.push('/van-tai/to-khai-hai-quan/add')" style="border-radius: 6px;">+ TẠO TỜ KHAI MỚI</button>
     </div>
 
     <div v-if="isLoadingData" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu Tờ khai...</div>
@@ -110,8 +110,8 @@
                 <td v-if="columnVisibility.ten_nguoi_sua.visible">{{ tk.ten_nguoi_sua || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: flex; gap: 2px; justify-content: center;">
-                    <button v-if="canModify" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/to-khai-hai-quan/edit/' + tk.ma_to_khai_hai_quan)" title="Sửa">✏️</button>
-                    <button v-if="canModify" class="action-btn-no-mg text-danger" @click="handleDelete(tk.ma_to_khai_hai_quan)" title="Xóa">🗑️</button>
+                    <button v-if="hasRole(4)" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/to-khai-hai-quan/edit/' + tk.ma_to_khai_hai_quan)" title="Sửa">✏️</button>
+                    <button v-if="hasRole(4)" class="action-btn-no-mg text-danger" @click="handleDelete(tk.ma_to_khai_hai_quan)" title="Xóa">🗑️</button>
                   </div>
                 </td>
               </tr>
@@ -152,17 +152,15 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 
-// Kiểm tra quyền thao tác (Thêm/Sửa/Xóa): Chỉ cho phép mã quyền 4 hoặc 5
-const canModify = computed(() => {
-  try {
-    const user = JSON.parse(localStorage.getItem('sincere_user'));
-    if (!user) return false;
-    // Kiểm tra mã quyền trong danh sách ds_quyen hoặc ds_ma_quyen (từ API login hoặc account list)
-    const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
-                 (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
-    return perms.includes(4) || perms.includes(5);
-  } catch (e) { return false; }
-});
+// Logic phân quyền giống danh mục khách hàng
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(Number(r)));
+};
 
 // Cấu hình ẩn hiện cột
 const columnVisibility = ref({

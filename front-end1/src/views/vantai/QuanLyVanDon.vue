@@ -82,7 +82,7 @@
           </ul>
         </div>
         <button @click="resetFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s; height: 36px; font-size: 13px;">🧹 Xóa lọc</button>
-        <button v-if="canModify" class="btn btn-success" @click="router.push('/van-tai/quan-ly-van-don/add')" style="border-radius: 6px; height: 36px; padding: 0 15px; font-size: 13px;">+ TẠO VẬN ĐƠN</button>
+        <button v-if="hasRole(1)" class="btn btn-success" @click="router.push('/van-tai/quan-ly-van-don/add')" style="border-radius: 6px; height: 36px; padding: 0 15px; font-size: 13px;">+ TẠO VẬN ĐƠN</button>
       </div>
     </div>
 
@@ -163,8 +163,8 @@
                 <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: flex; gap: 2px; justify-content: center;">
                     <button class="action-btn-no-mg text-warning" @click="handlePrintPDF(vd.ma_van_don)" title="Xuất PDF">🖨️</button>
-                    <button v-if="canModify" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/quan-ly-van-don/edit/' + vd.ma_van_don)" title="Sửa">✏️</button>
-                    <button v-if="canModify" class="action-btn-no-mg text-danger" @click="handleDelete(vd.ma_van_don)" title="Xóa">🗑️</button>
+                    <button v-if="hasRole(1)" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/quan-ly-van-don/edit/' + vd.ma_van_don)" title="Sửa">✏️</button>
+                    <button v-if="hasRole(1)" class="action-btn-no-mg text-danger" @click="handleDelete(vd.ma_van_don)" title="Xóa">🗑️</button>
                   </div>
                 </td>
               </tr>
@@ -244,17 +244,15 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 
-// Kiểm tra quyền thao tác (Thêm/Sửa/Xóa): Chỉ cho phép mã quyền 1 hoặc 5
-const canModify = computed(() => {
-  try {
-    const user = JSON.parse(localStorage.getItem('sincere_user'));
-    if (!user) return false;
-    // Kiểm tra mã quyền trong danh sách ds_quyen hoặc ds_ma_quyen
-    const perms = user.ds_quyen ? user.ds_quyen.map(q => Number(q.ma_quyen)) : 
-                 (user.ds_ma_quyen ? user.ds_ma_quyen.split(',').map(id => Number(id.trim())) : []);
-    return perms.includes(1) || perms.includes(5);
-  } catch (e) { return false; }
-});
+// Logic phân quyền giống danh mục khách hàng
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(Number(r)));
+};
 
 // New: Column Visibility State
 const columnVisibility = ref({
