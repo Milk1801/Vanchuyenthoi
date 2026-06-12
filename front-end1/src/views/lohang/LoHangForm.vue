@@ -87,7 +87,7 @@
               <textarea v-model="formData.nguon_goc" rows="3" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"></textarea>
             </div>
             <div style="text-align: right; margin-top: 20px;">
-              <button type="submit" class="btn-save" :disabled="isSaving || !canPerformSave">
+              <button v-if="canPerformSave" type="submit" class="btn-save" :disabled="isSaving || !canPerformSave">
                 {{ isSaving ? 'Đang lưu...' : (formData.ma_lo_hang ? 'Cập nhật & Tiếp tục ➔' : 'Khởi tạo lô hàng & Tiếp tục ➔') }}
               </button>
             </div>
@@ -294,7 +294,7 @@
 
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button class="btn-cancel" @click="activeTab = 'info'" type="button" style="background: #95a5a6; color: white; border: none;">⬅ Quay lại</button>
-          <button class="btn-save" @click="handleSaveAll" :disabled="isSaving || !canPerformSave" style="margin-left: 10px;">
+          <button v-if="canPerformSave" class="btn-save" @click="handleSaveAll" :disabled="isSaving || !canPerformSave" style="margin-left: 10px;">
             {{ isSaving ? 'Đang xử lý...' : 'HOÀN TẤT & ĐÓNG 💾' }}
           </button>
         </div>
