@@ -68,7 +68,7 @@ const hasRole = (roleIdOrArray) => {
   
   const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
   return requiredRoles.some(r => roles.includes(r));
-}
+};
 
 const formData = ref({
   ma_tai_khoan: null,
