@@ -216,3 +216,15 @@ Route::get('/bao-cao/canh-bao-luu-bai', [BaoCaoThongKe::class, 'baoCaoCanhBaoLuu
 // 20.API DÀNH RIÊNG CHO QUẢN LÝ TRẠNG THÁI THANH TOÁN
 Route::get('/trang-thai-thanh-toan', [QuanLyTrangThaiThanhToan::class, 'index']);
 Route::post('/trang-thai-thanh-toan/update-status', [QuanLyTrangThaiThanhToan::class, 'updateStatus']);
+
+/*
+|--------------------------------------------------------------------------
+| 21. API CHỐNG NGỦ ĐÔNG (Dành cho Cron-job)
+|--------------------------------------------------------------------------
+*/
+Route::get('/ping', function () {
+    return response()->json([
+        'status' => 'Thức dậy đi server!',
+        'time' => now()->toDateTimeString()
+    ]);
+});
