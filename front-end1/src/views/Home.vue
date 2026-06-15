@@ -7,8 +7,8 @@
         <p>Hệ thống SINCERE LOGISTICS đã sẵn sàng. Bạn có <strong>{{ stats.urgent }}</strong> lô hàng cần xử lý gấp.</p>
       </div>
       <div class="quick-actions">
-        <button class="btn-action primary" @click="$router.push('/lo-hang/thong-tin-lo-hang/add')">📦 Tạo Lô Hàng</button>
-        <button class="btn-action secondary" @click="$router.push('/lo-hang/booking/add')">📑 Thêm Booking</button>
+        <button v-if="hasRole(1)" class="btn-action primary" @click="$router.push('/lo-hang/thong-tin-lo-hang/add')">📦 Tạo Lô Hàng</button>
+        <button v-if="hasRole(1)"class="btn-action secondary" @click="$router.push('/lo-hang/booking/add')">📑 Thêm Booking</button>
       </div>
     </div>
 
@@ -183,13 +183,18 @@ const fetchData = async () => {
 };
 
 onMounted(() => {
-  const userData = localStorage.getItem('sincere_user');
-  if (userData) {
-    const user = JSON.parse(userData);
-    userName.value = user.ho_ten;
-  }
   fetchData();
 });
+const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
+const hasRole = (roleIdOrArray) => {
+  if (!currentUser.ds_quyen) return false;
+  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
+  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
+  
+  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
+  return requiredRoles.some(r => roles.includes(r));
+};
+
 </script>
 
 <style scoped src="../assets/home.css"></style>

@@ -41,6 +41,22 @@
         <option v-for="st in listTrangThai" :key="st" :value="st">{{ st }}</option>
       </select>
 
+      <select v-model="filterDocType" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 150px;">
+        <option :value="null">📄 Loại C/T (Tất cả)</option>
+        <option value="SC">Sales Contract (SC)</option>
+        <option value="INV">Invoice (INV)</option>
+        <option value="PKL">Packing List (PKL)</option>
+        <option value="CO">C/O</option>
+        <option value="BL">B/L</option>
+        <option value="DO">D/O</option>
+      </select>
+
+      <select v-model="filterDocExistence" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 130px;">
+        <option value="ALL">🔍 Tình trạng</option>
+        <option value="HAS">✅ Đã có</option>
+        <option value="NOT_HAS">❌ Chưa có</option>
+      </select>
+
       <select v-model="filterUser" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 180px;">
         <option :value="null">👤 Người sửa (Tất cả)</option>
         <option v-for="user in uniqueUsers" :key="user" :value="user">{{ user }}</option>
@@ -156,6 +172,9 @@ const isLoading = ref(true);
 const searchQuery = ref(''); 
 const searchItemQuery = ref('');
 
+const filterDocType = ref(null);
+const filterDocExistence = ref('ALL');
+
 // Logic phân quyền
 const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
 const hasRole = (roleIdOrArray) => {
@@ -242,7 +261,11 @@ const filteredLoHang = computed(() => {
     const matchIncoterms = !filterIncoterms.value || lh.dieu_kien_thuong_mai === filterIncoterms.value;
     const matchUser = !filterUser.value || (lh.nguoi_sua_cuoi === filterUser.value || lh.nguoi_sua_doi === filterUser.value);
 
-    return matchSearch && matchItem && matchTrangThai && matchKhachHang && matchIncoterms && matchUser;
+    const docs = lh.ds_loai_ct ? String(lh.ds_loai_ct).split(',') : [];
+    const matchDoc = !filterDocType.value || filterDocExistence.value === 'ALL' || 
+                    (filterDocExistence.value === 'HAS' ? docs.includes(filterDocType.value) : !docs.includes(filterDocType.value));
+
+    return matchSearch && matchItem && matchTrangThai && matchKhachHang && matchIncoterms && matchUser && matchDoc;
   });
 });
 
@@ -261,6 +284,8 @@ const resetFilters = () => {
   filterKhachHang.value = null;
   filterIncoterms.value = null;
   filterUser.value = null;
+  filterDocType.value = null;
+  filterDocExistence.value = 'ALL';
   khSearchText.value = '';
   currentPage.value = 1;
 };
@@ -275,7 +300,7 @@ const paginatedLoHang = computed(() => {
   return filteredLoHang.value.slice(start, end);
 });
 
-watch([searchQuery, searchItemQuery, filterTrangThai, filterKhachHang, filterIncoterms, filterUser, pageSize], () => {
+watch([searchQuery, searchItemQuery, filterTrangThai, filterKhachHang, filterIncoterms, filterUser, filterDocType, filterDocExistence, pageSize], () => {
   currentPage.value = 1;
 });
 
@@ -300,9 +325,9 @@ const fetchReferences = async () => {
 const fetchData = async () => {
   isLoading.value = true;
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/lo-hang`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/chung-tu`);
     const data = await res.json();
-    if (data.success) listLoHang.value = data.data;
+    if (data.success) listLoHang.value = data.lo_hang;
   } catch (error) {
     console.error("Lỗi lấy dữ liệu Lô hàng!");
   } finally { isLoading.value = false; }
