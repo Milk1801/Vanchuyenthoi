@@ -22,8 +22,24 @@ class QuanLyChungTu extends Controller
             // 2. Lấy danh sách Lô hàng (Cũng phải Join bảng booking để lấy số booking hiển thị ở Combobox)
             $loHang = DB::table('lo_hang')
                 ->leftJoin('booking', 'lo_hang.ma_booking', '=', 'booking.ma_booking')
+                ->leftJoin('khach_hang', 'lo_hang.ma_khach_hang', '=', 'khach_hang.ma_khach_hang')
+                ->leftJoin('tai_khoan', 'lo_hang.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
+                ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(ten_hang SEPARATOR ", ") as ds_ten_hang FROM chi_tiet_lo_hang GROUP BY ma_lo_hang) as ctlh'), 'lo_hang.ma_lo_hang', '=', 'ctlh.ma_lo_hang')
+                ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(DISTINCT loai_chung_tu) as ds_loai_ct FROM chung_tu_so_hoa GROUP BY ma_lo_hang) as ct'), 'lo_hang.ma_lo_hang', '=', 'ct.ma_lo_hang')
                 ->where('lo_hang.thoi_gian_xoa', '<=', '2000-01-01 00:00:00')
-                ->select('lo_hang.ma_lo_hang', 'lo_hang.ten_lo_hang', 'booking.so_booking', 'lo_hang.trang_thai_lo_hang')
+                ->select(
+                    'lo_hang.ma_lo_hang', 
+                    'lo_hang.ten_lo_hang', 
+                    'lo_hang.ma_khach_hang', 
+                    'lo_hang.dieu_kien_thuong_mai', 
+                    'lo_hang.trang_thai_lo_hang', 
+                    'lo_hang.nguoi_sua_cuoi',
+                    'booking.so_booking', 
+                    'khach_hang.ten_khach_hang', 
+                    'tai_khoan.ho_ten as nguoi_sua_doi',
+                    'ctlh.ds_ten_hang',
+                    'ct.ds_loai_ct'
+                )
                 ->get();
 
             return response()->json(["success" => true, "data" => $chungTu, "lo_hang" => $loHang]);
