@@ -2,7 +2,7 @@
   <div>
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản Lý Thông Báo Hàng Đến (Arrival Notice)</h3>
 
-    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; position: relative;">
+    <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: nowrap; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; position: relative;">
       
       <div class="search-box" style="flex: 1; min-width: 180px;">
         <input type="text" v-model="searchQuery" placeholder="🔍 Tên lô, Booking, Tàu, Vận đơn..." style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; height: 40px;">
