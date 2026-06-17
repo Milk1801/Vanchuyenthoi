@@ -227,4 +227,4 @@ Route::get('/ping', function () {
         'status' => 'Thức dậy đi server!',
         'time' => now()->toDateTimeString()
     ]);
-});
+})->withoutMiddleware('throttle:api');
