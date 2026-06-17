@@ -112,6 +112,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { hasRole } from '../../assets/chucnang'; 
 
 const router = useRouter();
 const route = useRoute();
@@ -119,17 +120,6 @@ const route = useRoute();
 const listCangBien = ref([]);
 const listHangTau = ref([]);
 const isSaving = ref(false);
-
-// Logic phân quyền
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
-  
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(r));
-};
 
 // State cho Combobox Tìm kiếm
 const polSearchText = ref('');

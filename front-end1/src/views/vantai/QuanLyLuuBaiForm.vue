@@ -154,6 +154,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { hasRole } from '../../assets/chucnang';
 
 const router = useRouter();
 const route = useRoute();
@@ -171,16 +172,6 @@ const formData = ref({
   ngay_luu_bai_mien_phi: 0, trang_thai_luu_bai: 'Đang lưu bãi', cuoc_vo: 'Không',
   nguoi_sua_cuoi: null
 });
-
-// Logic phân quyền giống danh mục khách hàng
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(Number(r)));
-};
 
 // Kiểm tra lô hàng đã hoàn tất hoặc hủy hay chưa
 const isShipmentFinalized = computed(() => {

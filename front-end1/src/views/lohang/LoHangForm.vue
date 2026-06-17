@@ -359,6 +359,7 @@
 <script setup>
 import { ref, onMounted, nextTick, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { hasRole } from '../../assets/chucnang';
 
 const router = useRouter();
 const route = useRoute();
@@ -399,17 +400,6 @@ const showUserFilterDropdown = ref(false);
 const isBookingPickerOpen = ref(false);
 const previewBooking = ref(null);
 const showBookingPanel = ref(false);
-
-// Logic phân quyền
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
-  
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(r));
-};
 
 const formatDateTime = (dateString) => {
   if (!dateString || dateString.startsWith('1970') || dateString.startsWith('0000')) return "--";

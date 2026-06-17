@@ -284,6 +284,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { hasRole } from '../../assets/chucnang';
 
 const route = useRoute();
 const router = useRouter();
@@ -341,17 +342,6 @@ const columnDefinitions = ref([
   { key: 'trang_thai_lo_hang', label: 'Trạng thái' },
   { key: 'nguoi_sua_doi', label: 'Người sửa cuối' },
 ]);
-
-// Logic phân quyền
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
-  
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(r));
-};
 
 const columnVisibility = reactive({});
 columnDefinitions.value.forEach(col => {

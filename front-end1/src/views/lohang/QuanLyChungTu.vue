@@ -164,6 +164,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { hasRole } from '../../assets/chucnang';
 
 const router = useRouter();
 const listLoHang = ref([]);
@@ -174,17 +175,6 @@ const searchItemQuery = ref('');
 
 const filterDocType = ref(null);
 const filterDocExistence = ref('ALL');
-
-// Logic phân quyền
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
-  
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(r));
-};
 
 const selectedItem = ref(null);
 
