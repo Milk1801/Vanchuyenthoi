@@ -250,24 +250,4 @@ onMounted(() => {
 .row-even { background-color: #f2f2f2 !important; }
 .row-odd { background-color: #ffffff !important; }
 
-/* CSS cho Combobox Tìm kiếm */
-.combobox-wrapper { position: relative; }
-.combobox-input-sm {
-  width: 100%; height: 38px; padding: 8px 12px; border: 1px solid #ccc;
-  border-radius: 4px; box-sizing: border-box; background: #fff;
-  transition: border-color 0.2s; font-size: 14px;
-}
-.combobox-input-sm:focus { border-color: #3498db; outline: none; }
-.combobox-list {
-  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
-  border: 1px solid #ddd; border-radius: 4px; margin: 2px 0 0 0; padding: 0;
-  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.combobox-list li {
-  padding: 8px 12px; cursor: pointer; transition: background 0.2s;
-  font-size: 13px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
-  text-align: left;
-}
-.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }
 </style>

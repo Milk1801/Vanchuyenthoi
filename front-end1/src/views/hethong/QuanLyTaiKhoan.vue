@@ -212,14 +212,4 @@ onMounted(fetchAccounts);
   width: auto;
   margin: 0;
 }
-/* Zebra Striping cho bảng */
-.table-card table tbody tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-.table-card table tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-.table-card table tbody tr:hover {
-  background-color: #eef7ff;
-}
 </style>

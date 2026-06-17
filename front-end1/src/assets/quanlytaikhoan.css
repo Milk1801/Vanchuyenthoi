@@ -104,3 +104,89 @@ tr:hover { background-color: #f1f5f9; }
     border: 1px solid #ddd;
   }
 }
+
+/* Zebra Striping cho bảng */
+.table-card table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+.table-card table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.table-card table tbody tr:hover {
+  background-color: #eef7ff;
+}
+
+.scrollable-table {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.scrollable-table table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.scrollable-table th:first-child,
+.scrollable-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 2px solid #ddd;
+}
+
+.scrollable-table th:last-child,
+.scrollable-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  border-left: 2px solid #ddd;
+}
+
+/* Đảm bảo màu nền đặc để không lộ chữ bên dưới khi cuộn */
+.scrollable-table th:first-child,
+.scrollable-table th:last-child {
+  background-color: #f8f9fa !important;
+}
+
+.table-card table tbody tr:nth-child(odd) td:first-child,
+.table-card table tbody tr:nth-child(odd) td:last-child {
+  background-color: #ffffff !important;
+}
+
+.table-card table tbody tr:nth-child(even) td:first-child,
+.table-card table tbody tr:nth-child(even) td:last-child {
+  background-color: #f2f2f2 !important;
+}
+
+.table-card table tbody tr:hover td:first-child,
+.table-card table tbody tr:hover td:last-child {
+  background-color: #eef7ff !important;
+}
+/* Giữ màu hover cho cột cố định */
+.table-card table tbody tr:hover td:first-child,
+.table-card table tbody tr:hover td:last-child {
+  background-color: #eef7ff !important;
+}
+
+/* Style cho Combobox tìm kiếm */
+.combobox-wrapper { position: relative; }
+.combobox-input-sm {
+  width: 100%; height: 38px; padding: 8px 12px; border: 1px solid #ccc;
+  border-radius: 4px; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s; font-size: 14px;
+}
+.combobox-input-sm:focus { border-color: #3498db; outline: none; }
+.combobox-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  border: 1px solid #ddd; border-radius: 4px; margin: 2px 0 0 0; padding: 0;
+  list-style: none; z-index: 1000; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.combobox-list li {
+  padding: 8px 12px; cursor: pointer; transition: background 0.2s;
+  font-size: 13px; color: #2c3e50; border-bottom: 1px solid #f9f9f9;
+  text-align: left;
+}
+.combobox-list li:hover { background: #f0f7ff; color: #2980b9; }

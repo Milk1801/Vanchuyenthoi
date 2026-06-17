@@ -1,20 +1,29 @@
 <template>
   <div class="dashboard-wrapper">
-    <aside class="sidebar">
-      <div class="brand">
-        <h3>SINCERE LOGISTICS</h3>
+    <aside class="sidebar" :class="{ 'collapsed': isSidebarCollapsed }">
+      <div class="brand" style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
+        <h3 v-show="!isSidebarCollapsed">SINCERE LOGISTICS</h3>
+        <button @click="toggleSidebar" class="btn-toggle-sidebar" :title="isSidebarCollapsed ? 'Mở rộng menu' : 'Thu nhỏ menu'">
+          {{ isSidebarCollapsed ? '➡️' : '⬅️' }}
+        </button>
       </div>
       <nav class="menu">
-        <router-link to="/home" active-class="active-menu">🏠 Trang chủ tổng quan</router-link>
+        <router-link to="/home" active-class="active-menu" title="Trang chủ">
+          <span>🏠</span> <span v-show="!isSidebarCollapsed">Trang chủ tổng quan</span>
+        </router-link>
         
-        <router-link to="/he-thong" active-class="active-menu">⚙️ Quản lý hệ thống</router-link>
-        <div v-show="isHeThongRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
+        <router-link to="/he-thong" active-class="active-menu" title="Hệ thống">
+          <span>⚙️</span> <span v-show="!isSidebarCollapsed">Quản lý hệ thống</span>
+        </router-link>
+        <div v-show="isHeThongRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
           <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Quản lý người dùng và phân quyền</router-link>
           <router-link to="/he-thong/ho-so" active-class="active-submenu">👤 Quản lý hồ sơ cá nhân</router-link>
         </div>
         
-        <router-link to="/danh-muc" active-class="active-menu">📚 Quản lý Danh mục</router-link>
-        <div v-show="isDanhMucRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isDanhMucRoute }]">
+        <router-link to="/danh-muc" active-class="active-menu" title="Danh mục">
+          <span>📚</span> <span v-show="!isSidebarCollapsed">Quản lý Danh mục</span>
+        </router-link>
+        <div v-show="isDanhMucRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isDanhMucRoute }]">
           <router-link to="/danh-muc/khach-hang" active-class="active-submenu">👤 Quản lý danh mục khách hàng</router-link>
           <router-link to="/danh-muc/hang-tau" active-class="active-submenu">🚢 Quản lý danh mục hãng tàu</router-link>
           <router-link to="/danh-muc/kho-cang" active-class="active-submenu">🏭 Quản lý danh mục kho cảng</router-link>
@@ -23,15 +32,19 @@
           <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu">📏 Quản lý đơn vị tính</router-link>
         </div>
 
-        <router-link to="/lo-hang" :class="['menu-item', { 'active-menu': isLoHangRoute }]">📦 Quản lý lô hàng</router-link>
-        <div v-show="isLoHangRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
+        <router-link to="/lo-hang" :class="['menu-item', { 'active-menu': isLoHangRoute }]" title="Lô hàng">
+          <span>📦</span> <span v-show="!isSidebarCollapsed">Quản lý lô hàng</span>
+        </router-link>
+        <div v-show="isLoHangRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
           <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking Note</router-link>    
           <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý thông tin Lô hàng</router-link>
           <router-link to="/lo-hang/chung-tu" active-class="active-submenu">📁 Số hoá và lưu trữ chứng từ</router-link>        
         </div>
         
-        <router-link to="/van-tai" active-class="active-menu">🚚 Quản lý Vận tải</router-link>
-        <div v-show="isVanTaiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
+        <router-link to="/van-tai" active-class="active-menu" title="Vận tải">
+          <span>🚚</span> <span v-show="!isSidebarCollapsed">Quản lý Vận tải</span>
+        </router-link>
+        <div v-show="isVanTaiRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
           <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu">📑 Quản lý vận đơn</router-link>
           <router-link to="/van-tai/thong-bao-hang-den" active-class="active-submenu">📢 Quản lý thông báo hàng đến</router-link>
           <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Quản lý lệnh giao hàng</router-link>
@@ -40,14 +53,18 @@
           <router-link to="/van-tai/luu-bai" active-class="active-submenu">🏢 Quản lý Lưu bãi</router-link>
         </div>
         
-        <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu">💰 Quản lý Chi phí</router-link>
-        <div v-show="isChiPhiRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
+        <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu" title="Chi phí">
+          <span>💰</span> <span v-show="!isSidebarCollapsed">Quản lý Chi phí</span>
+        </router-link>
+        <div v-show="isChiPhiRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
           <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">📝 Quản lý chi phí phát sinh</router-link> 
           <router-link to="/chi-phi-va-thanh-toan/trang-thai-thanh-toan" active-class="active-submenu">✅ Quản lý trạng thái thanh toán</router-link>
         </div>
 
-        <router-link to="/bao-cao-thong-ke" active-class="active-menu">📊 Báo cáo Thống kê</router-link>
-        <div v-show="isBaoCaoRoute" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
+        <router-link to="/bao-cao-thong-ke" active-class="active-menu" title="Báo cáo">
+          <span>📊</span> <span v-show="!isSidebarCollapsed">Báo cáo Thống kê</span>
+        </router-link>
+        <div v-show="isBaoCaoRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
           <router-link to="/bao-cao-thong-ke/van-chuyen" active-class="active-submenu">📊 Báo cáo vận chuyển</router-link>
           <router-link to="/bao-cao-thong-ke/san-luong" active-class="active-submenu">📈 Báo cáo sản lượng vận chuyển</router-link>
           <router-link to="/bao-cao-thong-ke/booking" active-class="active-submenu">📑 Báo cáo booking</router-link>
@@ -58,7 +75,9 @@
       </nav>
       
       <div class="logout-box">
-        <button @click="handleLogout" class="btn-logout">🚪 Đăng xuất</button>
+        <button @click="handleLogout" class="btn-logout" title="Đăng xuất">
+          <span>🚪</span> <span v-show="!isSidebarCollapsed">Đăng xuất</span>
+        </button>
       </div>
     </aside>
 
@@ -99,6 +118,11 @@ const userName = ref('Khách');
 const userRole = ref('Chưa xác định');
 const userInitials = ref('K');
 
+const isSidebarCollapsed = ref(false);
+const toggleSidebar = () => {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value;
+};
+
 // Chạy ngay khi giao diện load lên để lấy thông tin Đăng nhập
 onMounted(() => {
   const userData = localStorage.getItem('sincere_user');
@@ -126,14 +150,27 @@ const handleLogout = () => {
 .dashboard-wrapper { display: flex; height: 120vh; background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, sans-serif; }
 
 /* Sidebar */
-.sidebar { width: 260px; background-color: #2c3e50; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-.brand { padding: 20px; text-align: center; border-bottom: 1px solid #34495e; }
+.sidebar { width: 260px; background-color: #2c3e50; color: white; display: flex; flex-direction: column; flex-shrink: 0; transition: width 0.3s ease; overflow: hidden; }
+.sidebar.collapsed { width: 75px; }
+.brand { padding: 20px; text-align: center; border-bottom: 1px solid #34495e; min-height: 70px; display: flex; align-items: center; justify-content: center; }
 .brand h3 { color: #f1c40f; margin: 0; letter-spacing: 1px; font-size: 18px; }
+
+.btn-toggle-sidebar {
+  background: #34495e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.2s;
+}
+.btn-toggle-sidebar:hover { background: #1abc9c; color: white; }
+
 .menu { flex-grow: 1; padding-top: 20px; display: flex; flex-direction: column; }
-.menu a { color: #ecf0f1; text-decoration: none; padding: 15px 25px; font-size: 15px; border-left: 4px solid transparent; transition: 0.3s; }
+.menu a { color: #ecf0f1; text-decoration: none; padding: 15px 25px; font-size: 15px; border-left: 4px solid transparent; transition: 0.3s; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
 .menu a:hover { background-color: #34495e; }
 .active-menu { background-color: #34495e; border-left-color: #f1c40f !important; font-weight: bold; color: #f1c40f !important; }
-
 /* Sub Menu */
 .sub-menu-left { display: flex; flex-direction: column; gap: 5px; padding-left: 20px; margin-top: 0; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; }
 .sub-menu-left-open { max-height: 450px; opacity: 1; }
@@ -141,6 +178,11 @@ const handleLogout = () => {
 .sub-menu-left a:hover { background: #34495e; color: #fff; border-left-color: transparent; }
 .active-submenu { background: #34495e !important; color: #f1c40f !important; font-weight: 700; border-left-color: #f1c40f !important; }
 .active-submenu:hover { background: #34495e; color: #f1c40f !important; }
+
+/* Điều chỉnh khi sidebar thu nhỏ */
+.sidebar.collapsed .menu a {
+  padding-left: 25px;
+}
 
 /* Đăng xuất */
 .logout-box { padding: 20px; border-top: 1px solid #34495e; }
