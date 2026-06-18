@@ -59,7 +59,7 @@
     <div v-if="isLoadingData" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu Tờ khai...</div>
 
     <div v-else>
-      <!-- BÊN TRÁI: DANH SÁCH -->
+      <!-- DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
         <div v-if="listToKhai.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
