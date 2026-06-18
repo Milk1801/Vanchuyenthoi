@@ -294,7 +294,7 @@ const listBooking = ref([]);
 const selectedItem = ref(null);
 const isLoading = ref(true);
 const searchQuery = ref('');
-const searchItemQuery = ref(''); // Keep this for item search
+const searchItemQuery = ref('');
 const filterTrangThai = ref('UNFINISHED');
 const filterKhachHang = ref(null);
 const filterIncoterms = ref(null);
@@ -326,7 +326,6 @@ const tkSearchText = ref('');
 const showTkDropdown = ref(false);
 const showColumnDropdown = ref(false);
 
-// Column visibility feature
 const columnDefinitions = ref([
   { key: 'ma_lo_hang', label: 'Mã Lô' },
   { key: 'ten_lo_hang', label: 'Tên Lô Hàng' },
@@ -498,10 +497,8 @@ const resetFilters = () => {
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
-// Computed property for colspan in "No data" row
 const visibleColumnCount = computed(() => {
-  // Start with 2 for STT and Thao tác (which are always visible)
-  let count = 2;
+  let count = 2; //Luôn có 2 cột STT và Thao tác
   for (const key in columnVisibility) {
     if (columnVisibility[key]) {
       count++;

@@ -411,11 +411,9 @@ const selectedBooking = computed(() => {
   return listBooking.value.find(b => b.ma_booking === formData.value.ma_booking);
 });
 
-// Pagination State
 const currentPage = ref(1);
 const pageSize = ref(10);
 
-// Filter & Sort State
 const searchTenHang = ref('');
 const filterHangHoa = ref(null);
 const filterDVT = ref(null);
@@ -498,14 +496,12 @@ const filteredHangHoaFilterList = computed(() => listHangHoa.value.filter(h => h
 const filteredDvtFilterList = computed(() => listDonViTinh.value.filter(dvt => dvt.ten_don_vi_tinh.toLowerCase().includes(dvtFilterSearchText.value.toLowerCase())));
 const filteredUserFilterList = computed(() => uniqueUsers.value.filter(u => u.toLowerCase().includes(userFilterSearchText.value.toLowerCase())));
 
-// Computed property for paginated details
 const filteredDetailsPaginated = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
   return filteredAndSortedDetails.value.slice(start, end);
 });
 
-// Computed property for total pages
 const totalPages = computed(() => {
   return Math.ceil(filteredAndSortedDetails.value.length / pageSize.value);
 });
@@ -611,7 +607,7 @@ const getSortIcon = (key) => {
 
 // Chỉ lưu vào mảng local, chưa gửi API
 const saveDetailItem = () => {
-  // Validation logic trước khi xác nhận thêm/sửa
+  // Kiểm tra logic trước khi xác nhận thêm/sửa
   const d = detailFormData.value;
   if (!d.ten_hang || d.ten_hang.trim() === '') {
     alert("Vui lòng nhập tên hàng hoặc mô tả chi tiết!");
@@ -687,7 +683,7 @@ const deleteDetail = (item) => {
   if (item.ma_chi_tiet_lo_hang) {
     listDeletedDetails.value.push(item.ma_chi_tiet_lo_hang);
   }
-  listDetails.value.splice(listDetails.value.indexOf(item), 1); // Remove by item reference
+  listDetails.value.splice(listDetails.value.indexOf(item), 1);
 };
 
 const fetchReferences = async () => {
@@ -777,7 +773,7 @@ const handleSaveStep1 = async () => {
 };
 
 const handleSaveAll = async () => {
-  // 0. Kiểm tra ràng buộc dữ liệu (Validation) trước khi cho phép lưu toàn bộ
+  // 0. Kiểm tra ràng buộc dữ liệu trước khi cho phép lưu toàn bộ
   if (!formData.value.ten_lo_hang || formData.value.ten_lo_hang.trim() === '') {
     alert("Vui lòng nhập tên lô hàng tại Tab 1!");
     activeTab.value = 'info'; // Tự động quay về Tab 1

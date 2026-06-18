@@ -166,12 +166,17 @@ const selectHangTau = (ht) => {
 };
 
 const formatForInput = (dateString) => {
-  if (!dateString || dateString.startsWith('0000') || dateString.startsWith('1970')) return '';
-  try {
-    return new Date(dateString).toISOString().slice(0, 16);
-  } catch (e) {
-    return '';
-  }
+  if (!dateString) return '';
+
+  const d = new Date(dateString);
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hour = String(d.getHours()).padStart(2, '0');
+  const minute = String(d.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
 };
 
 const loadReferences = async () => {
