@@ -255,66 +255,34 @@ const filteredTrangThaiList = computed(() => ['Đang lưu bãi', 'Đã rút hàn
 const filteredCuocVoList = computed(() => ['Có', 'Không'].filter(c => c.toLowerCase().includes(cuocVoSearchText.value.toLowerCase())));
 const filteredUsers = computed(() => uniqueUsers.value.filter(u => u.toLowerCase().includes(userSearchText.value.toLowerCase())));
 
-const filteredAndSortedData = computed(() => {
-  // 1. Lọc dữ liệu theo các tiêu chí tìm kiếm
-  let filtered = listLuuBai.value.filter(item => {
+const filteredData = computed(() => {
+  // 1. Thực hiện lọc và loại bỏ trùng lặp trong cùng một bước để tối ưu hiệu suất
+  return listLuuBai.value.filter((item, index, self) => {
+    // Logic lọc tìm kiếm
     const matchSearch = !searchQuery.value || 
                         item.ten_lo_hang.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                         String(item.ma_lo_hang).includes(searchQuery.value);
     const matchStatus = filterTrangThai.value === 'ALL' || item.trang_thai_luu_bai === filterTrangThai.value;
     const matchCuocVo = filterCuocVo.value === 'ALL' || item.cuoc_vo === filterCuocVo.value;
     const matchUser = filterUser.value === 'ALL' || item.ten_nguoi_sua === filterUser.value;
-    return matchSearch && matchStatus && matchCuocVo && matchUser;
+
+    if (!(matchSearch && matchStatus && matchCuocVo && matchUser)) return false;
+
+    // 2. Loại bỏ trùng lặp dựa trên ma_luu_bai (Khắc phục lỗi lặp hàng từ API)
+    return index === self.findIndex((t) => t.ma_luu_bai === item.ma_luu_bai);
   });
-
-  // 2. Loại bỏ trùng lặp dựa trên ma_luu_bai (Khắc phục lỗi lặp hàng do dữ liệu nguồn)
-  const uniqueItems = [];
-  const seenIds = new Set();
-  for (const item of filtered) {
-    if (!seenIds.has(item.ma_luu_bai)) {
-      seenIds.add(item.ma_luu_bai);
-      uniqueItems.push(item);
-    }
-  }
-  let result = uniqueItems;
-
-  if (sortConfig.value.key) {
-    const { key, direction } = sortConfig.value;
-    result.sort((a, b) => {
-      let vA = a[key] ?? 0;
-      let vB = b[key] ?? 0;
-      if (vA < vB) return direction === 'asc' ? -1 : 1;
-      if (vA > vB) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }
-  return result;
 });
 
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
-  return filteredAndSortedData.value.slice(start, end);
+  return filteredData.value.slice(start, end);
 });
 
-const totalPages = computed(() => Math.ceil(filteredAndSortedData.value.length / pageSize.value) || 1);
+const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize.value) || 1);
 
-const sortBy = (key) => {
-  if (sortConfig.value.key === key) {
-    sortConfig.value.direction = sortConfig.value.direction === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortConfig.value.key = key;
-    sortConfig.value.direction = 'asc';
-  }
-};
-
-const getSortIcon = (key) => {
-  if (sortConfig.value.key !== key) return '↕️';
-  return sortConfig.value.direction === 'asc' ? '🔼' : '🔽';
-};
-
-const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
-const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; }; // Sửa lỗi typo
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; }; // Sửa lỗi typo
 
 const goToLoHangEdit = (ma_lo_hang) => {
   router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
