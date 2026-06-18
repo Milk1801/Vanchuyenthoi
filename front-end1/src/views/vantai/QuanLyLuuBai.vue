@@ -182,7 +182,6 @@ const filterUser = ref('ALL');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
-const sortConfig = ref({ key: null, direction: 'asc' });
 
 // Định nghĩa các cột và trạng thái hiển thị của chúng
 const columnVisibility = ref({
@@ -219,19 +218,13 @@ const getWarningStatus = (item) => {
 const warnings = computed(() => {
   let overdueCount = 0;
   let nearingCount = 0;
-  // Sử dụng Set để lưu các mã lô hàng đã xử lý, tránh lặp lại nếu 1 lô hàng có nhiều vận đơn
-  const processedShipments = new Set();
 
   listLuuBai.value.forEach(item => {
-    if (processedShipments.has(item.ma_lo_hang)) return;
-    
     const status = getWarningStatus(item);
     if (status === 'overdue') {
       overdueCount++;
-      processedShipments.add(item.ma_lo_hang);
     } else if (status === 'nearing') {
       nearingCount++;
-      processedShipments.add(item.ma_lo_hang);
     }
   });
 
@@ -256,9 +249,7 @@ const filteredCuocVoList = computed(() => ['Có', 'Không'].filter(c => c.toLowe
 const filteredUsers = computed(() => uniqueUsers.value.filter(u => u.toLowerCase().includes(userSearchText.value.toLowerCase())));
 
 const filteredData = computed(() => {
-  // 1. Thực hiện lọc và loại bỏ trùng lặp trong cùng một bước để tối ưu hiệu suất
-  return listLuuBai.value.filter((item, index, self) => {
-    // Logic lọc tìm kiếm
+  return listLuuBai.value.filter(item => {
     const matchSearch = !searchQuery.value || 
                         item.ten_lo_hang.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                         String(item.ma_lo_hang).includes(searchQuery.value);
@@ -266,10 +257,7 @@ const filteredData = computed(() => {
     const matchCuocVo = filterCuocVo.value === 'ALL' || item.cuoc_vo === filterCuocVo.value;
     const matchUser = filterUser.value === 'ALL' || item.ten_nguoi_sua === filterUser.value;
 
-    if (!(matchSearch && matchStatus && matchCuocVo && matchUser)) return false;
-
-    // 2. Loại bỏ trùng lặp dựa trên ma_luu_bai (Khắc phục lỗi lặp hàng từ API)
-    return index === self.findIndex((t) => t.ma_luu_bai === item.ma_luu_bai);
+    return matchSearch && matchStatus && matchCuocVo && matchUser;
   });
 });
 
@@ -281,8 +269,8 @@ const paginatedData = computed(() => {
 
 const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize.value) || 1);
 
-const prevPage = () => { if (currentPage.value > 1) currentPage.value--; }; // Sửa lỗi typo
-const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; }; // Sửa lỗi typo
+const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 
 const goToLoHangEdit = (ma_lo_hang) => {
   router.push('/lo-hang/thong-tin-lo-hang/edit/' + ma_lo_hang);
