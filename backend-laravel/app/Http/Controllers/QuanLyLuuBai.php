@@ -13,13 +13,14 @@ class QuanLyLuuBai extends Controller
         try {
             $data = DB::table('thong_tin_luu_bai')
                 ->leftJoin('lo_hang', 'thong_tin_luu_bai.ma_lo_hang', '=', 'lo_hang.ma_lo_hang')
-                ->leftJoin('van_don', 'lo_hang.ma_lo_hang', '=', 'van_don.ma_lo_hang')
+                // Sử dụng subquery để gom nhóm so_cont và so_van_don theo ma_lo_hang
+                ->leftJoin(DB::raw('(SELECT ma_lo_hang, GROUP_CONCAT(DISTINCT so_cont SEPARATOR ", ") as so_cont_list, GROUP_CONCAT(DISTINCT so_van_don SEPARATOR ", ") as so_van_don_list FROM van_don GROUP BY ma_lo_hang) as vd'), 'lo_hang.ma_lo_hang', '=', 'vd.ma_lo_hang')
                 ->leftJoin('tai_khoan', 'thong_tin_luu_bai.nguoi_sua_cuoi', '=', 'tai_khoan.ma_tai_khoan')
                 ->select(
                     'thong_tin_luu_bai.*',
                     'lo_hang.ten_lo_hang',
-                    'van_don.so_cont',
-                    'van_don.so_van_don',
+                    'vd.so_cont_list as so_cont', // Lấy chuỗi so_cont đã gom nhóm
+                    'vd.so_van_don_list as so_van_don', // Lấy chuỗi so_van_don đã gom nhóm
                     'tai_khoan.ho_ten as ten_nguoi_sua'
                 )
                 ->orderBy('thong_tin_luu_bai.ma_luu_bai', 'desc')
