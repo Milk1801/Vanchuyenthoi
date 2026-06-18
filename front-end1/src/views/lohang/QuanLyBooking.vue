@@ -217,7 +217,6 @@ const visibleColumnCount = computed(() => {
   return count;
 });
 
-// Computed lọc danh sách cho dropdown
 const filteredHtList = computed(() => 
   listHangTau.value.filter(ht => ht.ten_hang_tau.toLowerCase().includes(htSearchText.value.toLowerCase()))
 );

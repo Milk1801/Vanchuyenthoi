@@ -182,18 +182,15 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 
-// Filter states
 const filterTrangThai = ref('ALL');
 const filterKhachHang = ref(null);
 const filterIncoterms = ref(null);
 const filterUser = ref(null);
 
-// Combobox search texts and dropdown visibility
 const khSearchText = ref('');
 const showKhDropdown = ref(false);
 const showColumnDropdown = ref(false);
 
-// Column visibility feature
 const columnDefinitions = ref([
   { key: 'ma_lo_hang', label: 'Mã Lô' },
   { key: 'ten_lo_hang', label: 'Tên Lô Hàng' },
