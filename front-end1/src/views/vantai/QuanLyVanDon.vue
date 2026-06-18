@@ -3,7 +3,7 @@
     <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;">Quản lý Vận đơn</h3>
     
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-      <!-- Row 1: Text search inputs -->
+      <!-- Đầu vào tìm kiếm theo chữ -->
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; width: 100%;">
         <input type="text" v-model="searchSoVanDon" placeholder="🔍 Số Vận Đơn / Mã..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
         <input type="text" v-model="searchSoVanDonGoc" placeholder="🔍 Số Vận Đơn Gốc..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
@@ -12,7 +12,7 @@
         <input type="text" v-model="searchSoChi" placeholder="🔍 Số Chì..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
       </div>
 
-      <!-- Row 2: Searchable Comboboxes -->
+      <!-- Combobox tìm kiếm -->
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; width: 100%;">
         <div class="combobox-wrapper">
           <input type="text" v-model="loaiVDSearchText" placeholder="📄 Loại B/L..." @focus="showLoaiVDDropdown = true" class="combobox-input-sm">
@@ -51,7 +51,6 @@
         </div>
       </div>
 
-      <!-- Row 3: Others and Actions -->
       <div style="display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap;">
         <div class="combobox-wrapper" style="width: 200px;">
           <input type="text" v-model="notifySearchText" placeholder="👤 Bên Thông Báo..." @focus="showNotifyDropdown = true" class="combobox-input-sm">
@@ -91,7 +90,7 @@
     </div>
 
     <div v-else>
-      <!-- BÊN TRÁI: DANH SÁCH VẬN ĐƠN -->
+      <!-- DANH SÁCH VẬN ĐƠN -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
         <div v-if="listVanDon.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
@@ -219,7 +218,7 @@ const filterNotify = ref(null);
 const filterNgayPH = ref('');
 const filterUser = ref(null);
 
-// State cho tìm kiếm combobox (tương tự QuanLyVanDonForm)
+// State cho tìm kiếm combobox 
 const polSearchText = ref('');
 const podSearchText = ref('');
 const shipperSearchText = ref('');
@@ -245,7 +244,7 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 
-// New: Column Visibility State
+// Định nghĩa các cột và trạng thái hiển thị của chúng
 const columnVisibility = ref({
   ma_van_don: { label: 'Mã Vận Đơn', visible: true },
   so_van_don: { label: 'Số Vận Đơn', visible: true },

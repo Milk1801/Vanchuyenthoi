@@ -62,7 +62,7 @@
     <div v-if="isLoading" style="text-align: center; padding: 20px; color: #3498db;">Đang tải dữ liệu...</div>
 
     <div v-else>
-      <!-- BÊN TRÁI: DANH SÁCH -->
+      <!-- DANH SÁCH -->
       <div style="flex: 1; min-width: 0;">
         <!-- Kiểm soát phân trang -->
         <div v-if="listLuuBai.length > 0" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e4e8;">
@@ -163,18 +163,18 @@ const listAllLoHang = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
 
-// Combobox search texts
+// Combobox tìm kiếm trạng thái, cược vỏ, người sửa
 const trangThaiSearchText = ref('');
 const cuocVoSearchText = ref('');
 const userSearchText = ref('');
 
-// Combobox dropdown visibility
+// Combobox trang thái, cược vỏ, người sửa hiển thị dropdown
 const showTrangThaiDropdown = ref(false);
 const showCuocVoDropdown = ref(false);
 const showUserDropdown = ref(false);
 const showColumnDropdown = ref(false);
 
-// Actual filter values
+// Các bộ lọc trạng thái, cược vỏ, người sửa
 const filterTrangThai = ref('ALL');
 const filterCuocVo = ref('ALL');
 const filterUser = ref('ALL');
@@ -184,7 +184,7 @@ const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
 const sortConfig = ref({ key: null, direction: 'asc' });
 
-// Column Visibility State
+// Định nghĩa các cột và trạng thái hiển thị của chúng
 const columnVisibility = ref({
   ten_lo_hang: { label: 'Lô hàng', visible: true },
   ngay_bat_dau_luu_bai: { label: 'Ngày bắt đầu', visible: true },
