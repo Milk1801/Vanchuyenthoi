@@ -142,6 +142,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { hasRole } from '../../assets/chucnang';
 
 const router = useRouter();
 const listToKhai = ref([]);
@@ -151,16 +152,6 @@ const isLoadingData = ref(true);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizes = [10, 20, 50];
-
-// Logic phân quyền giống danh mục khách hàng
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => Number(q.ma_quyen));
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(Number(r)));
-};
 
 // Cấu hình ẩn hiện cột
 const columnVisibility = ref({

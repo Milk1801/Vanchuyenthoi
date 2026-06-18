@@ -71,22 +71,13 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { hasRole } from '../../assets/chucnang';
 
 const router = useRouter();
 const listAccounts = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref('');
 
-// Logic phân quyền
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền
-  
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(r));
-};
 
 // Phân trang
 const currentPage = ref(1);

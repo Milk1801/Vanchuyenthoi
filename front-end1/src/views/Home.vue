@@ -96,6 +96,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { hasRole } from '../assets/chucnang';
 
 const userName = ref('Admin');
 const stats = ref({ total: 0, shipping: 0, cleared: 0, urgent: 0 });
@@ -185,15 +186,6 @@ const fetchData = async () => {
 onMounted(() => {
   fetchData();
 });
-const currentUser = JSON.parse(localStorage.getItem('sincere_user') || '{}');
-const hasRole = (roleIdOrArray) => {
-  if (!currentUser.ds_quyen) return false;
-  const roles = currentUser.ds_quyen.map(q => q.ma_quyen);
-  if (roles.includes(5)) return true; // Mã quyền 5: Toàn quyền (Admin)
-  
-  const requiredRoles = Array.isArray(roleIdOrArray) ? roleIdOrArray : [roleIdOrArray];
-  return requiredRoles.some(r => roles.includes(r));
-};
 
 </script>
 
