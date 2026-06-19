@@ -3,40 +3,40 @@
     <!-- Welcome Banner -->
     <div class="welcome-section">
       <div class="welcome-text">
-        <h1>Chào mừng trở lại, {{ userName }}! 👋</h1>
+        <h1>Chào mừng trở lại, {{ userName }}! <Hand size="20" /></h1>
         <p>Hệ thống SINCERE LOGISTICS đã sẵn sàng. Bạn có <strong>{{ stats.urgent }}</strong> lô hàng cần xử lý gấp.</p>
       </div>
       <div class="quick-actions">
-        <button v-if="hasRole(1)" class="btn-action primary" @click="$router.push('/lo-hang/thong-tin-lo-hang/add')">📦 Tạo Lô Hàng</button>
-        <button v-if="hasRole(1)"class="btn-action secondary" @click="$router.push('/lo-hang/booking/add')">📑 Thêm Booking</button>
+        <button v-if="hasRole(1)" class="btn-action primary" @click="$router.push('/lo-hang/thong-tin-lo-hang/add')"><Package size="16" /> Tạo Lô Hàng</button>
+        <button v-if="hasRole(1)" class="btn-action secondary" @click="$router.push('/lo-hang/booking/add')"><Notebook size="16" /> Thêm Booking</button>
       </div>
     </div>
 
     <!-- Statistics Overview -->
     <div class="stats-grid">
       <div class="stat-card blue">
-        <div class="stat-icon">📦</div>
+        <div class="stat-icon"><Package size="24" /></div>
         <div class="stat-info">
           <span class="stat-label">Tổng Lô Hàng</span>
           <span class="stat-value">{{ stats.total }}</span>
         </div>
       </div>
       <div class="stat-card orange">
-        <div class="stat-icon">🚢</div>
+        <div class="stat-icon"><Ship size="24" /></div>
         <div class="stat-info">
           <span class="stat-label">Đang Vận Chuyển</span>
           <span class="stat-value">{{ stats.shipping }}</span>
         </div>
       </div>
       <div class="stat-card green">
-        <div class="stat-icon">✅</div>
+        <div class="stat-icon"><Check size="24" /></div>
         <div class="stat-info">
           <span class="stat-label">Đã Thông Quan</span>
           <span class="stat-value">{{ stats.cleared }}</span>
         </div>
       </div>
       <div class="stat-card red">
-        <div class="stat-icon">⚠️</div>
+        <div class="stat-icon"><TriangleAlert size="24" /></div>
         <div class="stat-info">
           <span class="stat-label">Cần xử lý gấp</span>
           <span class="stat-value">{{ stats.urgent }}</span>
@@ -97,6 +97,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { hasRole } from '../assets/chucnang';
+import { Hand, Notebook, Package, Ship, Check, TriangleAlert } from 'lucide-vue-next';
 
 const userName = ref('Admin');
 const stats = ref({ total: 0, shipping: 0, cleared: 0, urgent: 0 });

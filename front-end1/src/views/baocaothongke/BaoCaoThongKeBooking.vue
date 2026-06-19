@@ -27,10 +27,12 @@
         <input type="text" v-model="filters.tim_kiem" placeholder="Nhập số booking, tên tàu..." class="form-control">
       </div>
       <div>
-        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;">📊 Excel</button>
+        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;"><Search size="12" /> Tìm kiếm</button>
+        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;"><ChartColumnBig size="12" /> Excel</button>
         <button @click="printPDF" class="btn btn-warning" :disabled="isPrinting" style="background: #e67e22; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-          {{ isPrinting ? '⏳ Đang tạo PDF...' : '⬇️ Tải xuống PDF' }}
+          <HourglassIcon size="12" v-if="isPrinting"/>
+          <Download size="12" v-else/>
+          {{ isPrinting ? 'Đang tạo PDF...' : 'Tải xuống PDF' }}
         </button>
       </div>
     </div>
@@ -50,7 +52,7 @@
       </div>
       
       <div class="card" style="border-left: 5px solid #2980b9; flex: 1.5; min-width: 250px; background: #fdfaef;">
-        <div class="card-title">🚢 Hãng Tàu Thường Book:</div>
+        <div class="card-title"><Ship size="12" /> Hãng Tàu Thường Book:</div>
         <div class="card-value" style="color: #2980b9; font-size: 22px;">
           {{ stats.top_hang_tau }}
           <div style="font-size: 14px; color: #555; margin-top: 5px;">
@@ -60,7 +62,7 @@
       </div>
 
       <div class="card" style="border-left: 5px solid #d35400; flex: 1.5; min-width: 250px; background: #fdfaef;">
-        <div class="card-title">🏆 Top Nhân Viên (Booking):</div>
+        <div class="card-title"><Crown size="12" /> Top Nhân Viên (Booking):</div>
         <div class="card-value" style="color: #d35400; font-size: 22px;">
           {{ stats.top_nv }}
           <div style="font-size: 14px; color: #555; margin-top: 5px;">
@@ -106,7 +108,7 @@
               {{ formatDateTime(item.gio_cat_mang) }}
             </td>
             <td style="padding: 12px; text-align: center; color: #7f8c8d; font-size: 13px;">
-              👤 {{ item.nguoi_xu_ly || '---' }}
+              <User size="12" /> {{ item.nguoi_xu_ly || '---' }}
             </td>
           </tr>
         </tbody>
@@ -121,6 +123,7 @@
 import { ref, onMounted } from 'vue';
 import PDFtkbooking from './PDFtkbooking.vue';
 import html2pdf from 'html2pdf.js';
+import { Download, Crown, ChartColumnBig, Search, HourglassIcon, Ship, User} from 'lucide-vue-next';
 
 const isPrinting = ref(false);
 const listData = ref([]);

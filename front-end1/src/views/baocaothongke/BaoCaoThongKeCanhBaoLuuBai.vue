@@ -8,8 +8,8 @@
         <input type="text" v-model="filters.tim_kiem" placeholder="Nhập số Cont, mã lô hàng..." class="form-control">
       </div>
       <div>
-        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success">📊 Excel</button>
+        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;"><Search size="12" /> Tìm kiếm</button>
+        <button @click="exportExcel" class="btn btn-success"><ChartColumnBig size="12" /> Excel</button>
       </div>
     </div>
 
@@ -81,6 +81,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { ChartColumnBig, Search} from 'lucide-vue-next';
 
 const listData = ref([]);
 const stats = ref({ an_toan: 0, sap_het_han: 0, qua_han: 0 });

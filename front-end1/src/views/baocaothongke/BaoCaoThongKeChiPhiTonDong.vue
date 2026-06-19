@@ -36,29 +36,31 @@
         <input type="text" v-model="filters.tim_kiem" placeholder="Mã lô, tên chi phí..." class="form-control">
       </div>
       <div>
-        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;">📊 Excel</button>
+        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;"><Search size="12" /> Tìm kiếm</button>
+        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;"><ChartColumnBig size="12" /> Excel</button>
         <button @click="printPDF" class="btn btn-warning" :disabled="isPrinting" style="background: #e67e22; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-          {{ isPrinting ? '⏳ Đang tạo PDF...' : '⬇️ Tải xuống PDF' }}
+          <HourglassIcon size="12" v-if="isPrinting"/>
+          <Download size="12" v-else/>
+          {{ isPrinting ? 'Đang tạo PDF...' : 'Tải xuống PDF' }}
         </button>
       </div>
     </div>
 
     <div class="stats-cards" style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
       <div class="card" style="border-left: 5px solid #2ecc71; flex: 1; min-width: 200px;">
-        <div class="card-title">💰 Tổng Doanh Thu:</div>
+        <div class="card-title"><Wallet size="12" /> Tổng Doanh Thu:</div>
         <div class="card-value" style="color: #2ecc71;">{{ formatCurrency(stats.tong_doanh_thu) }}</div>
       </div>
       <div class="card" style="border-left: 5px solid #e74c3c; flex: 1; min-width: 200px;">
-        <div class="card-title">💸 Tổng Chi Phí:</div>
+        <div class="card-title"><Wallet size="12" /> Tổng Chi Phí:</div>
         <div class="card-value" style="color: #e74c3c;">{{ formatCurrency(stats.tong_chi_phi) }}</div>
       </div>
       <div class="card" style="border-left: 5px solid #3498db; flex: 1; min-width: 200px; background: #f0f8ff;">
-        <div class="card-title">📈 Lợi Nhuận:</div>
+        <div class="card-title"><ChartLine size="12" /> Lợi Nhuận:</div>
         <div class="card-value" style="color: #3498db;">{{ formatCurrency(stats.loi_nhuan) }}</div>
       </div>
       <div class="card" style="border-left: 5px solid #9b59b6; flex: 1.5; min-width: 250px; background: #fdfaef;">
-        <div class="card-title">🏆 Top Nhân Viên (Doanh thu):</div>
+        <div class="card-title"><Crown size="12" /> Top Nhân Viên (Doanh thu):</div>
         <div class="card-value" style="color: #9b59b6; font-size: 22px;">
           {{ stats.top_nv }} 
           <div style="font-size: 14px; color: #555; margin-top: 5px;">{{ formatCurrency(stats.max_doanh_thu) }}</div>
@@ -91,14 +93,16 @@
             <td style="padding: 12px; border-right: 1px solid #eee; font-weight: bold;">{{ item.ten_chi_phi }}</td>
             <td style="padding: 12px; border-right: 1px solid #eee; text-align: center;">
               <span :style="{ color: item.loai_giao_dich === 'THU' ? '#27ae60' : '#e74c3c', fontWeight: 'bold' }">
-                {{ item.loai_giao_dich === 'THU' ? 'KHOẢN THU 📥' : 'KHOẢN CHI 📤' }}
+                {{ item.loai_giao_dich === 'THU' ? 'KHOẢN THU' : 'KHOẢN CHI' }}
+                <ArrowDown size="12" v-if="item.loai_giao_dich === 'THU'"/>
+                <ArrowUp size="12" v-else/>
               </span>
             </td>
            <td style="padding: 12px; border-right: 1px solid #eee; text-align: right; font-weight: bold; font-size: 15px;">
               {{ formatCurrency(item.tong_tien) }}
             </td>
             <td style="padding: 12px; border-right: 1px solid #eee; text-align: center; color: #7f8c8d; font-size: 13px;">
-              👤 {{ item.nguoi_xu_ly || '---' }}
+              <User size="12" /> {{ item.nguoi_xu_ly || '---' }}
             </td>
             <td style="padding: 12px; text-align: center;">
               <span class="badge" :class="{
@@ -122,6 +126,7 @@
 import { ref, onMounted } from 'vue';
 import PDFtkchiphitondong from './PDFtkchiphitondong.vue';
 import html2pdf from 'html2pdf.js';
+import { Download, Crown, ChartColumnBig, Search, HourglassIcon, ArrowDown, ArrowUp, User, Wallet, ChartLine } from 'lucide-vue-next';
 
 const isPrinting = ref(false);
 const listData = ref([]);
