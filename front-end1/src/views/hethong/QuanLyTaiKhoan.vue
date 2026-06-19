@@ -55,8 +55,8 @@
             </td>
             <td style="text-align: center;">
               <div v-if="hasRole(5)" style="display: flex; gap: 8px; justify-content: center;">
-                <button class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa">✏️</button>
-                <button class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa">🗑️</button>
+                <button class="action-btn text-primary" @click="goToEdit(acc.ma_tai_khoan)" title="Sửa"><Pen size="16" /></button>
+                <button class="action-btn text-danger" @click="handleDelete(acc.ma_tai_khoan)" title="Xóa"><Trash size="16" /></button>
               </div>
             
               <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
@@ -72,6 +72,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Pen, Trash } from 'lucide-vue-next';
 
 const router = useRouter();
 const listAccounts = ref([]);

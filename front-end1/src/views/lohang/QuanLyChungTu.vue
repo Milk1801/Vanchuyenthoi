@@ -144,7 +144,7 @@
                 @click="router.push(`/lo-hang/chung-tu/chi-tiet/${lh.ma_lo_hang}`)"
                 title="Quản lý chứng từ cho lô hàng này"
               >
-                📂 Quản lý chứng từ
+                <Folder size="16" /> Quản lý chứng từ
               </button>
               <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td> 
@@ -165,6 +165,7 @@
 import { ref, onMounted, computed, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Folder, User, Search, Settings, Notebook, Eraser } from 'lucide-vue-next';
 
 const router = useRouter();
 const listLoHang = ref([]);

@@ -66,21 +66,21 @@
     <!-- Bộ lọc thời gian nâng cao -->
     <div class="filter-dates" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e1e4e8; font-size: 13px;">
       <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label>⏰ Cut-off (Từ - Đến)</label>
+        <label><Clock size="10" /> Cut-off (Từ - Đến)</label>
         <div style="display: flex; gap: 5px;">
           <input type="date" v-model="dateFilters.cutoffStart" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
           <input type="date" v-model="dateFilters.cutoffEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
         </div>
       </div>
       <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label>📅 ETD (Từ - Đến)</label>
+        <label><CalendarDays size="10" /> ETD (Từ - Đến)</label>
         <div style="display: flex; gap: 5px;">
           <input type="date" v-model="dateFilters.etdStart" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
           <input type="date" v-model="dateFilters.etdEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
         </div>
       </div>
       <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label>📅 ETA (Từ - Đến)</label>
+        <label><CalendarDays size="10" /> ETA (Từ - Đến)</label>
         <div style="display: flex; gap: 5px;">
           <input type="date" v-model="dateFilters.etaStart" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
           <input type="date" v-model="dateFilters.etaEnd" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
@@ -149,8 +149,8 @@
             <td v-if="columnVisibility.nguoi_sua_doi">{{ bk.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
               <div v-if="hasRole(3)" style="display: flex; gap: 8px; justify-content: center;">
-                <button class="action-btn text-primary" @click="router.push('/lo-hang/booking/edit/' + bk.ma_booking)" title="Cập nhật">✏️</button>
-                <button class="action-btn text-danger" @click="handleDelete(bk.ma_booking)" title="Xóa">🗑️</button>
+                <button class="action-btn text-primary" @click="router.push('/lo-hang/booking/edit/' + bk.ma_booking)" title="Cập nhật"><Pen size="16" /></button>
+                <button class="action-btn text-danger" @click="handleDelete(bk.ma_booking)" title="Xóa"><Trash size="16" /></button>
               </div>
               <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td>
@@ -171,6 +171,7 @@
 import { ref, onMounted, computed, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Pen, Trash, Settings, Search, Eraser, Ship, Anchor, Clock, CalendarDays } from 'lucide-vue-next';
 
 const router = useRouter();
 

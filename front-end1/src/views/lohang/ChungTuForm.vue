@@ -32,7 +32,7 @@
               <span style="font-size: 12px; color: #7f8c8d;">Tài liệu PDF</span>
             </div>
           </template>
-          <div class="zoom-overlay">🔍 Xem chi tiết</div>
+          <div class="zoom-overlay"><Search size="20" />Xem chi tiết</div>
         </div>
         
         <div class="doc-info">
@@ -43,13 +43,13 @@
         
         <div class="doc-actions" style="display: flex; justify-content: space-between; align-items: center;">
           <button v-if="canModifyDocs" class="btn-icon text-warning" @click="openModal(doc)" title="Sửa loại chứng từ">
-            ✏️ Sửa
+            <Pen size="16" />
           </button>
-          <button class="btn-icon text-primary download-btn" @click="downloadFile(doc.ma_chung_tu)" title="Tải xuống">
-            ⬇️ Tải về
+          <button class="btn-icon text-primary" @click="downloadFile(doc.ma_chung_tu)" title="Tải xuống">
+            <Download size="16" />
           </button>
           <button v-if="canModifyDocs" class="btn-icon text-danger" @click="handleDelete(doc.ma_chung_tu)" title="Xóa tài liệu">
-            🗑️
+            <Trash size="16" />
           </button>
         </div>
       </div>
@@ -93,7 +93,7 @@
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="isModalOpen = false">Hủy</button>
             <button type="submit" class="btn-save" :disabled="isSaving">
-              {{ isSaving ? 'Đang lưu ⏳...' : 'Lưu lại 💾' }}
+              {{ isSaving ? 'Đang lưu...' : 'Lưu lại' }}
             </button>
           </div>
         </form>
@@ -111,6 +111,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Pen, Trash, Download, Search } from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
