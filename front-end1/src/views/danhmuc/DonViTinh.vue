@@ -8,7 +8,7 @@
           <input type="text" v-model="searchFilters.ten_don_vi_tinh" placeholder="Tìm theo tên đơn vị tính...">
         </div>
         <div class="search-box" style="flex:0 0 auto; min-width:140px; display:flex; align-items:flex-end;">
-          <button type="button" @click="clearFilters()" style="width:100%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
+          <button type="button" @click="clearFilters()" style="width:20%; background-color:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:500;">Xóa bộ lọc</button>
         </div>
       </div>
       <button v-if="hasRole(4)" class="btn btn-success" @click="router.push('/danh-muc/don-vi-tinh/add')">+ TẠO ĐƠN VỊ TÍNH MỚI</button>
