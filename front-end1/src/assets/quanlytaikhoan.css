@@ -176,7 +176,7 @@ tr:hover { background-color: #f1f5f9; }
   width: 100%; height: 38px; padding: 8px 12px; border: 1px solid #ccc;
   border-radius: 4px; box-sizing: border-box; background: #fff;
   transition: border-color 0.2s; font-size: 14px;
-  padding-left: 30px; /* Thêm khoảng trống cho icon */
+  padding-left: 30px !important; /* Thêm khoảng trống cho icon */
 }
 .combobox-input-sm:focus { border-color: #3498db; outline: none; }
 .combobox-list {
@@ -194,4 +194,25 @@ tr:hover { background-color: #f1f5f9; }
 .combobox-icon {
   position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
   color: #95a5a6; pointer-events: none;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.search-input {
+  width: 100%;
+  padding-left: 30px !Important;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }

@@ -2,15 +2,15 @@
   <div class="lo-hang-form-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3 style="margin: 0; color: #2c3e50;">
-        {{ formData.ma_lo_hang ? '📦 Cập nhật Lô Hàng #' + formData.ma_lo_hang : '📦 Tạo Lô Hàng mới' }}
+        <Package size="16" /> {{ formData.ma_lo_hang ? 'Cập nhật Lô Hàng #' + formData.ma_lo_hang : 'Tạo Lô Hàng mới' }}
       </h3>
       <button @click="handleCancel" class="btn-cancel" type="button">✖ Đóng</button>
     </div>
 
     <!-- Tab Navigation -->
     <div class="tabs">
-      <button :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">📄 1. Thông tin chung</button>
-      <button :class="{ active: activeTab === 'details' }" @click="activeTab = 'details'">📋 2. Chi tiết hàng hóa ({{ listDetails.length }})</button>
+      <button :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'"><NotebookText size="16" /> 1. Thông tin chung</button>
+      <button :class="{ active: activeTab === 'details' }" @click="activeTab = 'details'"><Notebook size="16" /> 2. Chi tiết hàng hóa ({{ listDetails.length }})</button>
     </div>
 
     <div class="table-card" style="padding: 25px; min-height: 400px;">
@@ -68,10 +68,10 @@
                     >✖</button>
                   </div>
                   <button type="button" class="btn-success" @click="isBookingPickerOpen = true" style="padding: 0 15px; height: 40px; white-space: nowrap;">
-                    🔍 Chọn Booking
+                    <Search size="16" /> Chọn Booking
                   </button>
                   <button v-if="formData.ma_booking" type="button" @click="showBookingPanel = !showBookingPanel" class="view-btn" style="padding: 0 12px; height: 40px;">
-                    {{ showBookingPanel ? '✖ Đóng' : '👁️ Xem' }}
+                    {{ showBookingPanel ? 'Đóng' : 'Xem' }}
                   </button>
                 </div>
               </div>
@@ -95,7 +95,7 @@
 
           <!-- KHUNG CHI TIẾT BOOKING (HIỂN THỊ Ở KHU VỰC BÊN PHẢI TAB 1) -->
           <div v-if="showBookingPanel && selectedBooking" class="side-panel-booking">
-            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📦 Thông tin Booking</h4>
+            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;"><Package size="16" /> Thông tin Booking</h4>
             <div class="info-row"><span>Số Booking:</span> <strong>{{ selectedBooking.so_booking }}</strong></div>
             <div class="info-row"><span>Hãng tàu:</span> <strong>{{ selectedBooking.ten_hang_tau || 'N/A' }}</strong></div>
             <div class="info-row"><span>Tên tàu:</span> <strong>{{ selectedBooking.ten_con_tau }}</strong></div>
@@ -113,14 +113,14 @@
       <!-- Tab 2: Chi tiết hàng hóa-->
       <div v-show="activeTab === 'details'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h4 style="margin: 0; color: #34495e;">📋 Danh sách hàng hóa trong lô</h4>
+          <h4 style="margin: 0; color: #34495e;"><NotebookText size="16" /> Danh sách hàng hóa trong lô</h4>
           <button v-if="!isDetailFormVisible" type="button" class="btn-success" @click="addDetail">Thêm chi tiết hàng</button>
         </div>
         
         <!-- Inline Form: Hiển thị trên đầu danh sách-->
         <div v-if="isDetailFormVisible" class="inline-form-box" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #3498db; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
           <h4 style="margin-top: 0; color: #2980b9; margin-bottom: 15px;">
-            {{ editingIndex > -1 ? '✏️ Đang chỉnh sửa hàng hóa' : '➕ Thêm hàng hóa mới vào lô' }}
+            {{ editingIndex > -1 ? 'Đang chỉnh sửa hàng hóa' : 'Thêm hàng hóa mới vào lô' }}
           </h4>
           
           <form @submit.prevent="saveDetailItem">
@@ -192,9 +192,9 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-              <button type="button" class="btn-cancel" @click="isDetailFormVisible = false" style="background: #e74c3c; color: white; border: none;">❌ Hủy bỏ</button>
+              <button type="button" class="btn-cancel" @click="isDetailFormVisible = false" style="background: #e74c3c; color: white; border: none;"><X size="16" /> Hủy bỏ</button>
               <button type="submit" class="btn-save" style="background: #27ae60; color: white; border: none;">
-                {{ editingIndex > -1 ? '✅ Xác nhận cập nhật' : '✅ Xác nhận thêm' }}
+                <Check size="16" /> {{ editingIndex > -1 ? 'Xác nhận cập nhật' : 'Xác nhận thêm' }}
               </button>
             </div>
           </form>
@@ -202,12 +202,14 @@
 
         <!-- Filter Toolbar -->
         <div class="filter-toolbar" style="display: flex; gap: 10px; margin-bottom: 15px; background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid #e1e4e8; align-items: center; flex-wrap: wrap;">
-          <div style="flex: 2; min-width: 200px;">
-            <input v-model="searchTenHang" placeholder="🔍 Tìm tên hàng / mô tả..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
+          <div style="flex: 2; min-width: 200px;" class="search-box">
+            <Search class="search-icon" size="16" />
+            <input v-model="searchTenHang" placeholder="Tìm tên hàng / mô tả..." class="search-input" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
           </div>
           
           <div class="combobox-wrapper" style="flex: 1; min-width: 150px;">
-            <input type="text" v-model="hangHoaFilterSearchText" placeholder="📂 Loại hàng..." @focus="showHangHoaFilterDropdown = true" class="combobox-input-sm">
+            <Folder class="combobox-icon" size="16" />
+            <input type="text" v-model="hangHoaFilterSearchText" placeholder="Loại hàng..." @focus="showHangHoaFilterDropdown = true" class="combobox-input-sm">
             <ul v-if="showHangHoaFilterDropdown" class="combobox-list">
               <li @click="selectHangHoaFilter(null)">-- Tất cả loại hàng --</li>
               <li v-for="h in filteredHangHoaFilterList" :key="h.ma_hang_hoa" @click="selectHangHoaFilter(h)">{{ h.ten_hang_hoa }}</li>
@@ -215,7 +217,8 @@
           </div>
 
           <div class="combobox-wrapper" style="flex: 1; min-width: 120px;">
-            <input type="text" v-model="dvtFilterSearchText" placeholder="📏 ĐVT..." @focus="showDvtFilterDropdown = true" class="combobox-input-sm">
+            <Ruler class="combobox-icon" size="16" />
+            <input type="text" v-model="dvtFilterSearchText" placeholder="ĐVT..." @focus="showDvtFilterDropdown = true" class="combobox-input-sm">
             <ul v-if="showDvtFilterDropdown" class="combobox-list">
               <li @click="selectDvtFilter(null)">-- Tất cả ĐVT --</li>
               <li v-for="dvt in filteredDvtFilterList" :key="dvt.ma_don_vi_tinh" @click="selectDvtFilter(dvt)">{{ dvt.ten_don_vi_tinh }}</li>
@@ -223,14 +226,15 @@
           </div>
 
           <div class="combobox-wrapper" style="flex: 1; min-width: 150px;">
-            <input type="text" v-model="userFilterSearchText" placeholder="👤 Người sửa..." @focus="showUserFilterDropdown = true" class="combobox-input-sm">
+            <User class="combobox-icon" size="16" />
+            <input type="text" v-model="userFilterSearchText" placeholder="Người sửa..." @focus="showUserFilterDropdown = true" class="combobox-input-sm">
             <ul v-if="showUserFilterDropdown" class="combobox-list">
               <li @click="selectUserFilter(null)">-- Tất cả người sửa --</li>
               <li v-for="user in filteredUserFilterList" :key="user" @click="selectUserFilter(user)">{{ user }}</li>
             </ul>
           </div>
           
-          <button @click="resetFilters" class="btn-cancel" style="padding: 0 15px; height: 36px; background: #95a5a6; color: white; border: none; font-size: 13px;">🧹 Xóa lọc</button>
+          <button @click="resetFilters" class="btn-cancel" style="padding: 0 15px; height: 36px; background: #95a5a6; color: white; border: none; font-size: 13px;"><Eraser size="1" /> Xóa lọc</button>
         </div>
 
         <!-- Pagination Controls -->
@@ -253,7 +257,7 @@
           Không tìm thấy chi tiết hàng hóa nào phù hợp với bộ lọc hiện tại.
         </div>
         <div v-else-if="listDetails.length === 0" style="text-align: center; padding: 30px; color: #e74c3c; font-weight: bold; background: #fefefe; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px;">
-          ⚠️ Lô hàng chưa có chi tiết hàng hóa. Vui lòng thêm ít nhất 1 mục!
+          <TriangleAlert size="16"/> Lô hàng chưa có chi tiết hàng hóa. Vui lòng thêm ít nhất 1 mục!
         </div>
 
         <table class="detail-table" style="width: 100%; border-collapse: collapse;">
@@ -295,7 +299,7 @@
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button class="btn-cancel" @click="activeTab = 'info'" type="button" style="background: #95a5a6; color: white; border: none;">⬅ Quay lại</button>
           <button v-if="canPerformSave" class="btn-save" @click="handleSaveAll" :disabled="isSaving || !canPerformSave" style="margin-left: 10px;">
-            {{ isSaving ? 'Đang xử lý...' : 'HOÀN TẤT & ĐÓNG 💾' }}
+            {{ isSaving ? 'Đang xử lý...' : 'HOÀN TẤT & ĐÓNG' }}
           </button>
         </div>
       </div>
@@ -325,8 +329,8 @@
                   <td style="padding: 12px; font-weight: bold; color: #2980b9;">{{ bk.so_booking }}</td>
                   <td>{{ bk.ten_con_tau }} / {{ bk.so_chuyen }}</td>
                   <td style="text-align: center; width: 180px;">
-                    <button type="button" @click="previewBooking = bk" class="view-btn" style="margin-right: 5px;">👁️ Xem trước</button>
-                    <button type="button" @click="selectBooking(bk)" class="btn-save" style="font-size: 13px; height: auto;">✅ Chọn</button>
+                    <button type="button" @click="previewBooking = bk" class="view-btn" style="margin-right: 5px;">Xem trước</button>
+                    <button type="button" @click="selectBooking(bk)" class="btn-save" style="font-size: 13px; height: auto;">Chọn</button>
                   </td>
                 </tr>
               </tbody>
@@ -335,7 +339,7 @@
 
           <!-- Panel xem chi tiết bên phải (Chỉ hiện khi nhấn Xem trước) -->
           <div v-if="previewBooking" class="side-panel-booking" style="position: static; width: 350px; border: 1px solid #3498db;">
-            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📋 Chi tiết: {{ previewBooking.so_booking }}</h4>
+            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;"><Notebook size="16" /> Chi tiết: {{ previewBooking.so_booking }}</h4>
             <div class="info-row"><span>Số Booking:</span> <strong>{{ previewBooking.so_booking }}</strong></div>
             <div class="info-row"><span>Hãng tàu:</span> <strong>{{ previewBooking.ten_hang_tau || 'N/A' }}</strong></div>
             <div class="info-row"><span>Tên tàu:</span> <strong>{{ previewBooking.ten_con_tau }}</strong></div>
@@ -360,6 +364,7 @@
 import { ref, onMounted, nextTick, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Package ,Search, NotebookText, Notebook, TriangleAlert, Folder, Ruler, User, Eraser, X, Check,} from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
