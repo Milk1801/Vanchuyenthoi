@@ -4,16 +4,19 @@
     
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
       <div class="search-box" style="flex: 1; min-width: 250px;">
+        <Search size="16" class="search-icon" />
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="🔍 Tìm số Booking, Tên tàu, Số chuyến..."
+          placeholder="Tìm số Booking, Tên tàu, Số chuyến..."
+          class="search-input"
           style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc;"
         >
       </div>
 
       <div class="combobox-wrapper" style="width: 180px;">
-        <input type="text" v-model="htSearchText" placeholder="🚢 Chọn Hãng tàu..." @focus="showHtDropdown = true" class="combobox-input">
+        <Anchor class="combobox-icon" size="16" />
+        <input type="text" v-model="htSearchText" placeholder="Chọn Hãng tàu..." @focus="showHtDropdown = true" class="combobox-input-sm">
         <ul v-if="showHtDropdown" class="combobox-list">
           <li @click="selectHangTau('ALL', 'Tất cả Hãng tàu')">Tất cả Hãng tàu</li>
           <li v-for="ht in filteredHtList" :key="ht.ma_hang_tau" @click="selectHangTau(ht.ma_hang_tau, ht.ten_hang_tau)">
@@ -23,7 +26,8 @@
       </div>
 
       <div class="combobox-wrapper" style="width: 180px;">
-        <input type="text" v-model="polSearchText" placeholder="🛳️ Cảng Đi..." @focus="showPolDropdown = true" class="combobox-input">
+        <Ship class="combobox-icon" size="16" />
+        <input type="text" v-model="polSearchText" placeholder="Cảng Đi..." @focus="showPolDropdown = true" class="combobox-input-sm">
         <ul v-if="showPolDropdown" class="combobox-list">
           <li @click="selectCang(null, 'Tất cả', 'pol')">Tất cả Cảng đi</li>
           <li v-for="c in filteredPolList" :key="c.ma_cang" @click="selectCang(c.ma_cang, c.ten_cang, 'pol')">
@@ -33,7 +37,8 @@
       </div>
 
       <div class="combobox-wrapper" style="width: 180px;">
-        <input type="text" v-model="podSearchText" placeholder="⛴️ Cảng Đến..." @focus="showPodDropdown = true" class="combobox-input">
+        <Ship class="combobox-icon" size="16" />
+        <input type="text" v-model="podSearchText" placeholder="Cảng Đến..." @focus="showPodDropdown = true" class="combobox-input-sm">
         <ul v-if="showPodDropdown" class="combobox-list">
           <li @click="selectCang(null, 'Tất cả', 'pod')">Tất cả Cảng đến</li>
           <li v-for="c in filteredPodList" :key="c.ma_cang" @click="selectCang(c.ma_cang, c.ten_cang, 'pod')">
@@ -47,11 +52,11 @@
         style="padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;"
         title="Xóa bộ lọc"
       >
-        🧹 Xóa lọc
+        <Eraser size="12" /> Xóa lọc
       </button>
 
       <div class="combobox-wrapper" style="width: auto;">
-        <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; transition: 0.2s; height: 40px; font-size: 13px;" title="Tùy chỉnh hiển thị cột">⚙️ Cột</button>
+        <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; transition: 0.2s; height: 40px; font-size: 13px;" title="Tùy chỉnh hiển thị cột"><Settings size="12" /> Cột</button>
         <ul v-if="showColumnDropdown" class="combobox-list" style="width: 220px; right: 0; left: auto; padding: 10px 0; display: flex; flex-direction: column;">
           <li v-for="col in columnDefinitions" :key="col.key" style="display: flex; align-items: center; gap: 10px; cursor: default; border-bottom: none; padding: 5px 15px;" @click.stop>
             <input type="checkbox" v-model="columnVisibility[col.key]" :id="'col-pop-' + col.key" style="cursor: pointer; width: 16px; height: 16px;">
