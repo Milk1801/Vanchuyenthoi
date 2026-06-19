@@ -32,7 +32,8 @@
               style="width: 100%; padding-right: 40px;"
             />
             <span @click="showPassword = !showPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 18px;">
-              {{ showPassword ? '🔓' : '🔒' }}
+              <EyeOff v-if="showPassword" />
+              <Eye v-else />
             </span>
           </div>
         </div>
@@ -48,6 +49,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { Eye, EyeOff } from 'lucide-vue-next';
 
 // Biến lưu trữ
 const email = ref('');

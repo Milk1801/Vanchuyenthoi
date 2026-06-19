@@ -27,10 +27,12 @@
         <input type="text" v-model="filters.tim_kiem" placeholder="Nhập mã lô, booking, tên hàng..." class="form-control">
       </div>
       <div>
-        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;">📊 Excel</button>
+        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;"><Search size="12" /> Tìm kiếm</button>
+        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;"><ChartColumnBig size="12" /> Excel</button>
         <button @click="printPDF" class="btn btn-warning" :disabled="isPrinting" style="background: #e67e22; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-          {{ isPrinting ? '⏳ Đang tạo PDF...' : '⬇️ Tải xuống PDF' }}
+          <HourglassIcon size="12" v-if="isPrinting"/>
+          <Download size="12" v-else/>
+          {{ isPrinting ? 'Đang tạo PDF...' : 'Tải xuống PDF' }}
         </button>
       </div>
     </div>
@@ -50,7 +52,7 @@
       </div>
       
       <div class="card" style="border-left: 5px solid #9b59b6; flex: 1.5; min-width: 220px; background: #fdfaef;">
-        <div class="card-title">🏆 Top Nhân Viên:</div>
+        <div class="card-title"><Crown size="12" /> Top Nhân Viên:</div>
         <div class="card-value" style="color: #9b59b6; font-size: 22px;">
           {{ stats.top_nhan_vien }} <span style="font-size: 14px; color: #555;">({{ stats.max_don }} đơn)</span>
         </div>
@@ -99,10 +101,10 @@
               </span>
             </td>
             <td style="padding: 12px; border-right: 1px solid #eee; text-align: center; font-size: 13px; color: #555;">
-              👤 {{ item.nguoi_xu_ly || '---' }}
+              <User size="12" /> {{ item.nguoi_xu_ly || '---' }}
             </td>
             <td style="padding: 12px; text-align: center;">
-              <button @click="openModal(item)" class="btn-xem">👁️ Xem</button>
+              <button @click="openModal(item)" class="btn-xem"><Eye size="12" /> Xem</button>
             </td>
           </tr>
         </tbody>
@@ -126,7 +128,7 @@
           </div>
 
           <div style="flex: 1;">
-            <h4 style="border-bottom: 2px solid #2980b9; padding-bottom: 5px; color: #2980b9; margin-bottom: 15px;">🚢 Thông tin vận tải</h4>
+            <h4 style="border-bottom: 2px solid #2980b9; padding-bottom: 5px; color: #2980b9; margin-bottom: 15px;"><Ship size="12" /> Thông tin vận tải</h4>
             <table class="detail-table">
               <tr><td>Hãng tàu:</td><td><strong>{{ selectedItem.ten_hang_tau || '---' }}</strong></td></tr>
               <tr><td>Vận đơn B/L:</td><td><strong>{{ selectedItem.so_van_don || '---' }}</strong></td></tr>
@@ -152,6 +154,7 @@
 import { ref, onMounted } from 'vue';
 import PDFtkvanchuyen from './PDFtkvanchuyen.vue';
 import html2pdf from 'html2pdf.js';
+import { Download, Crown, ChartColumnBig, Search, HourglassIcon, Ship, User, Eye} from 'lucide-vue-next';
 
 const isPrinting = ref(false);
 const listData = ref([]);

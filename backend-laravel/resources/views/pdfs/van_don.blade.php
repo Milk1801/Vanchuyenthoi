@@ -94,30 +94,10 @@
             font-size: 9px;
             padding-top: 5px;
         }
-
-        .watermark {
-            position: fixed;
-            top: 35%;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            opacity: 0.08;
-            font-size: 80px;
-            font-weight: bold;
-            color: #000;
-            transform: rotate(-35deg);
-            z-index: -1000;
-            line-height: 1.1;
-        }
     </style>
 </head>
 
 <body>
-
-    <div class="watermark">
-        COPY<br>
-        NON-NEGOTIABLE
-    </div>
 
 @php
     $tongKhoiLuong = $chiTietHangHoa->sum('trong_luong');

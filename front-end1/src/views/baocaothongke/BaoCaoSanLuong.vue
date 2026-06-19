@@ -16,25 +16,27 @@
         <input type="text" v-model="filters.tim_kiem" placeholder="Nhập tên khách hàng..." class="form-control">
       </div>
       <div>
-        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;">🔍 Tìm kiếm</button>
-        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;">📊 Excel</button>
+        <button @click="fetchData" class="btn btn-primary" style="margin-right: 10px;"><Search size="12" /> Tìm kiếm</button>
+        <button @click="exportExcel" class="btn btn-success" style="margin-right: 10px;"><ChartColumnBig size="12" /> Excel</button>
         <button @click="printPDF" class="btn btn-warning" :disabled="isPrinting" style="background: #f39c12; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-          {{ isPrinting ? '⏳ Đang tạo PDF...' : '⬇️ Tải xuống PDF' }}
+          <HourglassIcon v-if="isPrinting" size="12"/>
+          <Download v-else size="12"/>
+          {{ isPrinting ? 'Đang tạo PDF...' : 'Tải xuống PDF' }}
 </button>
       </div>
     </div>
 
     <div class="stats-cards" style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
       <div class="card" style="border-left: 5px solid #3498db; flex: 1; min-width: 200px;">
-        <div class="card-title">📦 Tổng Thể Tích (CBM):</div>
+        <div class="card-title"><Package size="12" /> Tổng Thể Tích (CBM):</div>
         <div class="card-value" style="color: #3498db;">{{ formatNumber(stats.tong_the_tich) }}</div>
       </div>
       <div class="card" style="border-left: 5px solid #e67e22; flex: 1; min-width: 200px;">
-        <div class="card-title">⚖️ Tổng Trọng Lượng (KGS):</div>
+        <div class="card-title"><Scale size="12" /> Tổng Trọng Lượng (KGS):</div>
         <div class="card-value" style="color: #e67e22;">{{ formatNumber(stats.tong_trong_luong) }}</div>
       </div>
       <div class="card" style="border-left: 5px solid #9b59b6; flex: 1.5; min-width: 250px; background: #fdfaef;">
-        <div class="card-title">👑 Khách Hàng VIP (Theo CBM):</div>
+        <div class="card-title"><Crown size="12" /> Khách Hàng VIP (Theo CBM):</div>
         <div class="card-value" style="color: #9b59b6; font-size: 24px;">
           {{ stats.top_khach_hang }}
           <div style="font-size: 14px; color: #555; margin-top: 5px;">{{ formatNumber(stats.max_cbm) }} CBM</div>
@@ -67,7 +69,7 @@
             <td style="padding: 12px; border-right: 1px solid #eee;">{{ formatNumber(item.tong_trong_luong) }}</td>
             <td style="padding: 12px; border-right: 1px solid #eee;">{{ formatNumber(item.tong_the_tich) }}</td>
             <td style="padding: 12px;">
-              <button @click="openModal(item)" class="btn-xem">👁️ Xem</button>
+              <button @click="openModal(item)" class="btn-xem"><Eye size="12" /> Xem</button>
             </td>
           </tr>
         </tbody>
@@ -130,6 +132,7 @@
 import { ref, onMounted, computed } from 'vue';
 import PDFtksanluong from './PDFtksanluong.vue'
 import html2pdf from 'html2pdf.js';
+import { Scale, Package, Eye, Download, Crown, ChartColumnBig, Search, HourglassIcon} from 'lucide-vue-next';
 
 const listData = ref([]);
 const stats = ref({
