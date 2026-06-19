@@ -56,8 +56,8 @@
             <td>{{ c.dia_chi  || 'Chưa cập nhật' }}</td>
             <td>{{ c.ghi_chu || 'Không có' }}</td>
             <td style="text-align: center;">
-              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/kho-cang/edit/' + c.ma_cang)" title="Sửa">✏️</button>
-              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(c.ma_cang)" title="Xóa">🗑️</button>
+              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/kho-cang/edit/' + c.ma_cang)" title="Sửa"><Pen size="16" /></button>
+              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(c.ma_cang)" title="Xóa"><Trash size="16" /></button>
             </td>
           </tr>
         </tbody>
@@ -70,6 +70,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Pen, Trash } from 'lucide-vue-next';
 
 const router = useRouter();
 const listData = ref([]);

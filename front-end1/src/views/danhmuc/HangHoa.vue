@@ -68,6 +68,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Pen, Trash } from 'lucide-vue-next';
 
 const router = useRouter();
 const listData = ref([]);
