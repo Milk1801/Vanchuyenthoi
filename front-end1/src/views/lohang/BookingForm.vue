@@ -2,7 +2,7 @@
   <div class="booking-form-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3 style="margin: 0; color: #2c3e50;">
-        {{ formData.ma_booking ? '🚢 Cập nhật Booking Note #' + formData.so_booking : '🚢 Tạo Booking Note mới' }}
+        <NotebookPen size="16" /> {{ formData.ma_booking ? 'Cập nhật Booking Note #' + formData.so_booking : 'Tạo Booking Note mới' }}
       </h3>
     </div>
 
@@ -101,7 +101,7 @@
         <div class="modal-actions" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
           <button type="button" class="btn-cancel" @click="handleCancel">Hủy bỏ</button>
           <button v-if="hasRole(3)" type="submit" class="btn-save" :disabled="isSaving">
-            {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu Booking Note 💾' }}
+            {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu Booking Note' }}
           </button>
         </div>
       </form>
@@ -113,6 +113,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { hasRole } from '../../assets/chucnang'; 
+import { NotebookPen } from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
