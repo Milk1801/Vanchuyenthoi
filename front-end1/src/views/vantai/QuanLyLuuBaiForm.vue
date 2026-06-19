@@ -26,10 +26,10 @@
               </div>
               <div style="display: flex; flex-direction: column; gap: 4px; width: 85px;">
                 <button v-if="formData.ma_lo_hang" type="button" @click="showLoHangPanel = !showLoHangPanel" class="view-btn" style="padding: 2px 10px; font-size: 11px; flex: 1; min-height: 20px; width: 100%;">
-                  {{ showLoHangPanel ? '✖ Đóng' : '👁️ Xem' }}
+                  {{ showLoHangPanel ? '✖ Đóng' : 'Xem' }}
                 </button>
                 <button v-if="hasRole(5) || (hasRole(4) && !isShipmentFinalized)" type="button" class="btn-picker" @click="isLoHangPickerOpen = true" style="padding: 2px 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 11px; flex: 1; min-height: 20px; width: 100%; display: flex; align-items: center; justify-content: center;">
-                  🔍 Chọn
+                  <Search size="12" /> Chọn
                 </button>
               </div>
             </div>
@@ -69,7 +69,7 @@
 
         <!-- Side Panel hiển thị thông tin lô hàng đã chọn -->
         <div v-if="showLoHangPanel && selectedLoHang" class="side-panel-shipment">
-          <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📦 Thông tin Lô hàng</h4>
+          <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;"><Package size="12" /> Thông tin Lô hàng</h4>
           <div class="info-row"><span>Mã lô hàng:</span> <strong>#{{ selectedLoHang.ma_lo_hang }}</strong></div>
           <div class="info-row"><span>Tên lô hàng:</span> <strong>{{ selectedLoHang.ten_lo_hang }}</strong></div>
           <div class="info-row"><span>Khách hàng:</span> <strong>{{ selectedLoHang.ten_khach_hang || 'N/A' }}</strong></div>
@@ -87,7 +87,7 @@
     <div v-if="isLoHangPickerOpen" class="modal-overlay">
       <div class="modal-content" style="max-width: 1000px; width: 95%;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-          <h3 style="margin: 0; color: #2980b9;">📦 Danh sách Lô hàng</h3>
+          <h3 style="margin: 0; color: #2980b9;"><Package size="12" /> Danh sách Lô hàng</h3>
           <button @click="isLoHangPickerOpen = false" class="close-panel-btn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
 
@@ -118,8 +118,8 @@
                   <td>{{ lh.ten_khach_hang || 'N/A' }}</td>
                   <td style="width: 150px; padding: 10px;">
                     <div style="display: flex; flex-direction: column; gap: 5px; width: 120px; margin: 0 auto;">
-                      <button type="button" @click="previewLoHang = lh" class="view-btn" style="width: 100%; font-size: 12px; padding: 6px 0;">👁️ Xem trước</button>
-                      <button type="button" @click="selectLoHang(lh)" class="btn-save" style="width: 100%; font-size: 12px; height: auto; padding: 6px 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;">✅ Chọn</button>
+                      <button type="button" @click="previewLoHang = lh" class="view-btn" style="width: 100%; font-size: 12px; padding: 6px 0;"><Eye size="12" /> Xem trước</button>
+                      <button type="button" @click="selectLoHang(lh)" class="btn-save" style="width: 100%; font-size: 12px; height: auto; padding: 6px 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;"><Check size="12" /> Chọn</button>
                     </div>
                   </td>
                 </tr>
@@ -132,7 +132,7 @@
 
           <!-- Panel xem chi tiết bên phải -->
           <div v-if="previewLoHang" class="side-panel-shipment" style="position: static; width: 350px; border: 1px solid #3498db;">
-            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">📋 Chi tiết: {{ previewLoHang.ten_lo_hang }}</h4>
+            <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2980b9;">Chi tiết: {{ previewLoHang.ten_lo_hang }}</h4>
             <div class="info-row"><span>Mã lô hàng:</span> <strong>#{{ previewLoHang.ma_lo_hang }}</strong></div>
             <div class="info-row"><span>Khách hàng:</span> <strong>{{ previewLoHang.ten_khach_hang || 'N/A' }}</strong></div>
             <div class="info-row"><span>Booking:</span> <strong>{{ previewLoHang.so_booking || 'N/A' }}</strong></div>
@@ -155,6 +155,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Package, Eye, Check, Search} from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
