@@ -26,10 +26,10 @@
 
       <div class="profile-actions">
         <button class="btn btn-edit-profile" @click="openEditModal">
-          📝 CHỈNH SỬA HỒ SƠ CÁ NHÂN
+          <Notebook size="16" /> CHỈNH SỬA HỒ SƠ CÁ NHÂN
         </button>
         <button class="btn btn-change-password" @click="openPassModal">
-          🔐 ĐỔI MẬT KHẨU TÀI KHOẢN
+          <Lock size="16" /> ĐỔI MẬT KHẨU TÀI KHOẢN
         </button>
       </div>
     </div>
@@ -92,6 +92,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { Notebook, Lock} from 'lucide-vue-next';
 
 // --- BIẾN DỮ LIỆU ---
 const userData = ref({}); 

@@ -4,79 +4,79 @@
       <div class="brand" style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
         <h3 v-show="!isSidebarCollapsed">SINCERE LOGISTICS</h3>
         <button @click="toggleSidebar" class="btn-toggle-sidebar" :title="isSidebarCollapsed ? 'Mở rộng menu' : 'Thu nhỏ menu'">
-          {{ isSidebarCollapsed ? '➡️' : '⬅️' }}
+          <ArrowBigRight v-if="isSidebarCollapsed" /><ArrowBigLeft v-else />
         </button>
       </div>
       <nav class="menu">
         <router-link to="/home" active-class="active-menu" title="Trang chủ">
-          <span>🏠</span> <span v-show="!isSidebarCollapsed">Trang chủ tổng quan</span>
+          <Home /> <span v-show="!isSidebarCollapsed">Trang chủ tổng quan</span>
         </router-link>
         
         <router-link to="/he-thong" active-class="active-menu" title="Hệ thống">
-          <span>⚙️</span> <span v-show="!isSidebarCollapsed">Quản lý hệ thống</span>
+          <Settings /> <span v-show="!isSidebarCollapsed">Quản lý hệ thống</span>
         </router-link>
         <div v-show="isHeThongRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isHeThongRoute }]">
-          <router-link to="/he-thong/tai-khoan" active-class="active-submenu">👥 Quản lý người dùng và phân quyền</router-link>
-          <router-link to="/he-thong/ho-so" active-class="active-submenu">👤 Quản lý hồ sơ cá nhân</router-link>
+          <router-link to="/he-thong/tai-khoan" active-class="active-submenu"><Users />Quản lý người dùng và phân quyền</router-link>
+          <router-link to="/he-thong/ho-so" active-class="active-submenu"><User />Quản lý hồ sơ cá nhân</router-link>
         </div>
         
         <router-link to="/danh-muc" active-class="active-menu" title="Danh mục">
-          <span>📚</span> <span v-show="!isSidebarCollapsed">Quản lý Danh mục</span>
+          <Book /> <span v-show="!isSidebarCollapsed">Quản lý Danh mục</span>
         </router-link>
         <div v-show="isDanhMucRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isDanhMucRoute }]">
-          <router-link to="/danh-muc/khach-hang" active-class="active-submenu">👤 Quản lý danh mục khách hàng</router-link>
-          <router-link to="/danh-muc/hang-tau" active-class="active-submenu">🚢 Quản lý danh mục hãng tàu</router-link>
-          <router-link to="/danh-muc/kho-cang" active-class="active-submenu">🏭 Quản lý danh mục kho cảng</router-link>
-          <router-link to="/danh-muc/hang-hoa" active-class="active-submenu">📦 Quản lý danh mục hàng hóa</router-link>
-          <router-link to="/danh-muc/hang-van-tai" active-class="active-submenu">🚚 Quản lý danh mục hãng vận tải</router-link>
-          <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu">📏 Quản lý đơn vị tính</router-link>
+          <router-link to="/danh-muc/khach-hang" active-class="active-submenu"><User />Quản lý danh mục khách hàng</router-link>
+          <router-link to="/danh-muc/hang-tau" active-class="active-submenu"><Anchor />Quản lý danh mục hãng tàu</router-link>
+          <router-link to="/danh-muc/kho-cang" active-class="active-submenu"><Warehouse />Quản lý danh mục kho cảng</router-link>
+          <router-link to="/danh-muc/hang-hoa" active-class="active-submenu"><Package />Quản lý danh mục hàng hóa</router-link>
+          <router-link to="/danh-muc/hang-van-tai" active-class="active-submenu"><Truck />Quản lý danh mục hãng vận tải</router-link>
+          <router-link to="/danh-muc/don-vi-tinh" active-class="active-submenu"><Ruler />Quản lý đơn vị tính</router-link>
         </div>
 
         <router-link to="/lo-hang" :class="['menu-item', { 'active-menu': isLoHangRoute }]" title="Lô hàng">
-          <span>📦</span> <span v-show="!isSidebarCollapsed">Quản lý lô hàng</span>
+          <Package /> <span v-show="!isSidebarCollapsed">Quản lý lô hàng</span>
         </router-link>
         <div v-show="isLoHangRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isLoHangRoute }]">
-          <router-link to="/lo-hang/booking" active-class="active-submenu">📑 Quản lý Booking Note</router-link>    
-          <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu">📦 Quản lý thông tin Lô hàng</router-link>
-          <router-link to="/lo-hang/chung-tu" active-class="active-submenu">📁 Số hoá và lưu trữ chứng từ</router-link>        
+          <router-link to="/lo-hang/booking" active-class="active-submenu"><Notebook /> Quản lý Booking Note</router-link>    
+          <router-link to="/lo-hang/thong-tin-lo-hang" active-class="active-submenu"><Package /> Quản lý thông tin Lô hàng</router-link>
+          <router-link to="/lo-hang/chung-tu" active-class="active-submenu"><Folder /> Số hoá và lưu trữ chứng từ</router-link>        
         </div>
         
         <router-link to="/van-tai" active-class="active-menu" title="Vận tải">
-          <span>🚚</span> <span v-show="!isSidebarCollapsed">Quản lý Vận tải</span>
+          <Truck /> <span v-show="!isSidebarCollapsed">Quản lý Vận tải</span>
         </router-link>
         <div v-show="isVanTaiRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isVanTaiRoute }]">
-          <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu">📑 Quản lý vận đơn</router-link>
-          <router-link to="/van-tai/thong-bao-hang-den" active-class="active-submenu">📢 Quản lý thông báo hàng đến</router-link>
-          <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu">📄 Quản lý lệnh giao hàng</router-link>
-          <router-link to="/van-tai/bien-ban-giao-nhan" active-class="active-submenu">📑 Quản lý biên bản giao nhận</router-link>
-          <router-link to="/van-tai/to-khai-hai-quan" active-class="active-submenu">🚢 Quản lý tờ khai hải quan</router-link>
-          <router-link to="/van-tai/luu-bai" active-class="active-submenu">🏢 Quản lý Lưu bãi</router-link>
+          <router-link to="/van-tai/quan-ly-van-don" active-class="active-submenu"><Notebook /> Quản lý vận đơn</router-link>
+          <router-link to="/van-tai/thong-bao-hang-den" active-class="active-submenu"><Megaphone /> Quản lý thông báo hàng đến</router-link>
+          <router-link to="/van-tai/lenh-giao-hang" active-class="active-submenu"><Notebook /> Quản lý lệnh giao hàng</router-link>
+          <router-link to="/van-tai/bien-ban-giao-nhan" active-class="active-submenu"><Notebook /> Quản lý biên bản giao nhận</router-link>
+          <router-link to="/van-tai/to-khai-hai-quan" active-class="active-submenu"><Ship /> Quản lý tờ khai hải quan</router-link>
+          <router-link to="/van-tai/luu-bai" active-class="active-submenu"><Warehouse /> Quản lý Lưu bãi</router-link>
         </div>
         
         <router-link to="/chi-phi-va-thanh-toan" active-class="active-menu" title="Chi phí">
-          <span>💰</span> <span v-show="!isSidebarCollapsed">Quản lý Chi phí</span>
+          <Wallet /> <span v-show="!isSidebarCollapsed">Quản lý Chi phí</span>
         </router-link>
         <div v-show="isChiPhiRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isChiPhiRoute }]">
-          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu">📝 Quản lý chi phí phát sinh</router-link> 
-          <router-link to="/chi-phi-va-thanh-toan/trang-thai-thanh-toan" active-class="active-submenu">✅ Quản lý trạng thái thanh toán</router-link>
+          <router-link to="/chi-phi-va-thanh-toan/chi-phi" active-class="active-submenu"><Wallet /> Quản lý chi phí phát sinh</router-link> 
+          <router-link to="/chi-phi-va-thanh-toan/trang-thai-thanh-toan" active-class="active-submenu"><Check /> Quản lý trạng thái thanh toán</router-link>
         </div>
 
         <router-link to="/bao-cao-thong-ke" active-class="active-menu" title="Báo cáo">
-          <span>📊</span> <span v-show="!isSidebarCollapsed">Báo cáo Thống kê</span>
+          <ChartColumn /> <span v-show="!isSidebarCollapsed">Báo cáo Thống kê</span>
         </router-link>
         <div v-show="isBaoCaoRoute && !isSidebarCollapsed" :class="['sub-menu-left', { 'sub-menu-left-open': isBaoCaoRoute }]">
-          <router-link to="/bao-cao-thong-ke/van-chuyen" active-class="active-submenu">📊 Báo cáo vận chuyển</router-link>
-          <router-link to="/bao-cao-thong-ke/san-luong" active-class="active-submenu">📈 Báo cáo sản lượng vận chuyển</router-link>
-          <router-link to="/bao-cao-thong-ke/booking" active-class="active-submenu">📑 Báo cáo booking</router-link>
-          <router-link to="/bao-cao-thong-ke/chi-phi-ton-dong" active-class="active-submenu">💸 Báo cáo chi phí tồn đọng</router-link>
-          <router-link to="/bao-cao-thong-ke/cuoc-vo" active-class="active-submenu">📦 Thống kê tình trạng cược vỏ</router-link>
-          <router-link to="/bao-cao-thong-ke/canh-bao-luu-bai" active-class="active-submenu">⚠️ Thống kê cảnh báo lưu bãi</router-link>
+          <router-link to="/bao-cao-thong-ke/van-chuyen" active-class="active-submenu"><ChartColumn /> Báo cáo vận chuyển</router-link>
+          <router-link to="/bao-cao-thong-ke/san-luong" active-class="active-submenu"><ChartLine /> Báo cáo sản lượng vận chuyển</router-link>
+          <router-link to="/bao-cao-thong-ke/booking" active-class="active-submenu"><Notebook /> Báo cáo booking</router-link>
+          <router-link to="/bao-cao-thong-ke/chi-phi-ton-dong" active-class="active-submenu"><Wallet /> Báo cáo chi phí tồn đọng</router-link>
+          <router-link to="/bao-cao-thong-ke/cuoc-vo" active-class="active-submenu"><Package /> Thống kê tình trạng cược vỏ</router-link>
+          <router-link to="/bao-cao-thong-ke/canh-bao-luu-bai" active-class="active-submenu"><TriangleAlert /> Thống kê cảnh báo lưu bãi</router-link>
         </div>
       </nav>
       
       <div class="logout-box">
         <button @click="handleLogout" class="btn-logout" title="Đăng xuất">
-          <span>🚪</span> <span v-show="!isSidebarCollapsed">Đăng xuất</span>
+          <span v-show="!isSidebarCollapsed">Đăng xuất</span>
         </button>
       </div>
     </aside>
@@ -103,6 +103,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { ArrowBigLeft, ArrowBigRight, Home, Settings, Book, User, Users, Anchor, Warehouse, Package, Truck, Ruler, Notebook, Folder, Ship, Megaphone, Wallet, Check, ChartColumn, ChartLine, TriangleAlert } from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
@@ -174,7 +175,7 @@ const handleLogout = () => {
 /* Sub Menu */
 .sub-menu-left { display: flex; flex-direction: column; gap: 5px; padding-left: 20px; margin-top: 0; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; }
 .sub-menu-left-open { max-height: 450px; opacity: 1; }
-.sub-menu-left a { color: #fff; background: #2c3e50; border: 1px solid #2c3e50; border-left: 4px solid transparent; border-radius: 5px; padding: 8px 15px; font-size: 13px; text-decoration: none; transition: 0.2s; display: flex; align-items: center; }
+.sub-menu-left a { color: #fff; background: #2c3e50; border: 1px solid #2c3e50; border-left: 4px solid transparent; border-radius: 5px; padding: 8px 15px; font-size: 13px; text-decoration: none; transition: 0.2s; display: flex; align-items: flex-start; gap: 8px; white-space: normal; line-height: 1.4; }
 .sub-menu-left a:hover { background: #34495e; color: #fff; border-left-color: transparent; }
 .active-submenu { background: #34495e !important; color: #f1c40f !important; font-weight: 700; border-left-color: #f1c40f !important; }
 .active-submenu:hover { background: #34495e; color: #f1c40f !important; }
