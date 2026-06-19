@@ -5,45 +5,50 @@
     <div class="toolbar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
       <!-- Đầu vào tìm kiếm theo chữ -->
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; width: 100%;">
-        <input type="text" v-model="searchSoVanDon" placeholder="🔍 Số Vận Đơn / Mã..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
-        <input type="text" v-model="searchSoVanDonGoc" placeholder="🔍 Số Vận Đơn Gốc..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
-        <input type="text" v-model="searchTenLoHang" placeholder="🔍 Tên Lô Hàng..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
-        <input type="text" v-model="searchSoCont" placeholder="🔍 Số Container..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
-        <input type="text" v-model="searchSoChi" placeholder="🔍 Số Chì..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
+        <input type="text" v-model="searchSoVanDon" placeholder="Số Vận Đơn / Mã..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
+        <input type="text" v-model="searchSoVanDonGoc" placeholder="Số Vận Đơn Gốc..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
+        <input type="text" v-model="searchTenLoHang" placeholder="Tên Lô Hàng..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
+        <input type="text" v-model="searchSoCont" placeholder="Số Container..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
+        <input type="text" v-model="searchSoChi" placeholder="Số Chì..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px;">
       </div>
 
       <!-- Combobox tìm kiếm -->
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; width: 100%;">
         <div class="combobox-wrapper">
-          <input type="text" v-model="loaiVDSearchText" placeholder="📄 Loại B/L..." @focus="showLoaiVDDropdown = true" class="combobox-input-sm">
+          <Notebook size="16" class="combobox-icon" />
+          <input type="text" v-model="loaiVDSearchText" placeholder="Loại B/L..." @focus="showLoaiVDDropdown = true" class="combobox-input-sm">
           <ul v-if="showLoaiVDDropdown" class="combobox-list">
             <li @click="selectSearchLoai('ALL')">-- Tất cả loại B/L --</li>
             <li v-for="t in filteredLoaiVDList" :key="t" @click="selectSearchLoai(t)">{{t}}</li>
           </ul>
         </div>
         <div class="combobox-wrapper">
-          <input type="text" v-model="polSearchText" placeholder="⚓ Cảng Đi (POL)..." @focus="showPolDropdown = true" class="combobox-input-sm">
+          <Anchor size="16" class="combobox-icon" />
+          <input type="text" v-model="polSearchText" placeholder="Cảng Đi (POL)..." @focus="showPolDropdown = true" class="combobox-input-sm">
           <ul v-if="showPolDropdown" class="combobox-list">
             <li @click="selectSearchCang(null, 'pol')">-- Tất cả cảng --</li>
             <li v-for="c in filteredPol" :key="c.ma_cang" @click="selectSearchCang(c, 'pol')">{{c.ten_cang}}</li>
           </ul>
         </div>
         <div class="combobox-wrapper">
-          <input type="text" v-model="podSearchText" placeholder="⚓ Cảng Đến (POD)..." @focus="showPodDropdown = true" class="combobox-input-sm">
+          <Anchor size="16" class="combobox-icon" />
+          <input type="text" v-model="podSearchText" placeholder="Cảng Đến (POD)..." @focus="showPodDropdown = true" class="combobox-input-sm">
           <ul v-if="showPodDropdown" class="combobox-list">
             <li @click="selectSearchCang(null, 'pod')">-- Tất cả cảng --</li>
             <li v-for="c in filteredPod" :key="c.ma_cang" @click="selectSearchCang(c, 'pod')">{{c.ten_cang}}</li>
           </ul>
         </div>
         <div class="combobox-wrapper">
-          <input type="text" v-model="shipperSearchText" placeholder="👤 Người Gửi (Shipper)..." @focus="showShipperDropdown = true" class="combobox-input-sm">
+          <User size="16" class="combobox-icon" />
+          <input type="text" v-model="shipperSearchText" placeholder="Người Gửi (Shipper)..." @focus="showShipperDropdown = true" class="combobox-input-sm">
           <ul v-if="showShipperDropdown" class="combobox-list">
             <li @click="selectSearchKh(null, 'shipper')">-- Tất cả --</li>
             <li v-for="kh in filteredShippers" :key="kh.ma_khach_hang" @click="selectSearchKh(kh, 'shipper')">{{kh.ten_khach_hang}}</li>
           </ul>
         </div>
         <div class="combobox-wrapper">
-          <input type="text" v-model="consigneeSearchText" placeholder="👤 Người Nhận (Consignee)..." @focus="showConsigneeDropdown = true" class="combobox-input-sm">
+          <User size="16" class="combobox-icon" />
+          <input type="text" v-model="consigneeSearchText" placeholder="Người Nhận (Consignee)..." @focus="showConsigneeDropdown = true" class="combobox-input-sm">
           <ul v-if="showConsigneeDropdown" class="combobox-list">
             <li @click="selectSearchKh(null, 'consignee')">-- Tất cả --</li>
             <li v-for="kh in filteredConsignees" :key="kh.ma_khach_hang" @click="selectSearchKh(kh, 'consignee')">{{kh.ten_khach_hang}}</li>
@@ -53,7 +58,8 @@
 
       <div style="display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap;">
         <div class="combobox-wrapper" style="width: 200px;">
-          <input type="text" v-model="notifySearchText" placeholder="👤 Bên Thông Báo..." @focus="showNotifyDropdown = true" class="combobox-input-sm">
+          <User size="16" class="combobox-icon" />
+          <input type="text" v-model="notifySearchText" placeholder="Bên Thông Báo..." @focus="showNotifyDropdown = true" class="combobox-input-sm">
           <ul v-if="showNotifyDropdown" class="combobox-list">
             <li @click="selectSearchKh(null, 'notify')">-- Tất cả --</li>
             <li v-for="kh in filteredNotify" :key="kh.ma_khach_hang" @click="selectSearchKh(kh, 'notify')">{{kh.ten_khach_hang}}</li>
@@ -64,7 +70,8 @@
           <input type="date" v-model="filterNgayPH" style="padding: 0; border: none; outline: none; font-size: 13px;">
         </div>
         <div class="combobox-wrapper" style="width: 180px;">
-          <input type="text" v-model="userSearchText" placeholder="👤 Người Sửa..." @focus="showUserDropdown = true" class="combobox-input-sm">
+          <User size="16" class="combobox-icon" />
+          <input type="text" v-model="userSearchText" placeholder="Người Sửa..." @focus="showUserDropdown = true" class="combobox-input-sm">
           <ul v-if="showUserDropdown" class="combobox-list">
             <li @click="selectSearchUser(null)">-- Tất cả --</li>
             <li v-for="u in filteredUsers" :key="u" @click="selectSearchUser(u)">{{u}}</li>
@@ -72,7 +79,7 @@
         </div>
         <div style="flex: 1;"></div>
         <div class="combobox-wrapper" style="width: auto;">
-          <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s; height: 36px; font-size: 13px;" title="Tùy chỉnh hiển thị cột">⚙️ Cột</button>
+          <button @click="showColumnDropdown = !showColumnDropdown" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s; height: 36px; font-size: 13px;" title="Tùy chỉnh hiển thị cột"><Settings size="12" /> Cột</button>
           <ul v-if="showColumnDropdown" class="combobox-list" style="width: 220px; right: 0; left: auto; padding: 10px 0; display: flex; flex-direction: column;">
             <li v-for="(col, key) in columnVisibility" :key="key" style="display: flex; align-items: center; gap: 10px; cursor: default; border-bottom: none; padding: 5px 15px;" @click.stop>
               <input type="checkbox" v-model="col.visible" :id="'col-pop-' + key" style="cursor: pointer; width: 16px; height: 16px;">
@@ -80,7 +87,7 @@
             </li>
           </ul>
         </div>
-        <button @click="resetFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s; height: 36px; font-size: 13px;">🧹 Xóa lọc</button>
+        <button @click="resetFilters" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; transition: 0.2s; height: 36px; font-size: 13px;"><Eraser size="12"/> Xóa lọc</button>
         <button v-if="hasRole(1)" class="btn btn-success" @click="router.push('/van-tai/quan-ly-van-don/add')" style="border-radius: 6px; height: 36px; padding: 0 15px; font-size: 13px;">+ TẠO VẬN ĐƠN</button>
       </div>
     </div>
@@ -161,9 +168,9 @@
                 <td v-if="columnVisibility.nguoi_sua_doi.visible">{{ vd.nguoi_sua_doi || 'N/A' }}</td>
                 <td class="sticky-col-right" style="text-align: center;">
                   <div style="display: flex; gap: 2px; justify-content: center;">
-                    <button class="action-btn-no-mg text-warning" @click="handlePrintPDF(vd.ma_van_don)" title="Xuất PDF">🖨️</button>
-                    <button v-if="hasRole(1)" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/quan-ly-van-don/edit/' + vd.ma_van_don)" title="Sửa">✏️</button>
-                    <button v-if="hasRole(1)" class="action-btn-no-mg text-danger" @click="handleDelete(vd.ma_van_don)" title="Xóa">🗑️</button>
+                    <button class="action-btn-no-mg text-warning" @click="handlePrintPDF(vd.ma_van_don)" title="Xuất PDF"><Download size="16" /></button>
+                    <button v-if="hasRole(1)" class="action-btn-no-mg text-primary" @click="router.push('/van-tai/quan-ly-van-don/edit/' + vd.ma_van_don)" title="Sửa"><Pen size="16" /></button>
+                    <button v-if="hasRole(1)" class="action-btn-no-mg text-danger" @click="handleDelete(vd.ma_van_don)" title="Xóa"><Trash size="16" /></button>
                   </div>
                 </td>
               </tr>
@@ -180,7 +187,7 @@
 
     <!-- Tooltip hiển thị thông tin lô hàng khi hover -->
     <div v-if="tooltipShipment" class="shipment-tooltip" :style="{ top: tooltipPos.y + 'px', left: tooltipPos.x + 'px' }">
-      <div class="tooltip-header">📦 Thông tin lô hàng</div>
+      <div class="tooltip-header"><Package size="12" /> Thông tin lô hàng</div>
       <div class="tooltip-content">
         <div><strong>Mã:</strong> <span>#{{ tooltipShipment.ma_lo_hang }}</span></div>
         <div><strong>Tên:</strong> <span>{{ tooltipShipment.ten_lo_hang }}</span></div>
@@ -197,6 +204,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { Package, Anchor, Download, Pen, Trash, Eraser, Settings, User, Notebook} from 'lucide-vue-next';
 
 const router = useRouter();
 const listVanDon = ref([]);
