@@ -2,7 +2,7 @@
   <div class="tai-khoan-form-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3 style="margin: 0; color: #2c3e50;">
-        {{ formData.ma_tai_khoan ? '👤 Cập nhật tài khoản #' + formData.ma_tai_khoan : '👤 Thêm tài khoản mới' }}
+        <User size="16"/> {{ formData.ma_tai_khoan ? 'Cập nhật tài khoản #' + formData.ma_tai_khoan : 'Thêm tài khoản mới' }}
       </h3>
     </div>
 
@@ -44,7 +44,7 @@
         <div class="modal-actions" style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
           <button type="button" class="btn-cancel" @click="handleCancel">Quay lại</button>
           <button v-if="hasRole(5)" type="submit" class="btn-save" :disabled="isSaving">
-             {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu 💾' }}
+             {{ isSaving ? 'Đang lưu...' : 'Lưu dữ liệu' }}
           </button>
         </div>
       </form>
@@ -56,6 +56,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { User} from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
