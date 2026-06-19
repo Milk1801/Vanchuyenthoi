@@ -49,8 +49,8 @@
             <td>{{ d.ma_don_vi_tinh }}</td>
             <td>{{ d.ten_don_vi_tinh }}</td>
             <td style="text-align: center;">
-              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/don-vi-tinh/edit/' + d.ma_don_vi_tinh)" title="Sửa"><Pen size={16} /></button>
-              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(d.ma_don_vi_tinh)" title="Xóa"><Trash size={16} /></button>
+              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/don-vi-tinh/edit/' + d.ma_don_vi_tinh)" title="Sửa"><Pen size="16" /></button>
+              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(d.ma_don_vi_tinh)" title="Xóa"><Trash size="16" /></button>
             </td>
           </tr>
         </tbody>

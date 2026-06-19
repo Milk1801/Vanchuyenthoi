@@ -17,7 +17,8 @@
           <input type="text" v-model="searchFilters.so_fax" placeholder="Tìm theo fax...">
         </div>
         <div class="combobox-wrapper" style="flex:1 1 220px; min-width:200px;">
-          <input type="text" v-model="userSearchText" placeholder="👤 Người sửa cuối..." @focus="showUserDropdown = true" class="combobox-input-sm">
+          <User class="combobox-icon" size="16" />
+          <input type="text" v-model="userSearchText" placeholder="Người sửa cuối..." @focus="showUserDropdown = true" class="combobox-input-sm">
           <ul v-if="showUserDropdown" class="combobox-list">
             <li @click="selectSearchUser(null)">-- Tất cả người sửa --</li>
             <li v-for="acc in filteredAccountOptions" :key="acc.ma_tai_khoan" @click="selectSearchUser(acc)">{{ acc.ho_ten }}</li>
@@ -76,8 +77,8 @@
             <td>{{ ht.nguoi_sua_doi || 'N/A' }}</td>
             <td style="text-align: center;">
               <div v-if="hasRole(1)" style="display: flex; gap: 8px; justify-content: center;">
-                <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-tau/edit/' + ht.ma_hang_tau)" title="Sửa">✏️</button>
-                <button class="action-btn text-danger" @click="handleDelete(ht.ma_hang_tau)" title="Xóa">🗑️</button>
+                <button class="action-btn text-primary" @click="router.push('/danh-muc/hang-tau/edit/' + ht.ma_hang_tau)" title="Sửa"><Pen size="16" /></button>
+                <button class="action-btn text-danger" @click="handleDelete(ht.ma_hang_tau)" title="Xóa"><Trash size="16" /></button>
               </div>
               <span v-else style="color: #95a5a6; font-size: 12px; font-style: italic;">Chỉ xem</span>
             </td>
@@ -92,6 +93,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { hasRole } from '../../assets/chucnang';
+import { User, Pen, Trash } from "lucide-vue-next";
 
 const router = useRouter();
 const listData = ref([]);
