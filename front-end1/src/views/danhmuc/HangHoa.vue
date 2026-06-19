@@ -54,8 +54,8 @@
             <td>{{ h.ten_hang_hoa }}</td>
             <td>{{ h.hs_code || '-' }}</td>
             <td style="text-align: center;">
-              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/hang-hoa/edit/' + h.ma_hang_hoa)" title="Sửa"><Pen size={16} /></button>
-              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(h.ma_hang_hoa)" title="Xóa"><Trash size={16} /></button>
+              <button v-if="hasRole(4)" class="action-btn text-primary" @click="router.push('/danh-muc/hang-hoa/edit/' + h.ma_hang_hoa)" title="Sửa"><Pen size="16" /></button>
+              <button v-if="hasRole(4)" class="action-btn text-danger" @click="handleDelete(h.ma_hang_hoa)" title="Xóa"><Trash size="16" /></button>
             </td>
           </tr>
         </tbody>
