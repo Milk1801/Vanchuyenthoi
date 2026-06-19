@@ -5,14 +5,14 @@
     <div class="toolbar" style="display: flex; gap: 15px; flex-wrap: nowrap; margin-bottom: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; position: relative;">
       
       <div class="search-box" style="flex: 1; min-width: 180px;">
-        <input type="text" v-model="searchQuery" placeholder="🔍 Tên lô, Booking, Vận đơn, Số Cont..." style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; height: 40px;">
+        <input type="text" v-model="searchQuery" placeholder="Tên lô, Booking, Vận đơn, Số Cont..." style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; height: 40px;">
       </div>
 
       <div class="filter-box" style="min-width: 140px; flex-shrink: 0;">
         <select v-model="filterStatus" style="width: 100%; padding: 0 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; cursor: pointer; background-color: #fff; box-sizing: border-box; height: 40px;">
-          <option value="">📋 Tất cả</option>
-          <option value="hoantat">✅ Đã hoàn tất</option>
-          <option value="chuahoantat">⏳ Chưa xong</option>
+          <option value="">Tất cả</option>
+          <option value="hoantat">Đã hoàn tất</option>
+          <option value="chuahoantat">Chưa xong</option>
         </select>
       </div>
 
@@ -30,7 +30,7 @@
         
         <div style="position: relative;">
           <button @click="showColumnMenu = !showColumnMenu" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #2c3e50;" title="Tùy chỉnh cột hiển thị">
-            ⚙️ Cột hiển thị
+            <Settings size="16" /> Cột hiển thị
           </button>
           
           <div v-if="showColumnMenu" class="column-dropdown">
@@ -45,9 +45,9 @@
         </div>
         <div v-if="showColumnMenu" @click="showColumnMenu = false" class="invisible-backdrop"></div>
 
-        <button @click="clearFilters()" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;" title="Xóa bộ lọc">❌</button>
+        <button @click="clearFilters()" class="btn-clear" style="height: 40px; padding: 0 15px; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;" title="Xóa bộ lọc"><Eraser size="16" /></button>
         <button v-if="hasRole([3, 5])" class="btn btn-success" @click="openModal()" style="height: 40px; border-radius: 6px; padding: 0 20px; background: #2ecc71; color: white; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
-          ➕ THÊM MỚI D/O
+          THÊM MỚI D/O
         </button>
       </div>
     </div>
@@ -100,7 +100,7 @@
             
             <td v-if="visibleColumns.trangThai" style="padding: 12px 15px; text-align: center;">
               <span class="badge" :class="checkIsHoanTat(item) ? 'badge-success' : 'badge-warning'">
-                {{ checkIsHoanTat(item) ? '✅ Hoàn tất' : '⏳ Chưa xong' }}
+                {{ checkIsHoanTat(item) ? 'Hoàn tất' : 'Chưa xong' }}
               </span>
             </td>
 
@@ -125,9 +125,9 @@
             <td v-if="visibleColumns.ngayPhatHanh" style="padding: 12px 15px;">{{ formatDateTime(item.ngay_phat_hanh) }}</td>
             
             <td style="padding: 12px 15px; text-align: center; white-space: nowrap;">
-              <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF">🖨️</button>
-              <button  v-if="hasRole([3, 5])" @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa">✏️</button>
-              <button  v-if="hasRole([3, 5])" @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa">🗑️</button>
+              <button @click="downloadPDF(item.ma_phieu)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Xuất PDF"><Download size="16" /></button>
+              <button  v-if="hasRole([3, 5])" @click="openModal(item)" style="margin-right: 10px; cursor: pointer; border: none; background: none; font-size: 16px;" title="Sửa"><Pen size="16" /></button>
+              <button  v-if="hasRole([3, 5])" @click="handleDelete(item.ma_phieu)" style="cursor: pointer; border: none; background: none; font-size: 16px;" title="Xóa"><Trash size="16" /></button>
             </td>
           </tr>
         </tbody>
@@ -213,6 +213,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // Đảm bảo có dòng này
+import { Pen, Trash, Download, Settings, Eraser } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();

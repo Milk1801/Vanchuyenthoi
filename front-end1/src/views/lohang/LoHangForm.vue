@@ -370,7 +370,6 @@ const router = useRouter();
 const route = useRoute();
 const activeTab = ref('info');
 const isSaving = ref(false);
-const isSavingDetail = ref(false);
 const isDetailFormVisible = ref(false);
 const editingIndex = ref(-1);
 const originalStatus = ref('');
